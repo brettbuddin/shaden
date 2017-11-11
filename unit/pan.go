@@ -1,0 +1,33 @@
+package unit
+
+import "buddin.us/lumen/dsp"
+
+func newPan(name string, _ Config) (*Unit, error) {
+	io := NewIO()
+	return NewUnit(io, name, &pan{
+		in:  io.NewIn("in", dsp.Float64(0)),
+		pan: io.NewIn("pan", dsp.Float64(0)),
+		a:   io.NewOut("a"),
+		b:   io.NewOut("b"),
+	}), nil
+}
+
+type pan struct {
+	in, pan *In
+	a, b    *Out
+}
+
+func (p *pan) ProcessSample(i int) {
+	pan := p.pan.Read(i)
+	in := p.in.Read(i)
+	if pan > 0 {
+		p.a.Write(i, (1-pan)*in)
+		p.b.Write(i, in)
+	} else if pan < 0 {
+		p.a.Write(i, in)
+		p.b.Write(i, (1+pan)*in)
+	} else {
+		p.a.Write(i, in)
+		p.b.Write(i, in)
+	}
+}
