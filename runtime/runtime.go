@@ -38,7 +38,7 @@ func New(e Engine, logger *log.Logger) (*Runtime, error) {
 		engine: e,
 		logger: logger,
 	}
-	if err := loadLumen(r); err != nil {
+	if err := loadShaden(r); err != nil {
 		return nil, err
 	}
 	return r, nil
@@ -66,7 +66,7 @@ func (r *Runtime) REPL() {
 		},
 		prompt.OptionPrefixTextColor(prompt.DefaultColor),
 		prompt.OptionPrefix("> "),
-		prompt.OptionTitle("lumen"),
+		prompt.OptionTitle("shaden"),
 	).Run()
 }
 
@@ -102,7 +102,7 @@ func (r *Runtime) Load(path string) error {
 	return nil
 }
 
-func loadLumen(r *Runtime) error {
+func loadShaden(r *Runtime) error {
 	env := r.base
 
 	loadConstants(env)

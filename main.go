@@ -33,7 +33,7 @@ func main() {
 
 func run(args []string) error {
 	var (
-		set                  = flag.NewFlagSet("lumen", flag.ContinueOnError)
+		set                  = flag.NewFlagSet("shaden", flag.ContinueOnError)
 		seed                 = set.Int64("seed", 0, "random seed")
 		deviceList           = set.Bool("device-list", false, "list all devices")
 		deviceIn             = set.Int("device-in", 0, "input device")
