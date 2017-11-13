@@ -43,6 +43,7 @@
 
 (define clock (unit/clock))
 (define kick (make-drum))
+(define gain (unit/mult))
 
 ((:set kick) 
   (table :gain 1
@@ -58,4 +59,6 @@
          :noise-cutoff-high (hz 2500)
          :trigger (<- clock)))
 
-(emit ((:out kick)))
+(-> gain (table :x ((:out kick)) :y (db -6)))
+
+(emit (<- gain))

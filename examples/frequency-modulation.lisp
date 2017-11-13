@@ -10,6 +10,7 @@
 
 (-> carrier 
     (table :freq (hz 300) 
-           :freq-mod (<- modulator :sine)))
+           :freq-mod (<- modulator :sine)
+           :amp (db -6)))
 
 (emit (<- carrier :sine))

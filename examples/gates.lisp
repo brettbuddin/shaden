@@ -43,6 +43,7 @@
            :pulse-width (<- pulse-width)))
 
 (-> mix
+    (table :master (db -12))
     (list
       (table :in (<- oscillator :pulse))
       (table :in (<- oscillator :saw) :level (db -6))
