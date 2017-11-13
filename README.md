@@ -53,7 +53,7 @@ On macOS you can install these dependencies with: `brew install go portaudio por
     $ lumen -repl
     > (define gen (unit/gen))
     > (-> gen (table :freq (hz 300)))
-    > (emit (<- gen))
+    > (emit (<- gen :sine))
 
 #### Load File
 
