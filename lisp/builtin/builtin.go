@@ -85,8 +85,8 @@ func Load(env *lisp.Environment) {
 }
 
 func evalFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.New("eval expects 1 argument")
+	if err := checkArityEqual(args, "eval", 1); err != nil {
+		return nil, err
 	}
 	v, err := env.Eval(args[0])
 	if err != nil {
@@ -96,8 +96,8 @@ func evalFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.New("read expects 1 argument")
+	if err := checkArityEqual(args, "read", 1); err != nil {
+		return nil, err
 	}
 	v, err := env.Eval(args[0])
 	if err != nil {
@@ -105,7 +105,7 @@ func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 	str, ok := v.(string)
 	if !ok {
-		return nil, errors.New("read expects string for argument 1")
+		return nil, argExpectError("read", "string", 1)
 	}
 	node, err := lisp.Parse(bytes.NewBufferString(str))
 	if err != nil {
@@ -115,8 +115,8 @@ func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if len(args) < 2 {
-		return nil, errors.New("define expects at least 2 arguments")
+	if err := checkArityAtLeast(args, "define", 2); err != nil {
+		return nil, err
 	}
 
 	switch v := args[0].(type) {
@@ -138,13 +138,13 @@ func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		env.DefineSymbol(string(name), fn)
 		return nil, nil
 	default:
-		return nil, errors.New("define expects symbol or list for argument 1")
+		return nil, argExpectError("define", "symbol or list", 1)
 	}
 }
 
 func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if len(args) < 2 {
-		return nil, errors.New("define-macro expects at least 2 arguments")
+	if err := checkArityAtLeast(args, "define-macro", 2); err != nil {
+		return nil, err
 	}
 
 	switch v := args[0].(type) {
@@ -169,17 +169,17 @@ func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		env.DefineSymbol(string(name), fn)
 		return nil, nil
 	default:
-		return nil, errors.New("define expects symbol or list for argument 1")
+		return nil, argExpectError("define-macro", "list", 1)
 	}
 }
 
 func setFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if len(args) != 2 {
-		return nil, errors.New("set expects 2 arguments")
+	if err := checkArityEqual(args, "set", 2); err != nil {
+		return nil, err
 	}
 	symbol, ok := args[0].(lisp.Symbol)
 	if !ok {
-		return nil, errors.New("set expects symbol for argument 1")
+		return nil, argExpectError("set", "symbol", 1)
 	}
 	value, err := env.Eval(args[1])
 	if err != nil {
@@ -189,12 +189,12 @@ func setFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func undefineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.New("undef expects 1 argument")
+	if err := checkArityEqual(args, "undefine", 1); err != nil {
+		return nil, err
 	}
 	symbol, ok := args[0].(lisp.Symbol)
 	if !ok {
-		return nil, errors.New("undef expects symbol for argument 1")
+		return nil, argExpectError("undefine", "symbol", 1)
 	}
 	env.UnsetSymbol(string(symbol))
 	return nil, nil
@@ -208,7 +208,7 @@ func printlnFn(args lisp.List) (interface{}, error) {
 func printfFn(args lisp.List) (interface{}, error) {
 	format, ok := args[0].(string)
 	if !ok {
-		return nil, errors.New("printf expects string for argument 1")
+		return nil, argExpectError("printf", "string", 1)
 	}
 	fmt.Printf(format, args[1:]...)
 	return nil, nil
@@ -217,7 +217,7 @@ func printfFn(args lisp.List) (interface{}, error) {
 func sprintfFn(args lisp.List) (interface{}, error) {
 	format, ok := args[0].(string)
 	if !ok {
-		return nil, errors.New("sprintf expects string for argument 1")
+		return nil, argExpectError("sprintf", "string", 1)
 	}
 	return fmt.Sprintf(format, args[1:]...), nil
 }
