@@ -25,9 +25,9 @@ On macOS you can install these dependencies with: `brew install go portaudio por
 
 ### Install
 
-    $ go get -u buddin.us/lumen
-	$ lumen -h
-	Usage of lumen:
+    $ go get -u buddin.us/shaden
+	$ shaden -h
+	Usage of shaden:
   	-addr string
         	http address to serve (default ":5000")
   	-device-frame int
@@ -50,18 +50,18 @@ On macOS you can install these dependencies with: `brew install go portaudio por
 
 #### REPL
 
-    $ lumen -repl
+    $ shaden -repl
     > (define gen (unit/gen))
     > (-> gen (table :freq (hz 300)))
     > (emit (<- gen :sine))
 
 #### Load File
 
-    $ lumen examples/frequency-modulation.lisp
+    $ shaden examples/frequency-modulation.lisp
 
 #### HTTP
 
-    $ lumen
+    $ shaden
     $ curl -X POST http://127.0.0.1:5000/eval -d "(define source (unit/gen)) ; ..."
 
 This is my preferred way of interacting with the synthesizer. I've written a small Vim plugin that can send over
