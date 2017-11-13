@@ -5,9 +5,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/graph"
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/graph"
+	"buddin.us/shaden/unit"
 )
 
 // Clear is an action that resets the Engine's state.

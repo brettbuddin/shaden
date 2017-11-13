@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 func newFilter(name string, c Config) (*Unit, error) {

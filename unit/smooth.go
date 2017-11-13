@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 func newSmooth(name string, _ Config) (*Unit, error) {

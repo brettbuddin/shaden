@@ -3,9 +3,9 @@ package engine
 import (
 	"testing"
 
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/graph"
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/graph"
+	"buddin.us/shaden/unit"
 	"github.com/stretchr/testify/require"
 )
 

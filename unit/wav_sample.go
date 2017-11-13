@@ -1,8 +1,8 @@
 package unit
 
 import (
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/wav"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/wav"
 )
 
 func newWAVSample(name string, c Config) (*Unit, error) {

@@ -1,6 +1,6 @@
 package unit
 
-import "buddin.us/lumen/dsp"
+import "buddin.us/shaden/dsp"
 
 func newDecimate(name string, _ Config) (*Unit, error) {
 	io := NewIO()

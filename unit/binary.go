@@ -3,7 +3,7 @@ package unit
 import (
 	"math"
 
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 func newBinary(name string, op binaryOp) BuildFunc {

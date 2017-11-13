@@ -1,4 +1,4 @@
-// lumen is a modular synthesizer.
+// shaden is a modular synthesizer.
 package main
 
 import (
@@ -18,10 +18,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rakyll/portmidi"
 
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/engine"
-	"buddin.us/lumen/midi"
-	"buddin.us/lumen/runtime"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/engine"
+	"buddin.us/shaden/midi"
+	"buddin.us/shaden/runtime"
 )
 
 func main() {

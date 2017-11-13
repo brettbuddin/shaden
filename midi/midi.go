@@ -3,7 +3,7 @@ package midi
 import (
 	"time"
 
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/unit"
 	"github.com/rakyll/portmidi"
 )
 

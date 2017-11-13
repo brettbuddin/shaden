@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"buddin.us/lumen/graph"
+	"buddin.us/shaden/graph"
 )
 
 // Patch connects a one Unit's Out to another's In. It also creates an edge on a graph to track the connection.

@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"buddin.us/lumen/lisp"
+	"buddin.us/shaden/lisp"
 )
 
 func errorfFn(args lisp.List) (interface{}, error) {

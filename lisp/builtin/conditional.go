@@ -3,7 +3,7 @@ package builtin
 import (
 	"errors"
 
-	"buddin.us/lumen/lisp"
+	"buddin.us/shaden/lisp"
 )
 
 func equalFn(args lisp.List) (value interface{}, err error) {

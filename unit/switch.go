@@ -3,7 +3,7 @@ package unit
 import (
 	"fmt"
 
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 func newSwitch(name string, c Config) (*Unit, error) {

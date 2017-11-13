@@ -1,6 +1,6 @@
 package unit
 
-import "buddin.us/lumen/dsp"
+import "buddin.us/shaden/dsp"
 
 // IO is the registry of inputs, outputs and properties for a Module
 type IO struct {

@@ -6,9 +6,9 @@ import (
 
 	"github.com/gordonklaus/portaudio"
 
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/graph"
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/graph"
+	"buddin.us/shaden/unit"
 )
 
 // Engine is the connection of the synthesizer to PortAudio

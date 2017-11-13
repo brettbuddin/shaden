@@ -1,8 +1,8 @@
 package engine
 
 import (
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/unit"
 )
 
 func unitBuilders(e *Engine) map[string]unit.BuildFunc {

@@ -3,7 +3,7 @@ package builtin
 import (
 	"fmt"
 
-	"buddin.us/lumen/lisp"
+	"buddin.us/shaden/lisp"
 )
 
 func mapFn(args lisp.List) (interface{}, error) {

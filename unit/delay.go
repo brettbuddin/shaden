@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 const maxDelayMS = 10000

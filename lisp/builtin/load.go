@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"buddin.us/lumen/lisp"
+	"buddin.us/shaden/lisp"
 )
 
 func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {

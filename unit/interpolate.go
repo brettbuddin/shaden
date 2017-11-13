@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 func newInterpolate(name string, c Config) (*Unit, error) {

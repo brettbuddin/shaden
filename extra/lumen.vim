@@ -1,33 +1,33 @@
 " To install:
 "
 "   # mkdir -p $HOME/.vim/plugin
-"   # cp extra/lumen.vim $HOME/.vim/plugin/lumen.vim
+"   # cp extra/shaden.vim $HOME/.vim/plugin/shaden.vim
 "
 " Add these lines to your vimrc:
 "
-"   " Send a visual block of code to Lumen for evaluation
-"   vnoremap <C-S-P> :<C-U>LumenPatchSelection<CR>
+"   " Send a visual block of code to Shaden for evaluation
+"   vnoremap <C-S-P> :<C-U>ShadenPatchSelection<CR>
 "
-"   " Send a line of code to Lumen for evaluation
-"   nnoremap <C-S-P> :<C-U>LumenPatchLine<CR>
+"   " Send a line of code to Shaden for evaluation
+"   nnoremap <C-S-P> :<C-U>ShadenPatchLine<CR>
 
-if (exists("g:loaded_lumen"))
+if (exists("g:loaded_shaden"))
     finish
 endif
-let g:loaded_lumen = 1
+let g:loaded_shaden = 1
 
-if (!exists("g:lumen_http_addr"))
-    let g:lumen_http_addr = '127.0.0.1:5000'
+if (!exists("g:shaden_http_addr"))
+    let g:shaden_http_addr = '127.0.0.1:5000'
 endif
 
-function! LumenPatchSelection()
+function! ShadenPatchSelection()
     let content = s:escape(s:get_visual_selection())
-	echom "lumen: " . system(s:command(content))
+	echom "shaden: " . system(s:command(content))
 endfunction
 
-function! LumenPatchLine()
+function! ShadenPatchLine()
     let content = s:escape(getline('.'))
-	echom "lumen: " . system(s:command(content))
+	echom "shaden: " . system(s:command(content))
 endfunction
 
 function! s:escape(str)
@@ -35,7 +35,7 @@ function! s:escape(str)
 endfunction
 
 function! s:command(content)
-    return printf('curl -sfL http://%s/eval -d "%s"', g:lumen_http_addr, a:content)
+    return printf('curl -sfL http://%s/eval -d "%s"', g:shaden_http_addr, a:content)
 endfunction
 
 function! s:get_visual_selection()
@@ -50,5 +50,5 @@ function! s:get_visual_selection()
     return join(lines, "\n")
 endfunction
 
-command! LumenPatchSelection call LumenPatchSelection()
-command! LumenPatchLine call LumenPatchLine()
+command! ShadenPatchSelection call ShadenPatchSelection()
+command! ShadenPatchLine call ShadenPatchLine()

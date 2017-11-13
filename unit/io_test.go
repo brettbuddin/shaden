@@ -3,7 +3,7 @@ package unit
 import (
 	"testing"
 
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 

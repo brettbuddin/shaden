@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 	"buddin.us/musictheory"
 )
 

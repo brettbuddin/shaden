@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 const (

@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"buddin.us/lumen/lisp"
+	"buddin.us/shaden/lisp"
 )
 
 func Load(env *lisp.Environment) {
-	lispPath := os.Getenv("LUMEN_LISP_PATH")
+	lispPath := os.Getenv("SHADEN_LISP_PATH")
 	loadPath := strings.Split(lispPath, string(filepath.ListSeparator))
 
 	env.DefineSymbol("!=", notEqualFn)

@@ -1,6 +1,6 @@
 package unit
 
-import "buddin.us/lumen/dsp"
+import "buddin.us/shaden/dsp"
 
 func newClockDiv(name string, c Config) (*Unit, error) {
 	var config struct {

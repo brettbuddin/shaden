@@ -7,10 +7,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"buddin.us/lumen/engine"
-	"buddin.us/lumen/lisp"
-	"buddin.us/lumen/midi"
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/engine"
+	"buddin.us/shaden/lisp"
+	"buddin.us/shaden/midi"
+	"buddin.us/shaden/unit"
 )
 
 const (

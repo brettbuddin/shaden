@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/graph"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/graph"
 )
 
 // FrameProcessor processes a block of samples of a given size.

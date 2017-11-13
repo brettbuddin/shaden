@@ -3,7 +3,7 @@ package engine
 import (
 	"fmt"
 
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 	"github.com/gordonklaus/portaudio"
 )
 

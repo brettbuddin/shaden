@@ -9,10 +9,10 @@ import (
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/pkg/errors"
 
-	"buddin.us/lumen/engine"
-	"buddin.us/lumen/lisp"
-	"buddin.us/lumen/lisp/builtin"
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/engine"
+	"buddin.us/shaden/lisp"
+	"buddin.us/shaden/lisp/builtin"
+	"buddin.us/shaden/unit"
 )
 
 // Engine represents the things we need from engine.Engine

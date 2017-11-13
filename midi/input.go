@@ -6,8 +6,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/rakyll/portmidi"
 
-	"buddin.us/lumen/dsp"
-	"buddin.us/lumen/unit"
+	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/unit"
 	"buddin.us/musictheory"
 )
 

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"buddin.us/lumen/lisp"
+	"buddin.us/shaden/lisp"
 	"github.com/stretchr/testify/require"
 )
 

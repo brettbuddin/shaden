@@ -3,7 +3,7 @@ package unit
 import (
 	"math/rand"
 
-	"buddin.us/lumen/dsp"
+	"buddin.us/shaden/dsp"
 )
 
 const maxRandomSeriesSize = 64
