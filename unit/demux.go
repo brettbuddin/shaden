@@ -23,7 +23,7 @@ func newDemux(name string, c Config) (*Unit, error) {
 		outs = make([]*Out, config.Size)
 	)
 	for i := 0; i < config.Size; i++ {
-		outs[i] = io.NewOut(fmt.Sprintf("%d", i+1))
+		outs[i] = io.NewOut(fmt.Sprintf("%d", i))
 	}
 
 	return NewUnit(io, name, &demux{

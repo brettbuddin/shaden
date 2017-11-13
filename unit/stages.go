@@ -39,13 +39,12 @@ func newStages(name string, c Config) (*Unit, error) {
 		stageInputs = make([]pulseSequencerStage, config.Size)
 	)
 	for i := range stageInputs {
-		n := i + 1
 		stageInputs[i] = pulseSequencerStage{
-			freq:   io.NewIn(fmt.Sprintf("%d/freq", n), dsp.Float64(0)),
-			pulses: io.NewIn(fmt.Sprintf("%d/pulses", n), dsp.Float64(1)),
-			mode:   io.NewIn(fmt.Sprintf("%d/mode", n), dsp.Float64(1)),
-			glide:  io.NewIn(fmt.Sprintf("%d/glide", n), dsp.Float64(0)),
-			data:   io.NewIn(fmt.Sprintf("%d/data", n), dsp.Float64(0)),
+			freq:   io.NewIn(fmt.Sprintf("%d/freq", i), dsp.Float64(0)),
+			pulses: io.NewIn(fmt.Sprintf("%d/pulses", i), dsp.Float64(1)),
+			mode:   io.NewIn(fmt.Sprintf("%d/mode", i), dsp.Float64(1)),
+			glide:  io.NewIn(fmt.Sprintf("%d/glide", i), dsp.Float64(0)),
+			data:   io.NewIn(fmt.Sprintf("%d/data", i), dsp.Float64(0)),
 		}
 	}
 

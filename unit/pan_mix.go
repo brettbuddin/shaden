@@ -25,9 +25,9 @@ func newPanMix(name string, c Config) (*Unit, error) {
 		pans   = make([]*In, config.Size)
 	)
 	for i := 0; i < len(inputs); i++ {
-		inputs[i] = io.NewIn(fmt.Sprintf("%d/in", i+1), dsp.Float64(0))
-		levels[i] = io.NewIn(fmt.Sprintf("%d/level", i+1), dsp.Float64(1))
-		pans[i] = io.NewIn(fmt.Sprintf("%d/pan", i+1), dsp.Float64(0))
+		inputs[i] = io.NewIn(fmt.Sprintf("%d/in", i), dsp.Float64(0))
+		levels[i] = io.NewIn(fmt.Sprintf("%d/level", i), dsp.Float64(1))
+		pans[i] = io.NewIn(fmt.Sprintf("%d/pan", i), dsp.Float64(0))
 	}
 
 	return NewUnit(io, name, &panMix{

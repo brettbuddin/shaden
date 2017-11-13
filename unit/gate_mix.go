@@ -23,7 +23,7 @@ func newGateMix(name string, c Config) (*Unit, error) {
 		inputs = make([]*In, config.Size)
 	)
 	for i := 0; i < len(inputs); i++ {
-		inputs[i] = io.NewIn(fmt.Sprintf("%d", i+1), dsp.Float64(-1))
+		inputs[i] = io.NewIn(fmt.Sprintf("%d", i), dsp.Float64(-1))
 	}
 
 	return NewUnit(io, name, &gateMix{

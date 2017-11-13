@@ -20,7 +20,7 @@ func newSwitch(name string, c Config) (*Unit, error) {
 	io := NewIO()
 	inputs := make([]*In, config.Size)
 	for i := range inputs {
-		inputs[i] = io.NewIn(fmt.Sprintf("%d", i+1), dsp.Float64(0))
+		inputs[i] = io.NewIn(fmt.Sprintf("%d", i), dsp.Float64(0))
 	}
 
 	s := &seqSwitch{

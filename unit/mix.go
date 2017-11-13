@@ -24,8 +24,8 @@ func newMix(name string, c Config) (*Unit, error) {
 		levels = make([]*In, config.Size)
 	)
 	for i := 0; i < len(inputs); i++ {
-		inputs[i] = io.NewIn(fmt.Sprintf("%d/in", i+1), dsp.Float64(0))
-		levels[i] = io.NewIn(fmt.Sprintf("%d/level", i+1), dsp.Float64(1))
+		inputs[i] = io.NewIn(fmt.Sprintf("%d/in", i), dsp.Float64(0))
+		levels[i] = io.NewIn(fmt.Sprintf("%d/level", i), dsp.Float64(1))
 	}
 
 	return NewUnit(io, name, &mix{
