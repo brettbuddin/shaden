@@ -10,7 +10,7 @@ more about digital signal processing and music theory. *Consider this an art pro
 - [Large collection of builtin Units](https://github.com/brettbuddin/lumen/wiki/Units)
 - [Music theory primitives](https://github.com/brettbuddin/lumen/wiki/Values#music-theory)
 - MIDI controller and clock input
-- Single-sample feedback loops that only affect subsets of the audio graph
+- Single-sample feedback loops
 - Vim plugin for sending snippets of code over to the synth for evaluation
 
 ## Dependencies
