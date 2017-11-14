@@ -76,7 +76,7 @@ manipulation via HTTP.
 
 For a more information about the Lisp dialect bundled with Shaden, [check out the wiki](https://github.com/brettbuddin/shaden/wiki).
 
-### Examples
+## Examples
 
 The best way to get to know the way patching works in Shaden is to look at the [examples directory](examples). As far as
 sounds that can be created with it:
