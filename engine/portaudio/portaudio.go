@@ -6,8 +6,6 @@ import (
 
 	portaudio "github.com/gordonklaus/portaudio"
 	"github.com/pkg/errors"
-
-	"buddin.us/shaden/dsp"
 )
 
 const (
@@ -15,12 +13,14 @@ const (
 	latencyHigh = "high"
 )
 
+// PortAudio is a wrapper for a portaudio client.
 type PortAudio struct {
 	inDevice, outDevice *portaudio.DeviceInfo
 	stream              *portaudio.Stream
 	params              portaudio.StreamParameters
 }
 
+// Intialize initializes portaudio and returns the list of devices on the machine.
 func Initialize() (DeviceList, error) {
 	if err := portaudio.Initialize(); err != nil {
 		return nil, errors.Wrap(err, "initializing portaudio")
@@ -29,6 +29,7 @@ func Initialize() (DeviceList, error) {
 	return DeviceList(list), err
 }
 
+// DeviceList is a list of portaudio devices.
 type DeviceList []*portaudio.DeviceInfo
 
 func (l DeviceList) String() string {
@@ -43,11 +44,13 @@ func (l DeviceList) String() string {
 	return out.String()
 }
 
+// Terminate terminates portaudio. This is called after all client's have shut down.
 func Terminate() error {
 	return portaudio.Terminate()
 }
 
-func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize int) (*PortAudio, error) {
+// New returns a new PortAudio.
+func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize, sampleRate int) (*PortAudio, error) {
 	devices, err := portaudio.Devices()
 	if err != nil {
 		return nil, err
@@ -74,7 +77,7 @@ func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize int) (*Por
 	}
 	params.Input.Channels = 1
 	params.Output.Channels = 2
-	params.SampleRate = float64(dsp.SampleRate)
+	params.SampleRate = float64(sampleRate)
 	params.FramesPerBuffer = frameSize
 
 	return &PortAudio{
@@ -84,14 +87,17 @@ func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize int) (*Por
 	}, nil
 }
 
+// Devices returns the devices currently in use by portaudio.
 func (pa *PortAudio) Devices() (in *portaudio.DeviceInfo, out *portaudio.DeviceInfo) {
 	return pa.inDevice, pa.outDevice
 }
 
+// FrameSize returns the low-level frame size used by PortAudio.
 func (pa *PortAudio) FrameSize() int {
 	return pa.params.FramesPerBuffer
 }
 
+// Start starts the portaudio stream.
 func (pa *PortAudio) Start(callback func([]float32, [][]float32)) error {
 	var err error
 	pa.stream, err = portaudio.OpenStream(pa.params, callback)
@@ -101,6 +107,7 @@ func (pa *PortAudio) Start(callback func([]float32, [][]float32)) error {
 	return pa.stream.Start()
 }
 
+// Stop stops the portaudio stream.
 func (pa *PortAudio) Stop() error {
 	if err := pa.stream.Stop(); err != nil {
 		return err

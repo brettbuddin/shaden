@@ -92,7 +92,7 @@ func run(args []string) error {
 	rand.Seed(*seed)
 
 	// Create the engine
-	backend, err := portaudio.New(*deviceIn, *deviceOut, *deviceLatency, *deviceFrameSize)
+	backend, err := portaudio.New(*deviceIn, *deviceOut, *deviceLatency, *deviceFrameSize, dsp.SampleRate)
 	if err != nil {
 		return errors.Wrap(err, "creating portaudio backend")
 	}

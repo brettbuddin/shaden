@@ -25,6 +25,7 @@ type Engine struct {
 	stopping             *uint32
 }
 
+// Backend is a low-level callback-based engine
 type Backend interface {
 	Start(func([]float32, [][]float32)) error
 	Stop() error
@@ -33,11 +34,10 @@ type Backend interface {
 
 // New returns a new Sink
 func New(backend Backend, singleSampleDisabled bool) (*Engine, error) {
-	g := graph.New()
-
 	var stopping uint32 = 0
 
 	sinkUnit, sink := newSink(&stopping)
+	g := graph.New()
 	if err := sinkUnit.Attach(g); err != nil {
 		return nil, err
 	}
