@@ -2,9 +2,9 @@
 
 Shaden is a modular audio synthesizer. Patches for the synthesizer are written in a Lisp dialect. A REPL and HTTP
 interface is provided for interacting with the synthesizer in real-time. I started this project as a way of learning
-more about digital signal processing and music theory. *Consider this an art project*. 
+more about digital signal processing and music theory. **Consider this an art project**. 
 
-The name *shaden* comes from the *Cycle of Galand* book series by Edward W. Robertson.
+The name "shaden" comes from the *Cycle of Galand* book series by Edward W. Robertson.
 
 ### Highlights
 
