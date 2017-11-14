@@ -75,3 +75,13 @@ manipulation via HTTP.
 ### Lisp
 
 For a more information about the Lisp dialect bundled with Shaden, [check out the wiki](https://github.com/brettbuddin/shaden/wiki).
+
+### Examples
+
+The best way to get to know the way patching works in Shaden is to look at the [examples directory](examples). As far as
+sounds that can be created with it:
+
+- The synth was used to create the intro music for the [GothamGo 2017 conference videos](https://www.youtube.com/watch?v=l_FkVIPerzE)
+- I frequently post patches I've created with Shaden [on Instagram](https://www.instagram.com/brettbuddin/)
+- 
+- 
