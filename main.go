@@ -9,17 +9,17 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"strings"
+	"os/signal"
+	"syscall"
 	"time"
 
 	_ "net/http/pprof"
 
-	"github.com/gordonklaus/portaudio"
 	"github.com/pkg/errors"
-	"github.com/rakyll/portmidi"
 
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/engine"
+	"buddin.us/shaden/engine/portaudio"
 	"buddin.us/shaden/midi"
 	"buddin.us/shaden/runtime"
 )
@@ -43,6 +43,7 @@ func run(args []string) error {
 		httpAddr             = set.String("addr", ":5000", "http address to serve")
 		repl                 = set.Bool("repl", false, "REPL")
 		singleSampleDisabled = set.Bool("disable-single-sample", false, "disables single-sample mode for feedback loops")
+		logger               = log.New(os.Stdout, "", 0)
 	)
 
 	if err := set.Parse(args); err != nil {
@@ -53,32 +54,35 @@ func run(args []string) error {
 		return errors.Errorf("device frame size cannot be less than %d", dsp.FrameSize)
 	}
 
-	logger := log.New(os.Stdout, "", 0)
+	if *deviceFrameSize%dsp.FrameSize != 0 {
+		return errors.Errorf("frame size (%d) must be a multiple of %d", *deviceFrameSize, dsp.FrameSize)
+	}
 
-	devices, err := engine.Initialize()
+	devices, err := portaudio.Initialize()
 	if err != nil {
-		return errors.Wrap(err, "engine initialization failed")
+		return errors.Wrap(err, "initializing portaudio")
 	}
 	defer func() {
-		if err := engine.Terminate(); err != nil {
-			logger.Println(err)
-			os.Exit(1)
+		if err := portaudio.Terminate(); err != nil {
+			logger.Fatal(err)
 		}
 	}()
 
 	midiDevices, err := midi.Initialize()
 	if err != nil {
-		return errors.Wrap(err, "midi initialization failed")
+		return errors.Wrap(err, "initializing portmidi")
 	}
 	defer func() {
 		if err := midi.Terminate(); err != nil {
-			logger.Println(err)
-			os.Exit(1)
+			logger.Fatal(err)
 		}
 	}()
 
 	if *deviceList {
-		printDeviceList(devices, midiDevices)
+		fmt.Println("Audio Devices")
+		fmt.Println(devices)
+		fmt.Println("MIDI Devices")
+		fmt.Println(midiDevices)
 		return nil
 	}
 
@@ -87,12 +91,31 @@ func run(args []string) error {
 	}
 	rand.Seed(*seed)
 
-	e, err := engine.New(*deviceIn, *deviceOut, *deviceLatency, *deviceFrameSize, *singleSampleDisabled)
+	// Create the engine
+	backend, err := portaudio.New(*deviceIn, *deviceOut, *deviceLatency, *deviceFrameSize)
+	if err != nil {
+		return errors.Wrap(err, "creating portaudio backend")
+	}
+	e, err := engine.New(backend, *singleSampleDisabled)
 	if err != nil {
 		return errors.Wrap(err, "engine create failed")
 	}
-	printPreamble(e, *seed)
+	printPreamble(backend, *seed)
 
+	// Create the lisp runtime
+	run, err := runtime.New(e, logger)
+	if err != nil {
+		return errors.Wrap(err, "start lisp runtime failed")
+	}
+
+	// Start the HTTP server
+	go func() {
+		if err := serve(*httpAddr, run); err != nil {
+			logger.Fatal(err)
+		}
+	}()
+
+	// Start the engine
 	go e.Run()
 	go func() {
 		for err := range e.Errors() {
@@ -101,30 +124,38 @@ func run(args []string) error {
 	}()
 	defer e.Stop()
 
-	run, err := runtime.New(e, logger)
-	if err != nil {
-		return errors.Wrap(err, "start lisp runtime failed")
-	}
 	if len(set.Args()) > 0 {
 		if err := run.Load(set.Arg(0)); err != nil {
 			return errors.Wrap(err, "file eval failed")
 		}
 	}
+
+	replDone := make(chan struct{})
 	if *repl {
-		go func() {
-			if err := serve(*httpAddr, run); err != nil {
-				logger.Fatal(err)
-			}
-		}()
-		run.REPL()
-	} else {
-		return serve(*httpAddr, run)
+		go run.REPL(replDone)
 	}
+
+	select {
+	case <-replDone:
+	case <-waitForSignal():
+	}
+
 	return nil
 }
 
-func printPreamble(e *engine.Engine, seed int64) {
-	inDevice, outDevice := e.Devices()
+func waitForSignal() <-chan struct{} {
+	sigs := make(chan os.Signal)
+	done := make(chan struct{})
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		close(done)
+	}()
+	return done
+}
+
+func printPreamble(pa *portaudio.PortAudio, seed int64) {
+	inDevice, outDevice := pa.Devices()
 	fmt.Println("PID:", os.Getpid())
 	fmt.Println("Seed:", seed)
 	fmt.Printf(
@@ -159,30 +190,4 @@ func serve(addr string, run *runtime.Runtime) error {
 		fmt.Fprintf(w, "OK")
 	})
 	return http.ListenAndServe(addr, nil)
-}
-
-func printDeviceList(devices []*portaudio.DeviceInfo, midiDevices []*portmidi.DeviceInfo) {
-	fmt.Println("Audio Devices")
-	if len(devices) > 0 {
-		for i, d := range devices {
-			fmt.Printf("%d: %s\n", i, d.Name)
-		}
-	} else {
-		fmt.Println("(none)")
-	}
-	fmt.Println("\nMIDI Devices")
-	if len(midiDevices) > 0 {
-		for i, d := range midiDevices {
-			dirs := []string{}
-			if d.IsInputAvailable {
-				dirs = append(dirs, "input")
-			}
-			if d.IsOutputAvailable {
-				dirs = append(dirs, "output")
-			}
-			fmt.Printf("%d: %s (%s)\n", i, d.Name, strings.Join(dirs, "/"))
-		}
-	} else {
-		fmt.Println("(none)")
-	}
 }

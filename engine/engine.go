@@ -2,9 +2,8 @@ package engine
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
-
-	"github.com/gordonklaus/portaudio"
 
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/graph"
@@ -13,33 +12,33 @@ import (
 
 // Engine is the connection of the synthesizer to PortAudio
 type Engine struct {
-	backend              *portAudio
-	module               *unit.Unit
-	left, right          *unit.In
+	backend              Backend
 	graph                *graph.Graph
+	unit                 *unit.Unit
 	processors           []unit.FrameProcessor
 	messages             chan *Message
 	errors, stop         chan error
 	input                []float64
+	lout, rout           []float64
 	chunks               int
 	singleSampleDisabled bool
+	stopping             *uint32
+}
+
+type Backend interface {
+	Start(func([]float32, [][]float32)) error
+	Stop() error
+	FrameSize() int
 }
 
 // New returns a new Sink
-func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize int, singleSampleDisabled bool) (*Engine, error) {
-	if frameSize%dsp.FrameSize != 0 {
-		return nil, fmt.Errorf("frame size (%d) must be a multiple of %d", frameSize, dsp.FrameSize)
-	}
-
+func New(backend Backend, singleSampleDisabled bool) (*Engine, error) {
 	g := graph.New()
 
-	sink := newSink()
-	if err := sink.Attach(g); err != nil {
-		return nil, err
-	}
+	var stopping uint32 = 0
 
-	backend, err := newPortAudio(inDeviceIndex, outDeviceIndex, latency, frameSize)
-	if err != nil {
+	sinkUnit, sink := newSink(&stopping)
+	if err := sinkUnit.Attach(g); err != nil {
 		return nil, err
 	}
 
@@ -47,14 +46,15 @@ func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize int, singl
 		backend:              backend,
 		graph:                g,
 		messages:             make(chan *Message),
-		module:               sink,
-		left:                 sink.In["l"],
-		right:                sink.In["r"],
+		unit:                 sinkUnit,
+		lout:                 sink.left.out,
+		rout:                 sink.right.out,
 		errors:               make(chan error),
 		stop:                 make(chan error),
 		input:                make([]float64, dsp.FrameSize),
-		chunks:               int(dsp.Float64(frameSize) / dsp.FrameSize),
+		chunks:               int(dsp.Float64(backend.FrameSize()) / dsp.FrameSize),
 		singleSampleDisabled: singleSampleDisabled,
+		stopping:             &stopping,
 	}, nil
 }
 
@@ -67,22 +67,17 @@ func (e *Engine) UnitBuilders() map[string]unit.BuildFunc {
 func (e *Engine) Reset() error {
 	e.graph = graph.New()
 
-	sink := newSink()
-	if err := sink.Attach(e.graph); err != nil {
+	sinkUnit, sink := newSink(e.stopping)
+	if err := sinkUnit.Attach(e.graph); err != nil {
 		return err
 	}
-	e.module = sink
-	e.left = sink.In["l"]
-	e.right = sink.In["r"]
+	e.unit = sinkUnit
+	e.lout = sink.left.out
+	e.rout = sink.right.out
 
 	e.sort()
 
 	return nil
-}
-
-// Devices return input and output devices being used
-func (e *Engine) Devices() (in *portaudio.DeviceInfo, out *portaudio.DeviceInfo) {
-	return e.backend.inDevice, e.backend.outDevice
 }
 
 // Messages provides a send-only channel that can be used to execute code on the main audio goroutine
@@ -102,6 +97,12 @@ func (e *Engine) Run() {
 		return
 	}
 	<-e.stop
+
+	// Mark the flag for shutdown so that the sink's outputs know we are leaving. This will cause them to perform a
+	// fade-out while we wait. Not imperative that we synchronize things so a sleep will do.
+	atomic.AddUint32(e.stopping, 1)
+	time.Sleep(150 * time.Millisecond)
+
 	e.stop <- e.backend.Stop()
 }
 
@@ -120,8 +121,6 @@ func (e *Engine) call(action interface{}) (interface{}, error) {
 		return fn(e)
 	case func(g *graph.Graph) (interface{}, error):
 		return fn(e.graph)
-	case func(g *graph.Graph, l, r *unit.In) (interface{}, error):
-		return fn(e.graph, e.left, e.right)
 	default:
 		return nil, fmt.Errorf("unhandled function type %T", action)
 	}
@@ -212,9 +211,9 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 		for i := range out {
 			for j := 0; j < dsp.FrameSize; j++ {
 				if i%2 == 0 {
-					out[i][offset+j] = float32(e.left.Read(j))
+					out[i][offset+j] = float32(e.lout[j])
 				} else {
-					out[i][offset+j] = float32(e.right.Read(j))
+					out[i][offset+j] = float32(e.rout[j])
 				}
 			}
 		}

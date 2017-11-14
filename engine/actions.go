@@ -54,10 +54,10 @@ func EmitOutputs(left, right unit.OutRef) func(*Engine) (interface{}, error) {
 				return nil, errors.Errorf("unit %s has no output %q", right.Unit.ID, right.Output)
 			}
 		}
-		if err := unit.Patch(e.graph, leftOut, e.left); err != nil {
+		if err := unit.Patch(e.graph, leftOut, e.unit.In["l"]); err != nil {
 			return nil, errors.Wrap(err, "patch")
 		}
-		return nil, unit.Patch(e.graph, rightOut, e.right)
+		return nil, unit.Patch(e.graph, rightOut, e.unit.In["r"])
 	}
 }
 

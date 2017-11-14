@@ -50,9 +50,12 @@ func (r *Runtime) ClearUserspace() {
 }
 
 // REPL runs the REPL.
-func (r *Runtime) REPL() {
+func (r *Runtime) REPL(done chan struct{}) {
 	prompt.New(
 		func(in string) {
+			if len(in) > 0 && in[0] == ';' {
+				return
+			}
 			result, err := r.Eval([]byte(in))
 			if err != nil {
 				fmt.Println(err)
@@ -68,6 +71,7 @@ func (r *Runtime) REPL() {
 		prompt.OptionPrefix("> "),
 		prompt.OptionTitle("shaden"),
 	).Run()
+	close(done)
 }
 
 // Eval parses and evaluates lisp expressions.

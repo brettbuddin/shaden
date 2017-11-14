@@ -1,6 +1,9 @@
 package midi
 
 import (
+	"bytes"
+	"fmt"
+	"strings"
 	"time"
 
 	"buddin.us/shaden/unit"
@@ -14,7 +17,7 @@ func UnitBuilders() map[string]unit.BuildFunc {
 	}
 }
 
-func Initialize() ([]*portmidi.DeviceInfo, error) {
+func Initialize() (DeviceList, error) {
 	if err := portmidi.Initialize(); err != nil {
 		return nil, err
 	}
@@ -22,11 +25,32 @@ func Initialize() ([]*portmidi.DeviceInfo, error) {
 	for i := 0; i < portmidi.CountDevices(); i++ {
 		info = append(info, portmidi.Info(portmidi.DeviceID(i)))
 	}
-	return info, nil
+	return DeviceList(info), nil
 }
 
 func Terminate() error {
 	return portmidi.Terminate()
+}
+
+type DeviceList []*portmidi.DeviceInfo
+
+func (l DeviceList) String() string {
+	out := bytes.NewBuffer(nil)
+	if len(l) > 0 {
+		for i, d := range l {
+			dirs := []string{}
+			if d.IsInputAvailable {
+				dirs = append(dirs, "input")
+			}
+			if d.IsOutputAvailable {
+				dirs = append(dirs, "output")
+			}
+			fmt.Fprintf(out, "%d: %s (%s)\n", i, d.Name, strings.Join(dirs, "/"))
+		}
+	} else {
+		fmt.Fprintln(out, "(none)")
+	}
+	return out.String()
 }
 
 func eventStream(s *portmidi.Stream, stop <-chan struct{}) <-chan portmidi.Event {
