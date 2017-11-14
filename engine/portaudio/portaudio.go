@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"fmt"
 
-	"buddin.us/eolian/dsp"
-	"buddin.us/shizuka/portaudio"
+	portaudio "github.com/gordonklaus/portaudio"
 	"github.com/pkg/errors"
+
+	"buddin.us/shaden/dsp"
 )
 
 const (
