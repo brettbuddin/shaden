@@ -247,7 +247,7 @@ func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 						inputs[fmt.Sprintf("%d/%s", i, k)] = w
 					}
 				} else {
-					inputs[strconv.Itoa(i+1)] = e
+					inputs[strconv.Itoa(i)] = e
 				}
 			}
 		case lisp.Table:
