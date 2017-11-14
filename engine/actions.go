@@ -69,7 +69,14 @@ func PatchInput(u *unit.Unit, inputs map[string]interface{}, forceReset bool) fu
 		for k, v := range inputs {
 			in, ok := u.In[k]
 			if !ok {
-				return nil, errors.Errorf("unit %q has no input %q", u.ID, k)
+				prop, ok := u.Prop[k]
+				if !ok {
+					return nil, errors.Errorf("unit %q has no input or property %q", u.ID, k)
+				}
+				if err := prop.SetValue(v); err != nil {
+					return nil, err
+				}
+				continue
 			}
 			seen[k] = struct{}{}
 

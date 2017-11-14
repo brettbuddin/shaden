@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"buddin.us/shaden/dsp"
 	"buddin.us/musictheory"
+	"buddin.us/shaden/dsp"
 )
 
 const (
@@ -36,28 +36,20 @@ func intervalSetter(p *Prop, v interface{}) error {
 	return nil
 }
 
-func tonicSetter(p *Prop, v interface{}) error {
-	if _, ok := v.(*musictheory.Pitch); !ok {
-		return InvalidPropValueError{Prop: p, Value: v}
-	}
-	p.value = v
-	return nil
-}
-
 func newQuantize(name string, _ Config) (*Unit, error) {
 	io := NewIO()
 
-	defaultTonic, err := musictheory.ParsePitch("A4")
+	tonic, err := dsp.ParsePitch("A4")
 	if err != nil {
 		return nil, err
 	}
 
 	q := &quantize{
 		intervals: io.NewProp("intervals", &intervals{}, intervalSetter),
-		tonic:     io.NewProp("tonic", defaultTonic, tonicSetter),
 		in:        io.NewIn("in", dsp.Float64(0)),
+		tonic:     io.NewIn("tonic", tonic),
 		out:       io.NewOut("out"),
-		pitches:   make([]dsp.Hz, maxIntervals),
+		ratios:    make([]float64, maxIntervals),
 	}
 	q.maybeUpdate()
 
@@ -65,43 +57,38 @@ func newQuantize(name string, _ Config) (*Unit, error) {
 }
 
 type quantize struct {
-	intervals, tonic *Prop
-	in               *In
-	out              *Out
+	intervals *Prop
+	in, tonic *In
+	out       *Out
 
 	lastTonic        *musictheory.Pitch
 	lastIntervalHash string
-	pitches          []dsp.Hz
-	pitchCount       int
+	ratios           []float64
+	ratioCount       int
 }
 
 func (q *quantize) maybeUpdate() {
-	var (
-		intervals = q.intervals.Value().(*intervals)
-		tonic     = q.tonic.Value().(*musictheory.Pitch)
-	)
-	if (q.lastTonic == nil || !q.lastTonic.Eq(*tonic)) || q.lastIntervalHash != intervals.sig {
+	intervals := q.intervals.Value().(*intervals)
+	if q.lastIntervalHash != intervals.sig {
 		for i, intvl := range intervals.intervals {
-			p := tonic.Transpose(intvl).(musictheory.Pitch)
-			q.pitches[i] = dsp.Frequency(p.Freq())
+			q.ratios[i] = intvl.Ratio()
 		}
-		q.pitchCount = len(intervals.intervals)
-		q.lastTonic = tonic
+		q.ratioCount = len(intervals.intervals)
 		q.lastIntervalHash = intervals.sig
 	}
 }
 
 func (q *quantize) ProcessSample(i int) {
 	q.maybeUpdate()
-	if q.pitchCount == 0 {
+	if q.ratioCount == 0 {
 		return
 	}
-	in := dsp.Clamp(q.in.Read(i), 0, 1)
+	var (
+		tonic = q.tonic.Read(i)
+		in    = dsp.Clamp(q.in.Read(i), 0, 1)
+		n     = float64(q.ratioCount)
+		idx   = math.Max(math.Min(math.Floor(n*in+0.5), n-1), 0)
+	)
 
-	n := float64(q.pitchCount)
-	idx := math.Floor(n*in + 0.5)
-	idx = math.Min(idx, n-1)
-	idx = math.Max(idx, 0)
-
-	q.out.Write(i, q.pitches[int(idx)].Float64())
+	q.out.Write(i, tonic*q.ratios[int(idx)])
 }

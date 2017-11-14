@@ -244,21 +244,21 @@ func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 			for i, e := range v {
 				if m, ok := e.(lisp.Table); ok {
 					for k, w := range m {
-						inputs[fmt.Sprintf("%d/%s", i, k)] = w
+						inputs[fmt.Sprintf("%d/%s", i, k)] = patchableValue(w)
 					}
 				} else {
-					inputs[strconv.Itoa(i)] = e
+					inputs[strconv.Itoa(i)] = patchableValue(e)
 				}
 			}
 		case lisp.Table:
 			for k, e := range v {
 				switch k := k.(type) {
 				case string:
-					inputs[k] = e
+					inputs[k] = patchableValue(e)
 				case lisp.Keyword:
-					inputs[string(k)] = e
+					inputs[string(k)] = patchableValue(e)
 				default:
-					inputs[fmt.Sprintf("%v", k)] = e
+					inputs[fmt.Sprintf("%v", k)] = patchableValue(e)
 				}
 			}
 		default:
@@ -266,6 +266,25 @@ func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 		}
 	}
 	return inputs, nil
+}
+
+func patchableValue(v interface{}) interface{} {
+	switch value := v.(type) {
+	case lisp.List:
+		s := make([]interface{}, len(value))
+		for i, v := range value {
+			s[i] = patchableValue(v)
+		}
+		return s
+	case lisp.Table:
+		m := map[string]interface{}{}
+		for k, v := range value {
+			m[fmt.Sprint(k)] = patchableValue(v)
+		}
+		return m
+	default:
+		return value
+	}
 }
 
 func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {

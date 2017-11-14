@@ -36,8 +36,8 @@ type slope struct {
 func (s *slope) ProcessSample(i int) {
 	s.state.trigger = s.trigger.Read(i)
 	s.state.gate = s.gate.Read(i)
-	s.state.rise = s.rise.Read(i)
-	s.state.fall = s.fall.Read(i)
+	s.state.rise = math.Abs(s.rise.Read(i))
+	s.state.fall = math.Abs(s.fall.Read(i))
 	s.state.cycle = s.cycle.Read(i)
 	s.state.ratio = s.ratio.Read(i)
 	s.stateFunc = s.stateFunc(s.state)
