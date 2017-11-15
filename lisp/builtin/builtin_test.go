@@ -12,6 +12,7 @@ func TestParser(t *testing.T) {
 	var tests = []struct {
 		input  []byte
 		result interface{}
+		error  string
 	}{
 		// Data types
 		{input: []byte("1"), result: 1},
@@ -83,7 +84,9 @@ func TestParser(t *testing.T) {
 
 		// Conditionals
 		{input: []byte(`(= 1 1)`), result: true},
+		{input: []byte(`(= 1 "a")`), result: false},
 		{input: []byte(`(!= 1 1)`), result: false},
+		{input: []byte(`(!= 1 "a")`), result: true},
 		{input: []byte(`(not (= 1 2))`), result: true},
 		{input: []byte(`(if true "hello" "world")`), result: "hello"},
 		{input: []byte(`(if false "hello" "world")`), result: "world"},
@@ -115,6 +118,8 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(define hello 100) hello`), result: 100},
 		{input: []byte(`((fn (x y) (+ x y)) 5 8)`), result: 13},
 		{input: []byte(`((fn (x y) (set x (+ x y)) (+ x 1)) 5 8)`), result: 14},
+		{input: []byte(`((fn (_ y) _) 1 2)`), error: "error calling anonymous function: undefined symbol _"},
+		{input: []byte(`((fn (_ y) y) 1 2)`), result: 2},
 		{input: []byte(`(apply (fn (x y) (+ x y)) (list 5 8))`), result: 13},
 		{input: []byte(`(apply (fn (x y) (+ x y)) 5 9)`), result: 14},
 		{input: []byte(`(define (add1 x) (+ x 1)) (add1 1)`), result: 2},
@@ -134,12 +139,18 @@ func TestParser(t *testing.T) {
 	for _, test := range tests {
 		t.Run(string(test.input), func(t *testing.T) {
 			node, err := lisp.Parse(bytes.NewBuffer(test.input))
-			require.Nil(t, err)
+			require.NoError(t, err)
 
 			env := lisp.NewEnvironment()
 			Load(env)
 			result, err := env.Eval(node)
-			require.Nil(t, err)
+
+			if test.error != "" {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
 			require.Equal(t, test.result, result)
 		})
 	}

@@ -168,33 +168,41 @@ func (e *Environment) call(nodes List) (interface{}, error) {
 		return nil, err
 	}
 
-	name := fnName(head)
-
 	switch fn := fn.(type) {
 	case Func:
+		name := fn.Name()
 		vargs, err := e.evalArgs(rest)
 		if err != nil {
 			return nil, errors.Wrap(err, evalArgsErrorMsg(name))
 		}
 		return e.callFunc(name, fn.Func, vargs)
 	case func(List) (interface{}, error):
+		name := fnName(head)
 		vargs, err := e.evalArgs(rest)
 		if err != nil {
 			return nil, errors.Wrap(err, evalArgsErrorMsg(name))
 		}
 		return e.callFunc(name, fn, vargs)
 	case EnvFunc:
-		return e.callEnvFunc(name, fn.EnvFunc, rest)
+		return e.callEnvFunc(fn.Name(), fn.EnvFunc, rest)
 	case func(*Environment, List) (interface{}, error):
+		name := fnName(head)
 		return e.callEnvFunc(name, fn, rest)
 	}
 	return nil, errors.Errorf("uncallable function %#v", fn)
 }
 
+func fnName(v interface{}) string {
+	if sym, ok := v.(Symbol); ok {
+		return string(sym)
+	}
+	return "anonymous function"
+}
+
 func (e *Environment) callFunc(name string, fn func(List) (interface{}, error), args List) (interface{}, error) {
 	result, err := fn(args)
 	if err != nil {
-		return result, errors.Wrap(err, fmt.Sprintf("error calling %q", name))
+		return result, errors.Wrap(err, fmt.Sprintf("error calling %s", name))
 	}
 	return result, nil
 }
@@ -202,24 +210,9 @@ func (e *Environment) callFunc(name string, fn func(List) (interface{}, error), 
 func (e *Environment) callEnvFunc(name string, fn func(*Environment, List) (interface{}, error), args List) (interface{}, error) {
 	result, err := fn(e, args)
 	if err != nil {
-		return result, errors.Wrap(err, fmt.Sprintf("error calling %q", name))
+		return result, errors.Wrap(err, fmt.Sprintf("error calling %s", name))
 	}
 	return result, nil
-}
-
-func fnName(v interface{}) string {
-	switch v := v.(type) {
-	case Symbol:
-		return string(v) + " function"
-	case Keyword:
-		return string(v) + " function"
-	case List:
-		return "list function"
-	case Table:
-		return "table function"
-	default:
-		return fmt.Sprintf("uncallable value %T", v)
-	}
 }
 
 func (e *Environment) evalArgs(nodes List) (List, error) {
