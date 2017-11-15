@@ -125,8 +125,7 @@ func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		env.DefineSymbol(string(v), value)
-		return nil, nil
+		return nil, env.DefineSymbol(string(v), value)
 	case lisp.List:
 		for _, n := range v {
 			if _, ok := n.(lisp.Symbol); !ok {
@@ -135,8 +134,7 @@ func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		}
 		name := v[0].(lisp.Symbol)
 		fn := buildFunction(env, string(name), v[1:], args[1:])
-		env.DefineSymbol(string(name), fn)
-		return nil, nil
+		return nil, env.DefineSymbol(string(name), fn)
 	default:
 		return nil, argExpectError("define", "symbol or list", 1)
 	}
@@ -166,8 +164,7 @@ func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		}
 
 		fn := buildMacroFunction(env, string(name), v[1:], processed)
-		env.DefineSymbol(string(name), fn)
-		return nil, nil
+		return nil, env.DefineSymbol(string(name), fn)
 	default:
 		return nil, argExpectError("define-macro", "list", 1)
 	}

@@ -33,11 +33,15 @@ func (e *Environment) Branch() *Environment {
 	}
 }
 
-// DefineSymbol defines or sets the value of a symbol.
-func (e *Environment) DefineSymbol(symbol string, v interface{}) {
+// DefineSymbol defines a symbol.
+func (e *Environment) DefineSymbol(symbol string, v interface{}) error {
 	e.Lock()
 	defer e.Unlock()
+	if _, ok := e.symbols[symbol]; ok {
+		return DefinedSymbolError{symbol}
+	}
 	e.symbols[symbol] = v
+	return nil
 }
 
 // SetSymbol sets the value of a symbol. Like GetSymbol, it advances to parent Environments if the symbol cannot be

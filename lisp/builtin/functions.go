@@ -46,7 +46,9 @@ func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 			if err != nil {
 				return nil, err
 			}
-			env.DefineSymbol(string(name), value)
+			if err := env.DefineSymbol(string(name), value); err != nil {
+				return nil, err
+			}
 		}
 	}
 	var (
@@ -109,7 +111,9 @@ func functionEvaluate(env *lisp.Environment, name string, args, defArgs, body li
 	}
 	for i, arg := range args {
 		name := defArgs[i].(lisp.Symbol)
-		env.DefineSymbol(string(name), arg)
+		if err := env.DefineSymbol(string(name), arg); err != nil {
+			return nil, err
+		}
 	}
 	var (
 		value interface{}
