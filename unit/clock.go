@@ -27,7 +27,7 @@ type clock struct {
 func (c *clock) ProcessSample(i int) {
 	var (
 		pw      = c.pw.Read(i)
-		shuffle = dsp.Clamp(c.shuffle.Read(i), -0.5, 0.5)
+		shuffle = dsp.Clamp(c.shuffle.Read(i), 0, 0.5)
 		tempo   = c.tempo.Read(i)
 		duty    = 1 / (tempo * dsp.SampleRate) * dsp.SampleRate
 	)
@@ -42,7 +42,7 @@ func (c *clock) ProcessSample(i int) {
 			c.tick = 0
 			c.even = false
 		}
-	} else if c.tick >= int(duty) {
+	} else if c.tick >= int(duty-(duty*shuffle)) {
 		c.tick = 0
 		c.even = true
 	}
