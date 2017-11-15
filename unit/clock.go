@@ -1,8 +1,6 @@
 package unit
 
 import (
-	"math"
-
 	"buddin.us/shaden/dsp"
 )
 
@@ -31,7 +29,7 @@ func (c *clock) ProcessSample(i int) {
 		pw      = c.pw.Read(i)
 		shuffle = dsp.Clamp(c.shuffle.Read(i), -0.5, 0.5)
 		tempo   = c.tempo.Read(i)
-		duty    = math.Floor(60/(tempo*60*dsp.SampleRate)*dsp.SampleRate + 0.5)
+		duty    = 1 / (tempo * dsp.SampleRate) * dsp.SampleRate
 	)
 
 	if c.run.Read(i) <= 0 {
