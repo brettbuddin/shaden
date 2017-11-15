@@ -1,13 +1,15 @@
 package builtin
 
 import (
-	"errors"
-	"fmt"
+	"github.com/pkg/errors"
 
 	"buddin.us/shaden/lisp"
 )
 
-const underscoreSymbol = lisp.Symbol("_")
+const (
+	underscoreSymbol = lisp.Symbol("_")
+	ampersandSymmbol = lisp.Symbol("&")
+)
 
 func doFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	env = env.Branch()
@@ -100,26 +102,67 @@ func buildMacroFunction(env *lisp.Environment, name string, defArgs, body lisp.L
 	}
 }
 
+func functionArityError(name string, defArgCount int) error {
+	switch defArgCount {
+	case 0:
+		return errors.Errorf("%s expects 0 arguments", name)
+	case 1:
+		return errors.Errorf("%s expects 1 argument", name)
+	default:
+		return errors.Errorf("%s expects %d arguments", name, defArgCount)
+	}
+}
+
 func functionEvaluate(env *lisp.Environment, name string, args, defArgs, body lisp.List) (interface{}, error) {
-	if len(args) != len(defArgs) {
-		switch len(defArgs) {
-		case 0:
-			return nil, fmt.Errorf("%s expects 0 arguments", name)
-		case 1:
-			return nil, fmt.Errorf("%s expects 1 argument", name)
-		default:
-			return nil, fmt.Errorf("%s expects %d arguments", name, len(defArgs))
+	// Locate the variadic symbol "&" position
+	var (
+		variadicAt     = -1
+		variadicSymbol lisp.Symbol
+		variadicArgs   = lisp.List{}
+	)
+	for i, arg := range defArgs {
+		if arg.(lisp.Symbol) == ampersandSymmbol {
+			variadicAt = i
+			break
 		}
 	}
-	for i, arg := range args {
-		name := defArgs[i].(lisp.Symbol)
-		if name == underscoreSymbol {
-			continue
+
+	// TODO: Ensure the variadic symbol is right next to the last varibale. If there are more than 1 more symbol, we
+	// should error.
+
+	if variadicAt < 0 {
+		if len(args) != len(defArgs) {
+			return nil, functionArityError(name, len(defArgs))
 		}
-		if err := env.DefineSymbol(string(name), arg); err != nil {
+	} else if len(args) < variadicAt {
+		return nil, functionArityError(name, variadicAt)
+	} else if variadicAt >= 0 {
+		if len(defArgs)-2 != variadicAt {
+			return nil, errors.New("definition has too many arguments after variadic symbol &")
+		}
+		variadicSymbol = defArgs[variadicAt+1].(lisp.Symbol)
+	}
+
+	for i, arg := range args {
+		if variadicAt >= 0 && i >= variadicAt {
+			variadicArgs = append(variadicArgs, arg)
+		} else {
+			symbol := defArgs[i].(lisp.Symbol)
+			if symbol == underscoreSymbol {
+				continue
+			}
+			if err := env.DefineSymbol(string(symbol), arg); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if variadicSymbol != "" && variadicSymbol != underscoreSymbol {
+		if err := env.DefineSymbol(string(variadicSymbol), variadicArgs); err != nil {
 			return nil, err
 		}
 	}
+
 	var (
 		value interface{}
 		err   error

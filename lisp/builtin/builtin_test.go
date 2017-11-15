@@ -127,6 +127,14 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(do (/ 10 2) (* 2 2))`), result: 4},
 		{input: []byte(`(let ((x 3) (y 4)) (* x y))`), result: 12},
 
+		// Variadic Functions
+		{input: []byte(`((fn (x & y) y) 1 2 3 4 5)`), result: lisp.List{2, 3, 4, 5}},
+		{input: []byte(`(define (vary x y & z) x) (vary 1 2 3 4 5)`), result: 1},
+		{input: []byte(`(define (vary x y & z) y) (vary 1 2 3 4 5)`), result: 2},
+		{input: []byte(`(define (vary x y & z) z) (vary 1 2 3 4 5)`), result: lisp.List{3, 4, 5}},
+		{input: []byte(`(define (vary x y & z w) z) (vary 1 2 3 4 5)`), error: "error calling vary: definition has too many arguments after variadic symbol &"},
+		{input: []byte(`(define (vary x y & z) z) (vary 1 2)`), result: lisp.List{}},
+
 		// Iterators
 		{input: []byte(`(map (fn (i v) (+ 1 v)) (list 1 2 3))`), result: lisp.List{2, 3, 4}},
 		{input: []byte(`(each (fn (k v) (+ 1 v)) (table :a 1 :b 2))`), result: lisp.Table{
@@ -147,6 +155,7 @@ func TestParser(t *testing.T) {
 
 			if test.error != "" {
 				require.Error(t, err)
+				require.Equal(t, test.error, err.Error())
 			} else {
 				require.NoError(t, err)
 			}
