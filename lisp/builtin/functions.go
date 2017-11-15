@@ -8,7 +8,7 @@ import (
 
 const (
 	underscoreSymbol = lisp.Symbol("_")
-	ampersandSymmbol = lisp.Symbol("&")
+	ampersandSymbol  = lisp.Symbol("&")
 )
 
 func doFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
@@ -121,7 +121,7 @@ func functionEvaluate(env *lisp.Environment, name string, args, defArgs, body li
 		variadicArgs   = lisp.List{}
 	)
 	for i, arg := range defArgs {
-		if arg.(lisp.Symbol) == ampersandSymmbol {
+		if arg.(lisp.Symbol) == ampersandSymbol {
 			variadicAt = i
 			break
 		}
