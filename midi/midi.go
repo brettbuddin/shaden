@@ -10,6 +10,7 @@ import (
 	"github.com/rakyll/portmidi"
 )
 
+// UnitBuilders returns the list of units provided by this package.
 func UnitBuilders() map[string]unit.BuildFunc {
 	return map[string]unit.BuildFunc{
 		"midi-clock": newClock,
@@ -17,6 +18,7 @@ func UnitBuilders() map[string]unit.BuildFunc {
 	}
 }
 
+// Initialize initializes portmidi and returns the list of devices on the system.
 func Initialize() (DeviceList, error) {
 	if err := portmidi.Initialize(); err != nil {
 		return nil, err
@@ -28,10 +30,12 @@ func Initialize() (DeviceList, error) {
 	return DeviceList(info), nil
 }
 
+// Terminate terminates portmidi.
 func Terminate() error {
 	return portmidi.Terminate()
 }
 
+// DeviceList is a list of MIDI devices.
 type DeviceList []*portmidi.DeviceInfo
 
 func (l DeviceList) String() string {
