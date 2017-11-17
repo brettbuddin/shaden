@@ -18,7 +18,7 @@ type Message struct {
 }
 
 // Reply is a payload that the Engine sends in response to a Message. It contains any resulting data from its processing
-// of the action, any error that might of occured and how long the action took to process.
+// of the action, any error that might of occurred and how long the action took to process.
 type Reply struct {
 	Duration time.Duration
 	Data     interface{}

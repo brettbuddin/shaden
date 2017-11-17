@@ -8,7 +8,7 @@ type Func interface {
 	Func(List) (interface{}, error)
 }
 
-// EnvFunc is a object that can act as a function invocation in the lisp. It recieves the current Environment and
+// EnvFunc is a object that can act as a function invocation in the lisp. It receives the current Environment and
 // unevaluated arguments. This leaves it up to the function to describe how arguments should be evaluated.
 type EnvFunc interface {
 	Name() string

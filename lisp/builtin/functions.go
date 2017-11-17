@@ -127,9 +127,6 @@ func functionEvaluate(env *lisp.Environment, name string, args, defArgs, body li
 		}
 	}
 
-	// TODO: Ensure the variadic symbol is right next to the last varibale. If there are more than 1 more symbol, we
-	// should error.
-
 	if variadicAt < 0 {
 		if len(args) != len(defArgs) {
 			return nil, functionArityError(name, len(defArgs))
