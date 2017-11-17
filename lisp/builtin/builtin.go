@@ -11,6 +11,7 @@ import (
 	"buddin.us/shaden/lisp"
 )
 
+// Load populates a lisp.Environment with builtin symbols.
 func Load(env *lisp.Environment) {
 	lispPath := os.Getenv("SHADEN_LISP_PATH")
 	loadPath := strings.Split(lispPath, string(filepath.ListSeparator))
