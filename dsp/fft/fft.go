@@ -1,3 +1,4 @@
+// Package fft provides FFT/IFFT and convolution implementations.
 package fft
 
 import (
