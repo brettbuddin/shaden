@@ -1,3 +1,4 @@
+// Package window provides windowing functions for FFT.
 package window
 
 import "math"
