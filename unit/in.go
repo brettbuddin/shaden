@@ -13,8 +13,8 @@ type InMode int
 
 // InModes
 const (
-	Sample InMode = iota
-	Block
+	Block InMode = iota
+	Sample
 )
 
 const controlPeriod = 64
