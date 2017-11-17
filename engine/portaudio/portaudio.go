@@ -20,7 +20,7 @@ type PortAudio struct {
 	params              portaudio.StreamParameters
 }
 
-// Intialize initializes portaudio and returns the list of devices on the machine.
+// Initialize initializes portaudio and returns the list of devices on the machine.
 func Initialize() (DeviceList, error) {
 	if err := portaudio.Initialize(); err != nil {
 		return nil, errors.Wrap(err, "initializing portaudio")
