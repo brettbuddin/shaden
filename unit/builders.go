@@ -3,35 +3,31 @@ package unit
 import "github.com/mitchellh/mapstructure"
 
 var (
-	unaryModules = map[string]unaryOp{
-		"abs":    unaryAbs,
-		"ceil":   unaryCeil,
-		"floor":  unaryFloor,
-		"invert": unaryInv,
-		"not":    unaryNOT,
-		"noop":   unaryNoop,
-	}
+	builders = map[string]nameBuildFunc{
+		"abs":    unaryBuildFunc(unaryAbs),
+		"ceil":   unaryBuildFunc(unaryCeil),
+		"floor":  unaryBuildFunc(unaryFloor),
+		"invert": unaryBuildFunc(unaryInv),
+		"not":    unaryBuildFunc(unaryNOT),
+		"noop":   unaryBuildFunc(unaryNoop),
 
-	binaryModules = map[string]binaryOp{
-		"and":   binaryAND,
-		"diff":  binaryDiff,
-		"div":   binaryDiv,
-		"gt":    binaryGT,
-		"imply": binaryIMPLY,
-		"lt":    binaryLT,
-		"max":   binaryMax,
-		"min":   binaryMin,
-		"mod":   binaryMod,
-		"mult":  binaryMult,
-		"nand":  binaryNAND,
-		"nor":   binaryNOR,
-		"or":    binaryOR,
-		"sum":   binarySum,
-		"xnor":  binaryXNOR,
-		"xor":   binaryXOR,
-	}
+		"and":   binaryBuildFunc(binaryAND),
+		"diff":  binaryBuildFunc(binaryDiff),
+		"div":   binaryBuildFunc(binaryDiv),
+		"gt":    binaryBuildFunc(binaryGT),
+		"imply": binaryBuildFunc(binaryIMPLY),
+		"lt":    binaryBuildFunc(binaryLT),
+		"max":   binaryBuildFunc(binaryMax),
+		"min":   binaryBuildFunc(binaryMin),
+		"mod":   binaryBuildFunc(binaryMod),
+		"mult":  binaryBuildFunc(binaryMult),
+		"nand":  binaryBuildFunc(binaryNAND),
+		"nor":   binaryBuildFunc(binaryNOR),
+		"or":    binaryBuildFunc(binaryOR),
+		"sum":   binaryBuildFunc(binarySum),
+		"xnor":  binaryBuildFunc(binaryXNOR),
+		"xor":   binaryBuildFunc(binaryXOR),
 
-	normalModules = map[string]nameBuildFunc{
 		"adjust":             newAdjust,
 		"chebyshev":          newChebyshev,
 		"clip":               newClip,
@@ -96,20 +92,26 @@ func (c Config) Decode(v interface{}) error {
 // Builders returns all BuildFuncs for all Units provided by this package.
 func Builders() map[string]BuildFunc {
 	m := map[string]BuildFunc{}
-	for k, v := range normalModules {
+	for k, v := range builders {
 		m[k] = func(name string, f nameBuildFunc) BuildFunc {
 			return func(cfg Config) (*Unit, error) {
 				return f(name, cfg)
 			}
 		}(k, v)
 	}
-	for k, v := range binaryModules {
-		m[k] = newBinary(k, v)
-	}
-	for k, v := range unaryModules {
-		m[k] = newUnary(k, v)
-	}
 	return m
 }
 
 type nameBuildFunc func(string, Config) (*Unit, error)
+
+func unaryBuildFunc(op unaryOp) nameBuildFunc {
+	return func(name string, c Config) (*Unit, error) {
+		return newUnary(name, op)(c)
+	}
+}
+
+func binaryBuildFunc(op binaryOp) nameBuildFunc {
+	return func(name string, c Config) (*Unit, error) {
+		return newBinary(name, op)(c)
+	}
+}
