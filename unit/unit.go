@@ -22,6 +22,11 @@ type SampleProcessor interface {
 	ProcessSample(i int)
 }
 
+// CondProcessor informs another party whether or not it should be processed.
+type CondProcessor interface {
+	IsProcessable() bool
+}
+
 // Rate is a rate in which signals will be processed by units
 type Rate int
 

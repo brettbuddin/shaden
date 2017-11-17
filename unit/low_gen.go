@@ -77,9 +77,9 @@ type lowGenSine struct {
 	lastSync float64
 }
 
-func (o *lowGenSine) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *lowGenSine) Out() *Out                  { return o.out }
-func (o *lowGenSine) ProcessFrame(int)           { o.ProcessSample(0) }
+func (o *lowGenSine) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *lowGenSine) Out() *Out           { return o.out }
+func (o *lowGenSine) ProcessFrame(int)    { o.ProcessSample(0) }
 
 func (o *lowGenSine) ProcessSample(i int) {
 	var (
@@ -103,9 +103,9 @@ type lowGenSaw struct {
 	lastSync float64
 }
 
-func (o *lowGenSaw) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *lowGenSaw) Out() *Out                  { return o.out }
-func (o *lowGenSaw) ProcessFrame(int)           { o.ProcessSample(0) }
+func (o *lowGenSaw) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *lowGenSaw) Out() *Out           { return o.out }
+func (o *lowGenSaw) ProcessFrame(int)    { o.ProcessSample(0) }
 
 func (o *lowGenSaw) ProcessSample(i int) {
 	var (
@@ -129,9 +129,9 @@ type lowGenPulse struct {
 	lastSync float64
 }
 
-func (o *lowGenPulse) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *lowGenPulse) Out() *Out                  { return o.out }
-func (o *lowGenPulse) ProcessFrame(int)           { o.ProcessSample(0) }
+func (o *lowGenPulse) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *lowGenPulse) Out() *Out           { return o.out }
+func (o *lowGenPulse) ProcessFrame(int)    { o.ProcessSample(0) }
 
 func (o *lowGenPulse) ProcessSample(i int) {
 	var (
@@ -163,9 +163,9 @@ type lowGenTriangle struct {
 	last, lastSync float64
 }
 
-func (o *lowGenTriangle) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *lowGenTriangle) Out() *Out                  { return o.out }
-func (o *lowGenTriangle) ProcessFrame(int)           { o.ProcessSample(0) }
+func (o *lowGenTriangle) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *lowGenTriangle) Out() *Out           { return o.out }
+func (o *lowGenTriangle) ProcessFrame(int)    { o.ProcessSample(0) }
 
 func (o *lowGenTriangle) ProcessSample(i int) {
 	var (

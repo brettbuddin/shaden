@@ -103,8 +103,8 @@ type genSine struct {
 	out            *Out
 }
 
-func (o *genSine) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *genSine) Out() *Out                  { return o.out }
+func (o *genSine) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *genSine) Out() *Out           { return o.out }
 
 func (o *genSine) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -139,8 +139,8 @@ type genSaw struct {
 	out            *Out
 }
 
-func (o *genSaw) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *genSaw) Out() *Out                  { return o.out }
+func (o *genSaw) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *genSaw) Out() *Out           { return o.out }
 
 func (o *genSaw) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -179,8 +179,8 @@ type genPulse struct {
 	out            *Out
 }
 
-func (o *genPulse) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *genPulse) Out() *Out                  { return o.out }
+func (o *genPulse) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *genPulse) Out() *Out           { return o.out }
 
 func (o *genPulse) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -226,8 +226,8 @@ type genTriangle struct {
 	lastSync, last float64
 }
 
-func (o *genTriangle) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *genTriangle) Out() *Out                  { return o.out }
+func (o *genTriangle) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *genTriangle) Out() *Out           { return o.out }
 
 func (o *genTriangle) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -271,8 +271,8 @@ type genNoise struct {
 	out *Out
 }
 
-func (o *genNoise) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *genNoise) Out() *Out                  { return o.out }
+func (o *genNoise) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *genNoise) Out() *Out           { return o.out }
 
 func (o *genNoise) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -293,8 +293,8 @@ type genCluster struct {
 	out *Out
 }
 
-func (o *genCluster) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *genCluster) Out() *Out                  { return o.out }
+func (o *genCluster) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *genCluster) Out() *Out           { return o.out }
 
 func (o *genCluster) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {

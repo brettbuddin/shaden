@@ -59,6 +59,6 @@
 (-> gate
     (table :in (<- mix)
            :control (<- slope)
-           :cutoff-high (hz 600)))
+           :cutoff-high (hz 1500)))
 
 (emit (<- gate))

@@ -146,8 +146,8 @@ func (e *Engine) collectProcessor(processors *[]unit.FrameProcessor, nodes []*gr
 	if in, ok := first.Value.(*unit.In); ok && !e.singleSampleDisabled {
 		in.Mode = unit.Block
 	}
-	if p, ok := first.Value.(frameProcessor); ok && p.ExternalNeighborCount() > 0 {
-		if isp, ok := p.(condProcessor); ok {
+	if p, ok := first.Value.(unit.FrameProcessor); ok {
+		if isp, ok := p.(unit.CondProcessor); ok {
 			if isp.IsProcessable() {
 				*processors = append(*processors, p)
 			}
@@ -164,7 +164,7 @@ func (e *Engine) collectGroup(processors *[]unit.FrameProcessor, nodes []*graph.
 			in.Mode = unit.Sample
 		}
 		if p, ok := w.Value.(unit.SampleProcessor); ok {
-			if isp, ok := p.(condProcessor); ok {
+			if isp, ok := p.(unit.CondProcessor); ok {
 				if isp.IsProcessable() {
 					g.processors = append(g.processors, p)
 				}
@@ -219,15 +219,6 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 			}
 		}
 	}
-}
-
-type frameProcessor interface {
-	unit.FrameProcessor
-	ExternalNeighborCount() int
-}
-
-type condProcessor interface {
-	IsProcessable() bool
 }
 
 type group struct {

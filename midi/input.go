@@ -152,8 +152,8 @@ type pitch struct {
 	out   *unit.Out
 }
 
-func (o *pitch) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *pitch) Out() *unit.Out             { return o.out }
+func (o *pitch) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *pitch) Out() *unit.Out      { return o.out }
 
 func (o *pitch) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -177,8 +177,8 @@ type pitchRaw struct {
 	out   *unit.Out
 }
 
-func (o *pitchRaw) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *pitchRaw) Out() *unit.Out             { return o.out }
+func (o *pitchRaw) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *pitchRaw) Out() *unit.Out      { return o.out }
 
 func (o *pitchRaw) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -256,8 +256,8 @@ func gateUp(s *gateState) gateStateFunc {
 	return gateUp
 }
 
-func (o *gate) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *gate) Out() *unit.Out             { return o.out }
+func (o *gate) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *gate) Out() *unit.Out      { return o.out }
 
 func (o *gate) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -278,8 +278,8 @@ type cc struct {
 	out     *unit.Out
 }
 
-func (o *cc) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *cc) Out() *unit.Out             { return o.out }
+func (o *cc) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *cc) Out() *unit.Out      { return o.out }
 
 func (o *cc) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
@@ -301,8 +301,8 @@ type bend struct {
 	out   *unit.Out
 }
 
-func (o *bend) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
-func (o *bend) Out() *unit.Out             { return o.out }
+func (o *bend) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
+func (o *bend) Out() *unit.Out      { return o.out }
 
 func (o *bend) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
