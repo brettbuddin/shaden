@@ -6,9 +6,9 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/rakyll/portmidi"
 
+	"buddin.us/musictheory"
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/unit"
-	"buddin.us/musictheory"
 )
 
 var pitches = map[int]float64{}
@@ -146,18 +146,23 @@ const (
 )
 
 type pitch struct {
-	*input
-	ch   int
-	freq float64
-	out  *unit.Out
+	input *input
+	ch    int
+	freq  float64
+	out   *unit.Out
 }
 
-func (o *pitch) IsProcessable() bool {
-	return o.out.DestinationCount() > 0
+func (o *pitch) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
+func (o *pitch) Out() *unit.Out             { return o.out }
+
+func (o *pitch) ProcessFrame(n int) {
+	for i := 0; i < n; i++ {
+		o.ProcessSample(i)
+	}
 }
 
 func (o *pitch) ProcessSample(i int) {
-	if e := o.events[i]; e.Status == int64(statusNoteOn+o.ch-1) {
+	if e := o.input.events[i]; e.Status == int64(statusNoteOn+o.ch-1) {
 		if v, ok := pitches[int(e.Data1)]; ok && e.Data2 > 0 {
 			o.freq = v
 		}
@@ -165,34 +170,31 @@ func (o *pitch) ProcessSample(i int) {
 	o.out.Write(i, o.freq)
 }
 
-func (o *pitch) Out() *unit.Out {
-	return o.out
-}
-
 type pitchRaw struct {
-	*input
-	ch   int
-	note float64
-	out  *unit.Out
+	input *input
+	ch    int
+	note  float64
+	out   *unit.Out
 }
 
-func (o *pitchRaw) IsProcessable() bool {
-	return o.out.DestinationCount() > 0
+func (o *pitchRaw) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
+func (o *pitchRaw) Out() *unit.Out             { return o.out }
+
+func (o *pitchRaw) ProcessFrame(n int) {
+	for i := 0; i < n; i++ {
+		o.ProcessSample(i)
+	}
 }
 
 func (o *pitchRaw) ProcessSample(i int) {
-	if e := o.events[i]; e.Status == int64(statusNoteOn+o.ch-1) {
+	if e := o.input.events[i]; e.Status == int64(statusNoteOn+o.ch-1) {
 		o.note = float64(e.Data1)
 	}
 	o.out.Write(i, o.note)
 }
 
-func (o *pitchRaw) Out() *unit.Out {
-	return o.out
-}
-
 type gate struct {
-	*input
+	input   *input
 	state   *gateState
 	stateFn gateStateFunc
 	out     *unit.Out
@@ -254,66 +256,63 @@ func gateUp(s *gateState) gateStateFunc {
 	return gateUp
 }
 
-func (o *gate) IsProcessable() bool {
-	return o.out.DestinationCount() > 0
+func (o *gate) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
+func (o *gate) Out() *unit.Out             { return o.out }
+
+func (o *gate) ProcessFrame(n int) {
+	for i := 0; i < n; i++ {
+		o.ProcessSample(i)
+	}
 }
 
 func (o *gate) ProcessSample(i int) {
-	o.state.event = o.events[i]
+	o.state.event = o.input.events[i]
 	o.stateFn = o.stateFn(o.state)
 	o.out.Write(i, o.state.value)
 }
 
-func (o *gate) Out() *unit.Out {
-	return o.out
-}
-
 type cc struct {
-	*input
+	input   *input
 	ch, num int64
 	value   float64
 	out     *unit.Out
 }
 
-func (o *cc) IsProcessable() bool {
-	return o.out.DestinationCount() > 0
-}
+func (o *cc) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
+func (o *cc) Out() *unit.Out             { return o.out }
 
-func (o *cc) Process(n int) {
+func (o *cc) ProcessFrame(n int) {
 	for i := 0; i < n; i++ {
 		o.ProcessSample(i)
 	}
 }
 
 func (o *cc) ProcessSample(i int) {
-	if e := o.events[i]; e.Status == statusCC+o.ch-1 && e.Data1 == o.num {
+	if e := o.input.events[i]; e.Status == statusCC+o.ch-1 && e.Data1 == o.num {
 		o.value = float64(e.Data2) / 127
 	}
 	o.out.Write(i, o.value)
 }
 
-func (o *cc) Out() *unit.Out {
-	return o.out
-}
-
 type bend struct {
-	*input
+	input *input
 	ch    int64
 	value float64
 	out   *unit.Out
 }
 
-func (o *bend) IsProcessable() bool {
-	return o.out.DestinationCount() > 0
+func (o *bend) ExternalNeighborCount() int { return o.out.ExternalNeighborCount() }
+func (o *bend) Out() *unit.Out             { return o.out }
+
+func (o *bend) ProcessFrame(n int) {
+	for i := 0; i < n; i++ {
+		o.ProcessSample(i)
+	}
 }
 
 func (o *bend) ProcessSample(i int) {
-	if e := o.events[i]; e.Status == statusPitchWheel+o.ch-1 && e.Data1 == 0 {
+	if e := o.input.events[i]; e.Status == statusPitchWheel+o.ch-1 && e.Data1 == 0 {
 		o.value = float64(e.Data2) / 127
 	}
 	o.out.Write(i, o.value)
-}
-
-func (o *bend) Out() *unit.Out {
-	return o.out
 }
