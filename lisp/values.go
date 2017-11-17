@@ -21,6 +21,7 @@ type Symbol string
 // Keyword represents a keyword lisp type
 type Keyword string
 
+// Name returns the name used when calling Keyword as a function.
 func (k Keyword) Name() string { return fmt.Sprintf("keyword function %s", k) }
 
 // Func implements the Func interface. It allows Keywords to be called like functions that accept a Table as their first
@@ -46,6 +47,7 @@ func (k Keyword) Func(args List) (interface{}, error) {
 // List represents a list lisp type
 type List []interface{}
 
+// Name returns the name used when calling List as a function.
 func (List) Name() string { return "list function" }
 
 // Func implements the Func interface. It allows Lists to be called like functions that accept an integer as their first
@@ -67,6 +69,7 @@ func (l List) Func(args List) (interface{}, error) {
 // Table represents a table lisp type
 type Table map[interface{}]interface{}
 
+// Name returns the name used when calling Table as a function.
 func (Table) Name() string { return "table function" }
 
 // Func implements the Func interface. It allows Tables to be called like functions that accept a key as their first
