@@ -1,0 +1,21 @@
+language: go
+go:
+  - 1.9
+  - tip
+os:
+  - linux
+  - osx
+addons:
+  apt:
+    packages:
+      - portaudio19-dev
+      - libportmidi-dev
+
+go_import_path: buddin.us/shaden
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install portmidi portaudio; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CGO_LDFLAGS="-lportmidi -lporttime -L/usr/lib -L/usr/local/lib"; fi
+
+script: TESTARGS="-tags ci" go test ./...
