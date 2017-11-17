@@ -34,7 +34,7 @@ type Backend interface {
 
 // New returns a new Sink
 func New(backend Backend, singleSampleDisabled bool) (*Engine, error) {
-	var stopping uint32 = 0
+	var stopping uint32
 
 	sinkUnit, sink := newSink(&stopping)
 	g := graph.New()
