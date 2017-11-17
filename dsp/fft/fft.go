@@ -58,7 +58,7 @@ func (f FFT) fft(w, r []complex128, n, step int) {
 	}
 }
 
-// Transform performs an inverse transform
+// Inverse performs an inverse transform
 func (f FFT) Inverse(w, r []complex128) error {
 	if len(w) != f.Size {
 		return fmt.Errorf("destination size mismatch: %d != %d", len(w), f.Size)
