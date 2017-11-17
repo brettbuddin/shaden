@@ -1,3 +1,4 @@
+// Package midi provides midi units.
 package midi
 
 import (

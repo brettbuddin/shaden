@@ -1,3 +1,4 @@
+// Package engine provides a low-level audio interface.
 package engine
 
 import (

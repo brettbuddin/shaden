@@ -1,3 +1,4 @@
+// Package unit provides built-in units for synthesis.
 package unit
 
 import (

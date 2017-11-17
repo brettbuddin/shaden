@@ -1,3 +1,4 @@
+// Package portaudio provides a portaudio backend for the engine.
 package portaudio
 
 import (

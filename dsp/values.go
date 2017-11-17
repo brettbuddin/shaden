@@ -1,4 +1,4 @@
-// Package dsp provides common digital signal processing operations
+// Package dsp provides common digital signal processing operations.
 package dsp
 
 import (

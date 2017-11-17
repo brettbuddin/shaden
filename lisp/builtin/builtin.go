@@ -1,3 +1,4 @@
+// Package builtin provides built-in functionality for the lisp interpreter.
 package builtin
 
 import (

@@ -1,3 +1,4 @@
+// Package lisp provides a lisp interpreter
 package lisp
 
 import (

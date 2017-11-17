@@ -1,3 +1,4 @@
+// Package runtime provides Shaden-specific lisp built-ins and REPL.
 package runtime
 
 import (

@@ -1,3 +1,4 @@
+// Package graph provides a directed graph implementation.
 package graph
 
 import (
