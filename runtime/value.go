@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 
+	"buddin.us/musictheory"
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/lisp"
-	"buddin.us/musictheory"
 )
 
 func hzFn(args lisp.List) (interface{}, error) {

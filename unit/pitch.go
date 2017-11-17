@@ -1,8 +1,8 @@
 package unit
 
 import (
-	"buddin.us/shaden/dsp"
 	"buddin.us/musictheory"
+	"buddin.us/shaden/dsp"
 )
 
 var pitches = map[int]float64{}
