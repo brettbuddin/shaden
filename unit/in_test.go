@@ -9,10 +9,7 @@ import (
 )
 
 func TestIn_BlockRead(t *testing.T) {
-	in := &In{
-		Name:  "in",
-		frame: newFrame(),
-	}
+	in := NewIn("in", dsp.Float64(0))
 	in.frame[0] = 10
 	in.frame[5] = 20
 	require.Equal(t, 10.0, in.Read(0))
@@ -20,11 +17,8 @@ func TestIn_BlockRead(t *testing.T) {
 }
 
 func TestIn_SampleRead(t *testing.T) {
-	in := &In{
-		Name:  "in",
-		Mode:  Sample,
-		frame: newFrame(),
-	}
+	in := NewIn("in", dsp.Float64(0))
+	in.Mode = Sample
 	in.frame[0] = 10
 	in.frame[5] = 20
 	require.Equal(t, 10.0, in.Read(1))
@@ -32,10 +26,7 @@ func TestIn_SampleRead(t *testing.T) {
 }
 
 func TestIn_ReadSlow(t *testing.T) {
-	in := &In{
-		Name:  "in",
-		frame: newFrame(),
-	}
+	in := NewIn("in", dsp.Float64(0))
 	in.frame[0] = 20
 	in.frame[64] = 30
 
@@ -47,10 +38,7 @@ func TestIn_ReadSlow(t *testing.T) {
 }
 
 func TestIn_Fill(t *testing.T) {
-	in := &In{
-		Name:  "in",
-		frame: newFrame(),
-	}
+	in := NewIn("in", dsp.Float64(0))
 	in.Fill(dsp.Float64(101))
 	require.Equal(t, 101.0, in.Read(10))
 }
@@ -85,12 +73,12 @@ func TestIn_CoupleOutput(t *testing.T) {
 }
 
 func TestIn_ReadControlRate(t *testing.T) {
-	in := &In{
-		Name:   "in",
-		Mode:   Sample,
-		frame:  newFrame(),
-		source: &Out{unit: &Unit{rate: RateControl}},
-	}
+	in := NewIn("in", dsp.Float64(0))
+	in.Mode = Sample
+	in.Couple(&Out{
+		unit:  &Unit{rate: RateControl},
+		frame: newFrame(),
+	})
 	in.frame[0] = 10
 	in.frame[5] = 20
 	require.Equal(t, 10.0, in.Read(0))

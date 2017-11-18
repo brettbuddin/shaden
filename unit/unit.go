@@ -38,7 +38,7 @@ const (
 
 var idCount uint32
 
-// Unit is a synthesizer module
+// Unit is a synthesizer unit
 type Unit struct {
 	SampleProcessor
 	*IO
@@ -96,13 +96,13 @@ func (u *Unit) Close() error {
 	return nil
 }
 
-// Attach connects this module and its inputs/outputs to a Graph
+// Attach connects this unit and its inputs/outputs to a Graph
 func (u *Unit) Attach(g *graph.Graph) error {
 	n := g.NewNode(u)
 	u.node = n
 
 	for _, e := range u.In {
-		e.module = u
+		e.unit = u
 		c := g.NewNode(e)
 		e.node = c
 		if err := g.NewConnection(c, n); err != nil {
@@ -120,7 +120,7 @@ func (u *Unit) Attach(g *graph.Graph) error {
 	return nil
 }
 
-// Detach removes this module and its inputs/outputs from a Graph
+// Detach removes this unit and its inputs/outputs from a Graph
 func (u *Unit) Detach(g *graph.Graph) error {
 	if err := g.RemoveNode(u.node); err != nil {
 		return errors.Wrap(err, "remove node failed")

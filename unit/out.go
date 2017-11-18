@@ -18,7 +18,7 @@ type OutputProcessor interface {
 	SampleProcessor
 }
 
-// Out is a module output
+// Out is a unit output
 type Out struct {
 	Name  string
 	unit  *Unit

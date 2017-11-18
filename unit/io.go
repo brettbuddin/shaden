@@ -35,14 +35,8 @@ func (io *IO) NewProp(name string, v interface{}, setter func(*Prop, interface{}
 
 // NewIn registers a new input
 func (io *IO) NewIn(name string, v dsp.Valuer) *In {
-	f := newFrame()
-	in := &In{
-		Name:          name,
-		frame:         f,
-		constantFrame: f,
-	}
+	in := NewIn(name, v)
 	io.In[in.Name] = in
-	in.setNormal(v)
 	return in
 }
 

@@ -19,18 +19,30 @@ const (
 
 const controlPeriod = 64
 
-// In is a module input
+// In is a unit input
 type In struct {
 	Name                      string
 	Mode                      InMode
 	constant, defaultConstant dsp.Valuer
 	frame, constantFrame      []float64
-	module                    *Unit
+	unit                      *Unit
 	source                    *Out
 	node                      *graph.Node
 
 	controlLastF float64
 	controlLastI int
+}
+
+// NewIn returns a new input
+func NewIn(name string, v dsp.Valuer) *In {
+	f := newFrame()
+	in := &In{
+		Name:          name,
+		frame:         f,
+		constantFrame: f,
+	}
+	in.setNormal(v)
+	return in
 }
 
 // Read reads a specific sample from the input frame
@@ -101,7 +113,7 @@ func (in *In) setNormal(v dsp.Valuer) {
 }
 
 func (in *In) String() string {
-	return fmt.Sprintf("%s/%s", in.module.ID, in.Name)
+	return fmt.Sprintf("%s/%s", in.unit.ID, in.Name)
 }
 
 func isSourceControlRate(in *In) bool {
