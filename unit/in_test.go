@@ -3,9 +3,10 @@ package unit
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/graph"
-	"github.com/stretchr/testify/require"
 )
 
 func TestIn_BlockRead(t *testing.T) {
