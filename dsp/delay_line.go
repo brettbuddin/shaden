@@ -58,45 +58,12 @@ func (d *DelayLine) ReadAbsolute(pos float64) float64 {
 	durationI, durationF := math.Modf(pos)
 	size := len(d.buffer)
 	offset := d.offset + int(durationI)
-	a := d.buffer[offset%size]
-	b := d.buffer[(offset+1)%size]
+	a := d.buffer[(offset+size)%size]
+	b := d.buffer[(offset+1+size)%size]
 	return Lerp(a, b, durationF)
 }
 
 // ReadRelative reads sample from the DelayLine at a scale between 0 and 1
 func (d *DelayLine) ReadRelative(scale float64) float64 {
 	return d.ReadAbsolute(scale * float64(len(d.buffer)-1))
-}
-
-// TappedDelayLine is a series of delay lines with tap points in-between
-type TappedDelayLine struct {
-	dl   []*DelayLine
-	taps []float64
-}
-
-// NewTappedDelayLine returns a new TappedDelayLine
-func NewTappedDelayLine(taps []int) *TappedDelayLine {
-	dl := &TappedDelayLine{
-		dl:   make([]*DelayLine, len(taps)),
-		taps: make([]float64, len(taps)),
-	}
-	for i, t := range taps {
-		dl.dl[i] = NewDelayLine(t)
-	}
-	return dl
-}
-
-// TapCount returns the number of taps in the delay line
-func (d *TappedDelayLine) TapCount() int {
-	return len(d.taps)
-}
-
-// Tick advances the operation using the full delay line size as duration
-func (d *TappedDelayLine) Tick(v float64) []float64 {
-	dv := v
-	for i, dl := range d.dl {
-		dv = dl.Tick(dv)
-		d.taps[i] = dv
-	}
-	return d.taps
 }

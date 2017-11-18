@@ -1,6 +1,11 @@
 package dsp
 
-// NewFBCombMS returns a new FBComb
+// NewFBComb returns a new FBComb
+func NewFBComb(size int) *FBComb {
+	return &FBComb{dl: NewDelayLine(size)}
+}
+
+// NewFBCombMS returns a new FBComb that's length is represented in milliseconds
 func NewFBCombMS(ms MS) *FBComb {
 	return &FBComb{dl: NewDelayLineMS(ms)}
 }
@@ -23,31 +28,9 @@ func (c *FBComb) TickAbsolute(in, gain, delay float64) float64 {
 	return out
 }
 
-// NewFilteredFBCombMS returns a new FilteredFBComb that's length is represented in milliseconds
-func NewFilteredFBCombMS(ms MS, poles int) *FilteredFBComb {
-	return &FilteredFBComb{dl: NewDelayLineMS(ms), f: NewFilter(LowPass, 4)}
-}
-
-// FilteredFBComb is a feedback comb filter
-type FilteredFBComb struct {
-	dl   *DelayLine
-	f    *Filter
-	last float64
-}
-
-// Tick advances the filter's state with the default delay
-func (c *FilteredFBComb) Tick(in, gain, cutoff, resonance float64) float64 {
-	return c.TickAbsolute(in, gain, -1, cutoff, resonance)
-}
-
-// TickAbsolute advances the filter's state with a specific delay
-func (c *FilteredFBComb) TickAbsolute(in, gain, delay, cutoff, resonance float64) float64 {
-	out := in + c.last
-	c.f.Cutoff = cutoff
-	c.f.Resonance = resonance
-	c.last = gain * c.f.Tick(tick(c.dl, out, delay))
-
-	return out
+// NewFFComb returns a new FBComb
+func NewFFComb(size int) *FFComb {
+	return &FFComb{dl: NewDelayLine(size)}
 }
 
 // NewFFCombMS returns a new FFComb that's length is represented in milliseconds
