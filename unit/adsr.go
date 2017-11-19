@@ -105,7 +105,7 @@ func adsrHold(s *adsrState) adsrStateFunc {
 }
 
 func adsrSustain(s *adsrState) adsrStateFunc {
-	s.sustainDur += 1000 / dsp.SampleRate
+	s.sustainDur++
 	if s.sustainDur >= s.sustain {
 		return prepAdsrRelease(s)
 	}
