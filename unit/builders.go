@@ -29,6 +29,7 @@ var (
 		"xor":   binaryBuildFunc(binaryXOR),
 
 		"adjust":             newAdjust,
+		"adsr":               newAdsr,
 		"chebyshev":          newChebyshev,
 		"clip":               newClip,
 		"clock":              newClock,
