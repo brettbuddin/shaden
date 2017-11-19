@@ -95,7 +95,6 @@ func (e *Engine) Errors() <-chan error {
 func (e *Engine) Run() {
 	if err := e.backend.Start(e.callback); err != nil {
 		e.errors <- err
-		return
 	}
 	<-e.stop
 
