@@ -9,45 +9,40 @@ import (
 func newAdsr(name string, _ Config) (*Unit, error) {
 	io := NewIO()
 	return NewUnit(io, name, &adsr{
-		state: &adsrState{
-			lastTrigger: -1,
-		},
-		stateFunc:  adsrIdle,
-		trigger:    io.NewIn("trigger", dsp.Float64(0)),
-		gate:       io.NewIn("gate", dsp.Float64(0)),
-		attack:     io.NewIn("attack", dsp.Duration(50)),
-		decay:      io.NewIn("decay", dsp.Duration(50)),
-		sustain:    io.NewIn("sustain", dsp.Duration(50)),
-		sustainLvl: io.NewIn("sustain-level", dsp.Float64(0.5)),
-		release:    io.NewIn("release", dsp.Duration(50)),
-		cycle:      io.NewIn("cycle", dsp.Float64(0)),
-		ratio:      io.NewIn("ratio", dsp.Float64(0.01)),
-		out:        io.NewOut("out"),
-		mirror:     io.NewOut("mirror"),
-		eoc:        io.NewOut("eoc"),
+		state:       &adsrState{},
+		stateFunc:   adsrIdle,
+		gate:        io.NewIn("gate", dsp.Float64(0)),
+		attack:      io.NewIn("attack", dsp.Duration(50)),
+		decay:       io.NewIn("decay", dsp.Duration(50)),
+		sustain:     io.NewIn("sustain", dsp.Float64(0.5)),
+		sustainHold: io.NewIn("sustain-hold", dsp.Duration(50)),
+		release:     io.NewIn("release", dsp.Duration(50)),
+		cycle:       io.NewIn("cycle", dsp.Float64(0)),
+		ratio:       io.NewIn("ratio", dsp.Float64(0.01)),
+		out:         io.NewOut("out"),
+		mirror:      io.NewOut("mirror"),
+		eoc:         io.NewOut("eoc"),
 	}), nil
 }
 
 type adsr struct {
-	trigger, gate, cycle, ratio                 *In
-	attack, decay, sustain, sustainLvl, release *In
-	out, mirror, eoc                            *Out
-	state                                       *adsrState
-	stateFunc                                   adsrStateFunc
+	gate, cycle, ratio                           *In
+	attack, decay, sustain, sustainHold, release *In
+	out, mirror, eoc                             *Out
+	state                                        *adsrState
+	stateFunc                                    adsrStateFunc
 }
 
 func (s *adsr) ProcessSample(i int) {
-	s.state.trigger = s.trigger.Read(i)
 	s.state.gate = s.gate.Read(i)
 	s.state.attack = s.attack.Read(i)
 	s.state.decay = s.decay.Read(i)
 	s.state.sustain = s.sustain.Read(i)
-	s.state.sustainLvl = s.sustainLvl.Read(i)
+	s.state.sustainHold = s.sustainHold.Read(i)
 	s.state.release = s.release.Read(i)
 	s.state.cycle = s.cycle.Read(i)
 	s.state.ratio = s.ratio.Read(i)
 	s.stateFunc = s.stateFunc(s.state)
-	s.state.lastTrigger = s.state.trigger
 	s.state.lastGate = s.state.gate
 
 	s.out.Write(i, s.state.out)
@@ -58,17 +53,17 @@ func (s *adsr) ProcessSample(i int) {
 type adsrStateFunc func(*adsrState) adsrStateFunc
 
 type adsrState struct {
-	trigger, gate, cycle, ratio                 float64
-	attack, decay, sustain, sustainLvl, release float64
-	base, multiplier, sustainDur                float64
-	lastTrigger, lastGate                       float64
-	out, eoc                                    float64
+	gate, cycle, ratio                           float64
+	attack, decay, sustain, sustainHold, release float64
+	base, multiplier, sustainDur                 float64
+	lastGate                                     float64
+	out, eoc                                     float64
 }
 
 func adsrIdle(s *adsrState) adsrStateFunc {
 	s.out = 0
 	s.eoc = -1
-	if isTrig(s.lastTrigger, s.trigger) || isTrig(s.lastGate, s.gate) {
+	if isTrig(s.lastGate, s.gate) {
 		return prepAdsrAttack(s)
 	}
 	return adsrIdle
@@ -85,11 +80,11 @@ func adsrAttack(s *adsrState) adsrStateFunc {
 
 func adsrDecay(s *adsrState) adsrStateFunc {
 	s.out = s.base + s.out*s.multiplier
-	if s.out <= s.sustainLvl {
+	if s.out <= s.sustain {
 		if s.gate > 0 {
 			return adsrHold
 		}
-		if s.sustain > 0 {
+		if s.sustainHold > 0 {
 			return prepAdsrSustain(s)
 		}
 		return prepAdsrRelease(s)
@@ -106,14 +101,14 @@ func adsrHold(s *adsrState) adsrStateFunc {
 
 func adsrSustain(s *adsrState) adsrStateFunc {
 	s.sustainDur++
-	if s.sustainDur >= s.sustain {
+	if s.sustainDur >= s.sustainHold {
 		return prepAdsrRelease(s)
 	}
 	return adsrSustain
 }
 
 func adsrRelease(s *adsrState) adsrStateFunc {
-	if isTrig(s.lastTrigger, s.trigger) || isTrig(s.lastGate, s.gate) {
+	if isTrig(s.lastGate, s.gate) {
 		return prepAdsrAttack(s)
 	}
 	s.out = s.base + s.out*s.multiplier
@@ -134,7 +129,7 @@ func prepAdsrAttack(s *adsrState) adsrStateFunc {
 }
 
 func prepAdsrDecay(s *adsrState) adsrStateFunc {
-	s.base, s.multiplier = slopeCoeffs(s.ratio, s.decay, s.sustainLvl, expCurve)
+	s.base, s.multiplier = slopeCoeffs(s.ratio, s.decay, s.sustain, expCurve)
 	return adsrDecay
 }
 
