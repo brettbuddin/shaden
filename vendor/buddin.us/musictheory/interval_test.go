@@ -137,7 +137,7 @@ func TestTranspose(test *testing.T) {
 	for i, t := range data {
 		actual := t.initial
 		for j := 0; j < t.times; j++ {
-			actual = actual.Transpose(t.interval).(Interval)
+			actual = actual.Transpose(t.interval)
 		}
 
 		if actual.Octaves != t.expected.Octaves ||

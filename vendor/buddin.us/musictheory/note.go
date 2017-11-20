@@ -100,8 +100,8 @@ func NewNote(pitch Pitch, duration Duration) Note {
 }
 
 // Transpose transposes a note by a given interval
-func (n Note) Transpose(i Interval) Transposer {
-	return Note{n.Pitch.Transpose(i).(Pitch), n.Duration}
+func (n Note) Transpose(i Interval) Note {
+	return Note{n.Pitch.Transpose(i), n.Duration}
 }
 
 func (n Note) String() string {

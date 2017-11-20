@@ -66,5 +66,5 @@ func transposeFn(args lisp.List) (interface{}, error) {
 	if !ok {
 		return nil, errors.Errorf("interval expects an interval for argument 2")
 	}
-	return pitch.Transpose(interval).(*musictheory.Pitch), nil
+	return pitch.Transpose(interval), nil
 }

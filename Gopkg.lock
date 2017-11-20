@@ -2,10 +2,10 @@
 
 
 [[projects]]
-  branch = "master"
   name = "buddin.us/musictheory"
   packages = ["."]
-  revision = "a75cbba1436bc714d8e6c42a8a83c628cce752f6"
+  revision = "8903a1f4b51420f4e3b0edb74e7376706e844469"
+  version = "v0.0.7"
 
 [[projects]]
   name = "github.com/c-bata/go-prompt"
@@ -76,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "92ce7f260afdbca79ea9fbb3e2afcf0441813bdb6f6a23bd667c6496465d532d"
+  inputs-digest = "93bc5d1020fbb9bce8342e00d6e6c4daae296b85cfe2a5e0b0ff50b1d5f40605"
   solver-name = "gps-cdcl"
   solver-version = 1

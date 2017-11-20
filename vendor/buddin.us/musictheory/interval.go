@@ -116,7 +116,7 @@ func (i Interval) Ratio() float64 {
 }
 
 // Transpose returns a new Interval that has been transposed by the given Interval
-func (i Interval) Transpose(o Interval) Transposer {
+func (i Interval) Transpose(o Interval) Interval {
 	var diatonic int
 
 	// TODO: Accomodate weird behavior of sequential minor second transpositions. We don't need to advance the diatonic

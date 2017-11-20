@@ -88,5 +88,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(tonic.Transpose(*interval).(mt.Pitch).Name(strategy))
+	fmt.Println(tonic.Transpose(*interval).Name(strategy))
 }

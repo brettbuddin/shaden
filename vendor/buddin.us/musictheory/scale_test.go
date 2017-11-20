@@ -40,7 +40,7 @@ func TestScales(test *testing.T) {
 		actual := []string{}
 
 		for _, p := range scale {
-			actual = append(actual, p.(mt.Pitch).Name(mt.DescNames))
+			actual = append(actual, p.Name(mt.DescNames))
 		}
 
 		if !reflect.DeepEqual(actual, t.expected) {

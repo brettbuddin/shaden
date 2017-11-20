@@ -36,11 +36,6 @@ var (
 	middleA        = NewPitch(A, Natural, 4)
 )
 
-// Transposer is something that shifts by an Interval
-type Transposer interface {
-	Transpose(Interval) Transposer
-}
-
 // DescNames maps an modifier to a correspending diatonic as flats
 func DescNames(i int) int {
 	return namesForFlats[normalizeChromatic(i)]
@@ -78,8 +73,8 @@ func (p Pitch) Name(strategy ModifierStrategy) string {
 }
 
 // Transpose transposes a pitch by a given interval
-func (p Pitch) Transpose(i Interval) Transposer {
-	return Pitch{p.Interval.Transpose(i).(Interval)}
+func (p Pitch) Transpose(i Interval) Pitch {
+	return Pitch{p.Interval.Transpose(i)}
 }
 
 // Eq determines if another pitch is the same
@@ -116,5 +111,5 @@ func NearestPitch(f float64) Pitch {
 	if x == 0 {
 		return middleA
 	}
-	return middleA.Transpose(Semitones(int(x))).(Pitch)
+	return middleA.Transpose(Semitones(int(x)))
 }

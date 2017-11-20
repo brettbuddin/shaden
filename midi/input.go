@@ -17,7 +17,7 @@ func init() {
 	p := musictheory.NewPitch(musictheory.C, musictheory.Natural, 0)
 	for i := 12; i < 127; i++ {
 		pitches[i] = dsp.Frequency(p.Freq()).Float64()
-		p = p.Transpose(musictheory.Minor(2)).(musictheory.Pitch)
+		p = p.Transpose(musictheory.Minor(2))
 	}
 }
 
