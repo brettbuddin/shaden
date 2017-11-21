@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/brettbuddin/shaden.svg?branch=ci)](https://travis-ci.org/brettbuddin/shaden)
 [![GoDoc](https://godoc.org/buddin.us/shaden?status.svg)](https://godoc.org/buddin.us/shaden)
 [![Go Report Card](https://goreportcard.com/badge/github.com/brettbuddin/shaden)](https://goreportcard.com/report/github.com/brettbuddin/shaden)
+[![Coverage Status](https://coveralls.io/repos/github/brettbuddin/shaden/badge.svg?branch=master)](https://coveralls.io/github/brettbuddin/shaden?branch=master)
 
 Shaden is a modular audio synthesizer. Patches for the synthesizer are written in a Lisp dialect. A REPL and HTTP
 interface is provided for interacting with the synthesizer in real-time. I started this project as a way of learning
