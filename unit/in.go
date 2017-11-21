@@ -81,6 +81,11 @@ func (in *In) Fill(v dsp.Valuer) {
 	}
 }
 
+// Write writes a sample to the internal buffer
+func (in *In) Write(i int, v float64) {
+	in.frame[i] = v
+}
+
 // Couple assigns the internal frame of this input to the frame of an output; binding them together. This in-of-itself
 // does not define the connection. That is controlled by the the Nodes and Graph.
 func (in *In) Couple(out Output) {

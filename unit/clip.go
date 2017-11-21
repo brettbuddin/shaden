@@ -27,6 +27,7 @@ func (c *clip) ProcessSample(i int) {
 	)
 	if soft == 1 {
 		c.out.Write(i, dsp.SoftClamp(in, level))
+		return
 	}
 	c.out.Write(i, dsp.Clamp(in, -level, level))
 }

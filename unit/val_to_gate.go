@@ -21,5 +21,9 @@ type valToGate struct {
 
 func (g *valToGate) ProcessSample(i int) {
 	in := g.in.Read(i)
-	g.out.Write(i, (math.Min(in, 1)-0.5)*2)
+	if math.Signbit(in) {
+		g.out.Write(i, -1)
+	} else {
+		g.out.Write(i, 1)
+	}
 }

@@ -40,7 +40,9 @@ func (c *count) ProcessSample(i int) {
 		resetOut = 1
 	} else if c.lastTrigger < 0 && trigger > 0 {
 		c.count = (c.count + int(step) + limit) % limit
-		resetOut = 1
+		if c.count == 0 {
+			resetOut = 1
+		}
 	}
 
 	c.lastReset = reset

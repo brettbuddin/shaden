@@ -16,9 +16,10 @@ func newClockDiv(name string, c Config) (*Unit, error) {
 
 	io := NewIO()
 	cd := &clockDiv{
-		in:  io.NewIn("in", dsp.Float64(0)),
-		div: io.NewIn("div", dsp.Float64(config.Div)),
-		out: io.NewOut("out"),
+		in:   io.NewIn("in", dsp.Float64(0)),
+		div:  io.NewIn("div", dsp.Float64(config.Div)),
+		out:  io.NewOut("out"),
+		last: -1,
 	}
 	return NewUnit(io, name, cd), nil
 }
@@ -37,14 +38,14 @@ func (d *clockDiv) ProcessSample(i int) {
 		in  = d.in.Read(i)
 	)
 
+	if d.last < 0 && in > 0 {
+		d.tick++
+	}
 	if float64(d.tick) >= div {
 		d.out.Write(i, 1)
 		d.tick = 0
 	} else {
 		d.out.Write(i, -1)
-	}
-	if d.last < 0 && in > 0 {
-		d.tick++
 	}
 	d.last = in
 }

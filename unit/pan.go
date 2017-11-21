@@ -18,7 +18,7 @@ type pan struct {
 }
 
 func (p *pan) ProcessSample(i int) {
-	pan := p.pan.Read(i)
+	pan := dsp.Clamp(p.pan.Read(i), -1, 1)
 	in := p.in.Read(i)
 	if pan > 0 {
 		p.a.Write(i, (1-pan)*in)
