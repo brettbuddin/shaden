@@ -232,11 +232,11 @@ func lexLeftParen(l *lexer) stateFn {
 }
 
 func lexRightParen(l *lexer) stateFn {
-	l.emit(tokenRightParen)
 	l.parenDepth--
 	if l.parenDepth < 0 {
 		return l.errorf("unexpected right paren")
 	}
+	l.emit(tokenRightParen)
 	return lexText
 }
 

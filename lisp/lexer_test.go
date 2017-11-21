@@ -32,7 +32,6 @@ func TestLex(t *testing.T) {
 			newToken(tokenError, "unclosed left paren"),
 		}},
 		{")", []token{
-			newToken(tokenRightParen, ")"),
 			newToken(tokenError, "unexpected right paren"),
 		}},
 		{"(word 5)", []token{
