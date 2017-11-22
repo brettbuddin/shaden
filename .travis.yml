@@ -10,6 +10,9 @@ addons:
     packages:
       - portaudio19-dev
       - libportmidi-dev
+matrix:
+  allow_failures:
+    - go: tip
 
 go_import_path: buddin.us/shaden
 
