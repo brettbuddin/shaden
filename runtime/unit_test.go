@@ -7,17 +7,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/engine"
 	"buddin.us/shaden/lisp"
 	"buddin.us/shaden/unit"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/require"
 )
 
 func TestUnitOutputs(t *testing.T) {
 	var (
-		be       = backend{}
+		be       = &backend{}
 		messages = messageChannel{make(chan *engine.Message)}
 		eng, err = engine.New(be, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
@@ -36,7 +38,7 @@ func TestUnitOutputs(t *testing.T) {
 
 func TestUnitInputs(t *testing.T) {
 	var (
-		be       = backend{}
+		be       = &backend{}
 		messages = messageChannel{make(chan *engine.Message)}
 		eng, err = engine.New(be, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
@@ -55,7 +57,7 @@ func TestUnitInputs(t *testing.T) {
 
 func TestUnitID(t *testing.T) {
 	var (
-		be       = backend{}
+		be       = &backend{}
 		messages = messageChannel{make(chan *engine.Message)}
 		eng, err = engine.New(be, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
@@ -74,7 +76,7 @@ func TestUnitID(t *testing.T) {
 
 func TestUnitType(t *testing.T) {
 	var (
-		be       = backend{}
+		be       = &backend{}
 		messages = messageChannel{make(chan *engine.Message)}
 		eng, err = engine.New(be, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
@@ -93,7 +95,7 @@ func TestUnitType(t *testing.T) {
 
 func TestUnitOutput(t *testing.T) {
 	var (
-		be       = backend{1} // execute callback once
+		be       = &backend{calls: 1} // execute callback once
 		messages = messageChannel{make(chan *engine.Message)}
 		eng, err = engine.New(be, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
@@ -109,10 +111,10 @@ func TestUnitOutput(t *testing.T) {
 			(define noop (unit/noop))
 			(list (<- noop) (<- noop :out))
 		`))
-		require.NoError(t, err)
+		assert.NoError(t, err)
 		list := v.(lisp.List)
-		require.Equal(t, "out", list[0].(unit.OutRef).Output)
-		require.Equal(t, "out", list[1].(unit.OutRef).Output)
+		assert.Equal(t, "out", list[0].(unit.OutRef).Output)
+		assert.Equal(t, "out", list[1].(unit.OutRef).Output)
 		require.NoError(t, eng.Stop())
 	}()
 
@@ -130,7 +132,7 @@ func TestUnitOutput(t *testing.T) {
 
 func TestUnitPatch(t *testing.T) {
 	var (
-		be       = backend{2} // execute callback twice
+		be       = &backend{calls: 2} // execute callback twice
 		messages = messageChannel{make(chan *engine.Message)}
 		eng, err = engine.New(be, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
@@ -146,7 +148,80 @@ func TestUnitPatch(t *testing.T) {
 			(define noop (unit/noop))
 			(-> noop (table :x 1))
 		`))
+		assert.NoError(t, err)
+		require.NoError(t, eng.Stop())
+	}()
+
+	go func() {
+		eng.Run()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Error("timeout waiting for completion")
+	}
+}
+
+func TestUnitUnmount(t *testing.T) {
+	var (
+		be       = &backend{calls: 3}
+		messages = messageChannel{make(chan *engine.Message)}
+		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		logger   = log.New(os.Stdout, "", -1)
+	)
+
+	require.NoError(t, err)
+
+	done := make(chan struct{})
+	go func() {
+		run, err := New(eng, logger)
 		require.NoError(t, err)
+		v, err := run.Eval([]byte(`
+			(define noop (unit/noop))
+			(-> noop (table :x 1))
+			(unit-unmount noop)
+			noop
+		`))
+		assert.NoError(t, err)
+		assert.False(t, v.(*lazyUnit).mount)
+		require.NoError(t, eng.Stop())
+	}()
+
+	go func() {
+		eng.Run()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Error("timeout waiting for completion")
+	}
+}
+
+func TestUnitRemove(t *testing.T) {
+	var (
+		be       = &backend{calls: 3}
+		messages = messageChannel{make(chan *engine.Message)}
+		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		logger   = log.New(os.Stdout, "", -1)
+	)
+
+	require.NoError(t, err)
+
+	done := make(chan struct{})
+	go func() {
+		run, err := New(eng, logger)
+		require.NoError(t, err)
+		_, err = run.Eval([]byte(`
+			(define noop (unit/noop))
+			(-> noop (table :x 1))
+			(unit-remove noop)
+			noop
+		`))
+		assert.Error(t, err)
 		require.NoError(t, eng.Stop())
 	}()
 
@@ -203,10 +278,11 @@ func TestInputConversions(t *testing.T) {
 }
 
 type backend struct {
-	calls int
+	calls   int
+	written [][]float32
 }
 
-func (b backend) Start(cb func([]float32, [][]float32)) error {
+func (b *backend) Start(cb func([]float32, [][]float32)) error {
 	var (
 		in  = make([]float32, dsp.FrameSize)
 		out = [][]float32{
@@ -217,6 +293,7 @@ func (b backend) Start(cb func([]float32, [][]float32)) error {
 	for i := 0; i < b.calls; i++ {
 		cb(in, out)
 	}
+	b.written = out
 	return nil
 }
 func (backend) Stop() error    { return nil }

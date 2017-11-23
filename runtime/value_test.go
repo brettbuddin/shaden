@@ -13,7 +13,7 @@ import (
 func TestHz(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(backend{}, engine.WithMessageChannel(messages))
+		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -51,7 +51,7 @@ func TestHz(t *testing.T) {
 func TestMS(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(backend{}, engine.WithMessageChannel(messages))
+		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -77,7 +77,7 @@ func TestMS(t *testing.T) {
 func TestBPM(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(backend{}, engine.WithMessageChannel(messages))
+		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -103,7 +103,7 @@ func TestBPM(t *testing.T) {
 func TestDB(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(backend{}, engine.WithMessageChannel(messages))
+		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 

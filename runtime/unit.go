@@ -197,6 +197,7 @@ func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, e
 			return nil, reply.Error
 		}
 		logger.Printf("remove: id=%s duration=%s\n", u.ID, reply.Duration)
+		lazy.mount = false
 		return nil, nil
 	}
 }

@@ -13,7 +13,7 @@ import (
 func TestPitch(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(backend{}, engine.WithMessageChannel(messages))
+		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -35,7 +35,7 @@ func TestPitch(t *testing.T) {
 func TestInterval(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(backend{}, engine.WithMessageChannel(messages))
+		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -71,7 +71,7 @@ func TestInterval(t *testing.T) {
 func TestTranspose(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(backend{}, engine.WithMessageChannel(messages))
+		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
