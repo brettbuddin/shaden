@@ -47,7 +47,9 @@ func (r *lazyUnit) mounted() (*unit.Unit, error) {
 
 	m := engine.NewMessage(engine.MountUnit(r.created))
 
-	r.engine.Messages() <- m
+	if err := r.engine.SendMessage(m); err != nil {
+		return nil, err
+	}
 	reply := <-m.Reply
 	if reply.Error != nil {
 		return nil, reply.Error
@@ -187,7 +189,9 @@ func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, e
 
 		m := engine.NewMessage(engine.UnmountUnit(u))
 
-		e.Messages() <- m
+		if err := e.SendMessage(m); err != nil {
+			return nil, err
+		}
 		reply := <-m.Reply
 		if reply.Error != nil {
 			return nil, reply.Error
@@ -220,7 +224,9 @@ func patchFn(e Engine, logger *log.Logger, forceReset bool) func(lisp.List) (int
 
 		m := engine.NewMessage(engine.PatchInput(u, inputs, forceReset))
 
-		e.Messages() <- m
+		if err := e.SendMessage(m); err != nil {
+			return nil, err
+		}
 		reply := <-m.Reply
 		if reply.Error != nil {
 			return nil, reply.Error
@@ -308,7 +314,9 @@ func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 		}
 
 		msg := engine.NewMessage(engine.EmitOutputs(left, right))
-		e.Messages() <- msg
+		if err := e.SendMessage(msg); err != nil {
+			return nil, err
+		}
 		reply := <-msg.Reply
 		logger.Printf("%s: duration=%s\n", nameEmit, reply.Duration)
 		return reply.Data, reply.Error

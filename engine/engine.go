@@ -9,15 +9,17 @@ import (
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/graph"
 	"buddin.us/shaden/unit"
+	"github.com/pkg/errors"
 )
 
 // Engine is the connection of the synthesizer to PortAudio
 type Engine struct {
-	backend              Backend
-	graph                *graph.Graph
-	unit                 *unit.Unit
-	processors           []unit.FrameProcessor
-	messages             chan *Message
+	messages   MessageChannel
+	backend    Backend
+	graph      *graph.Graph
+	unit       *unit.Unit
+	processors []unit.FrameProcessor
+	// messages             chan *Message
 	errors, stop         chan error
 	input                []float64
 	lout, rout           []float64
@@ -33,8 +35,25 @@ type Backend interface {
 	FrameSize() int
 }
 
+// Option is an option for the Engine
+type Option func(*Engine)
+
+// WithMessageChannel establishes a MessageChannel to be used for sending and receiving messages within the Engine.
+func WithMessageChannel(ch MessageChannel) Option {
+	return func(e *Engine) {
+		e.messages = ch
+	}
+}
+
+// WithSingleSampleDisabled disables the single-sample feedback loop behavior.
+func WithSingleSampleDisabled() Option {
+	return func(e *Engine) {
+		e.singleSampleDisabled = true
+	}
+}
+
 // New returns a new Sink
-func New(backend Backend, singleSampleDisabled bool) (*Engine, error) {
+func New(backend Backend, opts ...Option) (*Engine, error) {
 	var stopping uint32
 
 	sinkUnit, sink := newSink(&stopping)
@@ -43,20 +62,25 @@ func New(backend Backend, singleSampleDisabled bool) (*Engine, error) {
 		return nil, err
 	}
 
-	return &Engine{
-		backend:              backend,
-		graph:                g,
-		messages:             make(chan *Message),
-		unit:                 sinkUnit,
-		lout:                 sink.left.out,
-		rout:                 sink.right.out,
-		errors:               make(chan error),
-		stop:                 make(chan error),
-		input:                make([]float64, dsp.FrameSize),
-		chunks:               int(dsp.Float64(backend.FrameSize()) / dsp.FrameSize),
-		singleSampleDisabled: singleSampleDisabled,
-		stopping:             &stopping,
-	}, nil
+	e := &Engine{
+		backend:  backend,
+		graph:    g,
+		messages: newMessageChannel(),
+		unit:     sinkUnit,
+		lout:     sink.left.out,
+		rout:     sink.right.out,
+		errors:   make(chan error),
+		stop:     make(chan error),
+		input:    make([]float64, dsp.FrameSize),
+		chunks:   int(dsp.Float64(backend.FrameSize()) / dsp.FrameSize),
+		stopping: &stopping,
+	}
+
+	for _, opt := range opts {
+		opt(e)
+	}
+
+	return e, nil
 }
 
 // UnitBuilders returns all unit.BuildFuncs for Units provided by the Engine.
@@ -81,9 +105,8 @@ func (e *Engine) Reset() error {
 	return nil
 }
 
-// Messages provides a send-only channel that can be used to execute code on the main audio goroutine
-func (e *Engine) Messages() chan<- *Message {
-	return e.messages
+func (e *Engine) SendMessage(msg *Message) error {
+	return e.messages.Send(msg)
 }
 
 // Errors returns a channel that expresses any errors during operation of the Engine
@@ -195,10 +218,8 @@ func (e *Engine) handle(msg *Message) {
 // callback is the callback function provided to PortAudio; it drives the entire synthesiser.
 func (e *Engine) callback(in []float32, out [][]float32) {
 	for k := 0; k < e.chunks; k++ {
-		select {
-		case msg := <-e.messages:
+		if msg := e.messages.Receive(); msg != nil {
 			e.handle(msg)
-		default:
 		}
 
 		offset := int(dsp.FrameSize * k)
@@ -230,4 +251,37 @@ func (g group) ProcessFrame(n int) {
 			p.ProcessSample(i)
 		}
 	}
+}
+
+func newMessageChannel() messageChannel {
+	return messageChannel{make(chan *Message)}
+}
+
+type messageChannel struct {
+	messages chan *Message
+}
+
+func (b messageChannel) Receive() *Message {
+	select {
+	case msg := <-b.messages:
+		return msg
+	default:
+		return nil
+	}
+}
+
+func (b messageChannel) Send(msg *Message) error {
+	select {
+	case b.messages <- msg:
+	case <-time.After(10 * time.Second):
+		return errors.New("timeout sending message")
+	}
+	return nil
+}
+func (b messageChannel) Close() { close(b.messages) }
+
+type MessageChannel interface {
+	Receive() *Message
+	Send(*Message) error
+	Close()
 }

@@ -96,7 +96,11 @@ func run(args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "creating portaudio backend")
 	}
-	e, err := engine.New(backend, *singleSampleDisabled)
+	opts := []engine.Option{}
+	if *singleSampleDisabled {
+		opts = append(opts, engine.WithSingleSampleDisabled())
+	}
+	e, err := engine.New(backend, opts...)
 	if err != nil {
 		return errors.Wrap(err, "engine create failed")
 	}

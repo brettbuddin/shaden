@@ -61,7 +61,6 @@ type quantize struct {
 	in, tonic *In
 	out       *Out
 
-	lastTonic        *musictheory.Pitch
 	lastIntervalHash string
 	ratios           []float64
 	ratioCount       int

@@ -58,7 +58,7 @@ func transposeFn(args lisp.List) (interface{}, error) {
 	if len(args) != 2 {
 		return nil, errors.Errorf("transpose expects two arguments")
 	}
-	pitch, ok := args[0].(*musictheory.Pitch)
+	pitch, ok := args[0].(musictheory.Pitch)
 	if !ok {
 		return nil, errors.Errorf("transpose expects a pitch for argument 1")
 	}

@@ -16,7 +16,7 @@ func TestEngine_Stop(t *testing.T) {
 		stop:      func() error { return nil },
 		frameSize: dsp.FrameSize * 2,
 	}
-	e, err := New(be, false)
+	e, err := New(be)
 	require.NoError(t, err)
 	go e.Run()
 	go func() {
@@ -32,7 +32,7 @@ func TestEngine_StopProxyBackendError(t *testing.T) {
 		stop:      func() error { return fmt.Errorf("exploded") },
 		frameSize: dsp.FrameSize * 2,
 	}
-	e, err := New(be, false)
+	e, err := New(be)
 	require.NoError(t, err)
 	go e.Run()
 	go func() {
@@ -48,7 +48,7 @@ func TestEngine_StartError(t *testing.T) {
 		stop:      func() error { return nil },
 		frameSize: dsp.FrameSize * 2,
 	}
-	e, err := New(be, false)
+	e, err := New(be)
 	require.NoError(t, err)
 	go e.Run()
 
@@ -79,7 +79,7 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 		stop:      func() error { return nil },
 		frameSize: size,
 	}
-	e, err := New(be, false)
+	e, err := New(be)
 	require.NoError(t, err)
 	require.Equal(t, 3, e.graph.Size())
 
@@ -95,11 +95,8 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 
 	// Send a MountUnit message to the engine
 	msg := NewMessage(MountUnit(u))
-	select {
-	case e.Messages() <- msg:
-	case <-time.After(5 * time.Second):
-		t.Error("timeout waiting for send message")
-	}
+	err = e.SendMessage(msg)
+	require.NoError(t, err)
 
 	var reply *Reply
 	select {
@@ -114,11 +111,9 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 
 	// Send UnmountUnit message to the engine
 	msg = NewMessage(UnmountUnit(u))
-	select {
-	case e.Messages() <- msg:
-	case <-time.After(5 * time.Second):
-		t.Error("timeout waiting for send message")
-	}
+
+	err = e.SendMessage(msg)
+	require.NoError(t, err)
 
 	select {
 	case reply = <-msg.Reply:
@@ -148,7 +143,7 @@ func TestEngine_MountAndReset(t *testing.T) {
 		stop:      func() error { return nil },
 		frameSize: size,
 	}
-	e, err := New(be, false)
+	e, err := New(be)
 	require.NoError(t, err)
 	require.Equal(t, 3, e.graph.Size())
 
@@ -162,11 +157,8 @@ func TestEngine_MountAndReset(t *testing.T) {
 	u := unit.NewUnit(io, "example-unit", nil)
 
 	msg := NewMessage(MountUnit(u))
-	select {
-	case e.Messages() <- msg:
-	case <-time.After(5 * time.Second):
-		t.Error("timeout waiting for send message")
-	}
+	err = e.SendMessage(msg)
+	require.NoError(t, err)
 
 	var reply *Reply
 	select {

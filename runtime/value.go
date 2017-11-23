@@ -18,7 +18,7 @@ func hzFn(args lisp.List) (interface{}, error) {
 		return dsp.Frequency(v), nil
 	case int:
 		return dsp.Frequency(float64(v)), nil
-	case *musictheory.Pitch:
+	case musictheory.Pitch:
 		return dsp.Frequency(v.Freq()), nil
 	case string:
 		return dsp.ParsePitch(v)

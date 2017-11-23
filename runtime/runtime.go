@@ -18,7 +18,7 @@ import (
 
 // Engine represents the things we need from engine.Engine
 type Engine interface {
-	Messages() chan<- *engine.Message
+	SendMessage(*engine.Message) error
 	UnitBuilders() map[string]unit.BuildFunc
 }
 
@@ -111,17 +111,7 @@ func loadShaden(r *Runtime) error {
 	env := r.base
 
 	loadConstants(env)
-
-	// Music Theory
-	env.DefineSymbol("theory/pitch", pitchFn)
-	env.DefineSymbol("theory/interval", intervalFn)
-	env.DefineSymbol("theory/transpose", transposeFn)
-
-	// Values
-	env.DefineSymbol("hz", hzFn)
-	env.DefineSymbol("ms", msFn)
-	env.DefineSymbol("bpm", bpmFn)
-	env.DefineSymbol("db", dbFn)
+	loadValues(env)
 
 	engine := r.engine
 	logger := r.logger
@@ -145,6 +135,19 @@ func loadShaden(r *Runtime) error {
 	env.DefineSymbol(nameUnitOutput, outFn(engine))
 
 	return nil
+}
+
+func loadValues(env *lisp.Environment) {
+	// Values
+	env.DefineSymbol("hz", hzFn)
+	env.DefineSymbol("ms", msFn)
+	env.DefineSymbol("bpm", bpmFn)
+	env.DefineSymbol("db", dbFn)
+
+	// Music Theory
+	env.DefineSymbol("theory/pitch", pitchFn)
+	env.DefineSymbol("theory/interval", intervalFn)
+	env.DefineSymbol("theory/transpose", transposeFn)
 }
 
 func loadConstants(env *lisp.Environment) {
@@ -183,7 +186,9 @@ func loadConstants(env *lisp.Environment) {
 func engineClear(r *Runtime) func(*lisp.Environment, lisp.List) (interface{}, error) {
 	return func(*lisp.Environment, lisp.List) (interface{}, error) {
 		msg := engine.NewMessage(engine.Clear)
-		r.engine.Messages() <- msg
+		if err := r.engine.SendMessage(msg); err != nil {
+			return nil, err
+		}
 		reply := <-msg.Reply
 		if reply.Error != nil {
 			return nil, reply.Error
