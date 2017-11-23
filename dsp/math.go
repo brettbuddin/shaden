@@ -15,7 +15,7 @@ func ExpRatio(ratio, speed float64) float64 {
 	return math.Exp(-math.Log(float64((1+ratio)/ratio)) / float64(speed))
 }
 
-// SoftClamp limits a value to a specific range, but compresses the value as it approaches the threshold
+// SoftClamp limits a value to a specific range, but compresses the value as it goes beyond the threshold
 func SoftClamp(s, threshold float64) float64 {
 	abs := math.Abs(s)
 	if abs <= 0.5 {
