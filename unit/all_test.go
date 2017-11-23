@@ -721,6 +721,23 @@ func TestAllUnits(t *testing.T) {
 				},
 			},
 		},
+		{
+			unit:   "chebyshev",
+			config: nil,
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in": []float64{1, 1},
+						"a":  []float64{0.5, 1},
+						"b":  []float64{0.1, 1},
+						"c":  []float64{0.1, 1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0.7, 3},
+					},
+				},
+			},
+		},
 	}
 
 	builders := Builders()

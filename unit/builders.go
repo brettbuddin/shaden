@@ -68,7 +68,6 @@ var (
 		"smooth":             newSmooth,
 		"stages":             newStages,
 		"switch":             newSwitch,
-		"tape":               newTape,
 		"toggle":             newToggle,
 		"transpose":          newTranspose,
 		"transpose-interval": newTransposeInterval,

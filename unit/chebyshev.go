@@ -50,28 +50,7 @@ func (c *chebyshev) ProcessSample(i int) {
 		out float64
 	)
 	for j, v := range c.coeffs {
-		out += v.Read(i) * c.n(j, x)
+		out += v.Read(i) * dsp.Chebyshev(j, x)
 	}
 	c.out.Write(i, out)
-}
-
-func (c *chebyshev) n(n int, x float64) float64 {
-	switch n {
-	case 0:
-		return 1
-	case 1:
-		return x
-	case 2:
-		return (2.0 * x * x) - 1.0
-	}
-	var (
-		y1 = (2.0 * x * x) - 1.0
-		y2 = x
-		y  = y1
-	)
-	for i := 3; i <= n; i++ {
-		y = (2.0 * x * y1) - y2
-		y2, y1 = y1, y
-	}
-	return y
 }

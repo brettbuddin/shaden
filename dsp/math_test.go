@@ -132,3 +132,21 @@ func TestFold(t *testing.T) {
 		require.Equal(t, test.expected, v)
 	}
 }
+
+func TestChebyshev(t *testing.T) {
+	tests := []struct {
+		order           int
+		input, expected float64
+	}{
+		{0, 1.0, 1.0},
+		{1, 2.0, 2.0},
+		{2, 2.0, 7.0},
+		{3, 1.5, 9.0},
+		{3, 3.0, 99.0},
+	}
+
+	for _, test := range tests {
+		v := Chebyshev(test.order, test.input)
+		require.Equal(t, test.expected, v)
+	}
+}
