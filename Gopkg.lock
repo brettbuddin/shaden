@@ -4,8 +4,8 @@
 [[projects]]
   name = "buddin.us/musictheory"
   packages = ["."]
-  revision = "8903a1f4b51420f4e3b0edb74e7376706e844469"
-  version = "v0.0.7"
+  revision = "40169c3cf984a69d75678a5625514383bb63d51a"
+  version = "v0.0.8"
 
 [[projects]]
   name = "github.com/c-bata/go-prompt"

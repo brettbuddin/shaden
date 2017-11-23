@@ -130,7 +130,7 @@ func TestMIDI(test *testing.T) {
 		actual := t.input.MIDI()
 
 		if actual != t.expected {
-			test.Errorf("input=%s output=%f, expected=%f",
+			test.Errorf("input=%s output=%v, expected=%v",
 				t.input,
 				actual,
 				t.expected)

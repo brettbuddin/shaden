@@ -12,7 +12,7 @@ var (
 )
 
 // MustParsePitch parses and returns a Pitch in scientific pitch notation or panics
-func MustParsePitch(str string) *Pitch {
+func MustParsePitch(str string) Pitch {
 	pitch, err := ParsePitch(str)
 	if err != nil {
 		panic(err)
@@ -21,29 +21,30 @@ func MustParsePitch(str string) *Pitch {
 }
 
 // ParsePitch parses and returns a Pitch in scientific pitch notation
-func ParsePitch(str string) (*Pitch, error) {
+func ParsePitch(str string) (Pitch, error) {
 	matches := pitch.FindStringSubmatch(str)
 	if len(matches) < 1 {
-		return nil, fmt.Errorf("no matches found")
+		return Pitch{}, fmt.Errorf("no matches found")
 	}
 
 	class := matches[1]
 	modifier := matches[2]
-	octave, _ := strconv.Atoi(matches[3])
+	octave, err := strconv.Atoi(matches[3])
+	if err != nil {
+		return Pitch{}, err
+	}
 
 	classIndex, err := classNameIndex(class)
 	if err != nil {
-		return nil, err
+		return Pitch{}, err
 	}
 
 	modifierOffset, err := modifierNameOffset(modifier)
 	if err != nil {
-		return nil, err
+		return Pitch{}, err
 	}
 
-	pitch := NewPitch(classIndex+1, modifierOffset, octave)
-
-	return &pitch, nil
+	return NewPitch(classIndex+1, modifierOffset, octave), nil
 }
 
 func classNameIndex(name string) (int, error) {
@@ -66,10 +67,10 @@ func modifierNameOffset(name string) (int, error) {
 	return 0, fmt.Errorf("unknown modifier: %s", name)
 }
 
-func ParseInterval(str string) (*Interval, error) {
+func ParseInterval(str string) (Interval, error) {
 	matches := interval.FindStringSubmatch(str)
 	if len(matches) < 1 {
-		return nil, fmt.Errorf("no matches found")
+		return Interval{}, fmt.Errorf("no matches found")
 	}
 
 	quality := matches[2]
@@ -102,7 +103,7 @@ func ParseInterval(str string) (*Interval, error) {
 	case "d":
 		interval = Diminished(step)
 	default:
-		return nil, fmt.Errorf("invalid quality")
+		return Interval{}, fmt.Errorf("invalid quality")
 	}
-	return &interval, nil
+	return interval, nil
 }

@@ -185,7 +185,7 @@ func TestIntervalRatio(test *testing.T) {
 	for i, t := range data {
 		actual := t.input.Ratio()
 		if actual != t.expected {
-			test.Errorf("index=%d actual=%s expected=%s", i, actual, t.expected)
+			test.Errorf("index=%d actual=%v expected=%v", i, actual, t.expected)
 		}
 	}
 }
