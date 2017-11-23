@@ -264,7 +264,7 @@ func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 				case lisp.Keyword:
 					inputs[string(k)] = patchableValue(e)
 				default:
-					inputs[fmt.Sprintf("%v", k)] = patchableValue(e)
+					inputs[fmt.Sprint(k)] = patchableValue(e)
 				}
 			}
 		default:
