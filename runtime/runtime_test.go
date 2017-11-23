@@ -11,6 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const timeout = 10 * time.Second
+
 func TestEnvironmentClearing(t *testing.T) {
 	var (
 		be       = &backend{calls: 1} // Execute the callback once
@@ -41,7 +43,7 @@ func TestEnvironmentClearing(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(5 * time.Second):
+	case <-time.After(timeout):
 		t.Error("timeout waiting for completion")
 	}
 }
@@ -78,7 +80,7 @@ func TestEmitting(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(5 * time.Second):
+	case <-time.After(timeout):
 		t.Error("timeout waiting for completion")
 	}
 }

@@ -125,7 +125,7 @@ func TestUnitOutput(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(5 * time.Second):
+	case <-time.After(timeout):
 		t.Error("timeout waiting for completion")
 	}
 }
@@ -159,7 +159,7 @@ func TestUnitPatch(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(5 * time.Second):
+	case <-time.After(timeout):
 		t.Error("timeout waiting for completion")
 	}
 }
@@ -196,7 +196,7 @@ func TestUnitUnmount(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(5 * time.Second):
+	case <-time.After(timeout):
 		t.Error("timeout waiting for completion")
 	}
 }
@@ -232,7 +232,7 @@ func TestUnitRemove(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(5 * time.Second):
+	case <-time.After(timeout):
 		t.Error("timeout waiting for completion")
 	}
 }
