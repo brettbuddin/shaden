@@ -138,6 +138,7 @@ func TestEngine_MountAndReset(t *testing.T) {
 				out[1] = make([]float32, size)
 			}
 			cb(make([]float32, size), out)
+			cb(make([]float32, size), out)
 			return nil
 		},
 		stop:      func() error { return nil },
@@ -170,7 +171,17 @@ func TestEngine_MountAndReset(t *testing.T) {
 	require.NoError(t, reply.Error)
 
 	require.Equal(t, 4, e.graph.Size())
-	require.NoError(t, e.Reset())
+
+	msg = NewMessage(Clear)
+	err = e.SendMessage(msg)
+	require.NoError(t, err)
+
+	select {
+	case reply = <-msg.Reply:
+	case <-time.After(5 * time.Second):
+		t.Error("timeout waiting for receive reply")
+	}
+	require.NoError(t, reply.Error)
 
 	require.Equal(t, 3, e.graph.Size())
 	require.NoError(t, e.Stop())

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/engine"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,7 +51,7 @@ func TestEnvironmentClearing(t *testing.T) {
 
 func TestEmitting(t *testing.T) {
 	var (
-		be       = &backend{calls: 3} // Execute the callback twice
+		be       = newBackend(3) // Execute the callback twice
 		messages = messageChannel{make(chan *engine.Message)}
 		eng, err = engine.New(be, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
@@ -68,8 +69,7 @@ func TestEmitting(t *testing.T) {
 			(emit (<- noop))
 		`))
 		assert.NoError(t, err)
-		left := be.written[0]
-		assert.NotEqual(t, 0, left[len(left)-1])
+		assert.NotEqual(t, 0, be.read(0, dsp.FrameSize-1))
 		require.NoError(t, eng.Stop())
 	}()
 
