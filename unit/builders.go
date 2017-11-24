@@ -4,12 +4,14 @@ import "github.com/mitchellh/mapstructure"
 
 var (
 	builders = map[string]nameBuildFunc{
-		"abs":    unaryBuildFunc(unaryAbs),
-		"ceil":   unaryBuildFunc(unaryCeil),
-		"floor":  unaryBuildFunc(unaryFloor),
-		"invert": unaryBuildFunc(unaryInv),
-		"not":    unaryBuildFunc(unaryNOT),
-		"noop":   unaryBuildFunc(unaryNoop),
+		"abs":      unaryBuildFunc(unaryAbs),
+		"bipolar":  unaryBuildFunc(unaryBipolar),
+		"ceil":     unaryBuildFunc(unaryCeil),
+		"floor":    unaryBuildFunc(unaryFloor),
+		"invert":   unaryBuildFunc(unaryInv),
+		"not":      unaryBuildFunc(unaryNOT),
+		"noop":     unaryBuildFunc(unaryNoop),
+		"unipolar": unaryBuildFunc(unaryUnipolar),
 
 		"and":   binaryBuildFunc(binaryAND),
 		"diff":  binaryBuildFunc(binaryDiff),
