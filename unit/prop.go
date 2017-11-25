@@ -57,7 +57,7 @@ func inStringList(l []string) PropSetterFunc {
 	}
 }
 
-func inRange(min, max float64) PropSetterFunc {
+func clampRange(min, max float64) PropSetterFunc {
 	return func(p *Prop, raw interface{}) error {
 		switch v := raw.(type) {
 		case int:
@@ -67,7 +67,6 @@ func inRange(min, max float64) PropSetterFunc {
 		default:
 			return InvalidPropValueError{Prop: p, Value: v}
 		}
-
 		return nil
 	}
 }

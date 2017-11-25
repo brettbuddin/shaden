@@ -16,6 +16,7 @@ func TestClock(t *testing.T) {
 	freq := dsp.Frequency(1000).Float64()
 
 	tempo := u.In["tempo"]
+	run := u.In["run"]
 	out := u.Out["out"].Out()
 
 	for i := 0; i < 5; i++ {
@@ -34,5 +35,13 @@ func TestClock(t *testing.T) {
 		tempo.Write(i, freq)
 		u.ProcessSample(i)
 		require.Equal(t, 1.0, out.Read(i))
+	}
+
+	// stop
+	for i := 44; i < 46; i++ {
+		tempo.Write(i, freq)
+		run.Write(i, -1)
+		u.ProcessSample(i)
+		require.Equal(t, -1.0, out.Read(i))
 	}
 }

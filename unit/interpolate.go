@@ -6,14 +6,10 @@ import (
 
 func newInterpolate(name string, c Config) (*Unit, error) {
 	var config struct {
-		SmoothTime int
+		SmoothTime dsp.MS
 	}
 	if err := c.Decode(&config); err != nil {
 		return nil, err
-	}
-
-	if config.SmoothTime == 0 {
-		config.SmoothTime = 10
 	}
 
 	io := NewIO()
@@ -23,13 +19,14 @@ func newInterpolate(name string, c Config) (*Unit, error) {
 		max:     io.NewIn("max", dsp.Float64(1)),
 		scale:   io.NewIn("scale", dsp.Float64(1)),
 		out:     io.NewOut("out"),
-		average: dsp.RollingAverage{Window: int(dsp.DurationInt(config.SmoothTime).Float64())},
+		average: dsp.RollingAverage{Window: int(config.SmoothTime.Float64())},
 	}), nil
 }
 
 type interpolate struct {
 	in, min, max, scale *In
 	out                 *Out
+	smoothTime          dsp.MS
 	average             dsp.RollingAverage
 }
 
@@ -38,7 +35,10 @@ func (itrp *interpolate) ProcessSample(i int) {
 		max   = itrp.max.Read(i)
 		min   = itrp.min.Read(i)
 		scale = itrp.scale.Read(i)
+		in    = dsp.Clamp(itrp.in.Read(i), 0, 1)
 	)
-	in := itrp.average.Tick(dsp.Clamp(itrp.in.Read(i), 0, 1))
+	if itrp.average.Window != 0 {
+		in = itrp.average.Tick(in)
+	}
 	itrp.out.Write(i, dsp.Lerp(min, max, in)*scale)
 }
