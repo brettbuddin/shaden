@@ -15,7 +15,7 @@ func newAdsr(name string, _ Config) (*Unit, error) {
 		attack:      io.NewIn("attack", dsp.Duration(50)),
 		decay:       io.NewIn("decay", dsp.Duration(50)),
 		sustain:     io.NewIn("sustain", dsp.Float64(0.5)),
-		sustainHold: io.NewIn("sustain-hold", dsp.Duration(50)),
+		sustainHold: io.NewIn("sustain-hold", dsp.Duration(0)),
 		release:     io.NewIn("release", dsp.Duration(50)),
 		cycle:       io.NewIn("cycle", dsp.Float64(0)),
 		ratio:       io.NewIn("ratio", dsp.Float64(0.01)),

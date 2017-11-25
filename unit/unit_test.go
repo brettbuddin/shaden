@@ -110,19 +110,72 @@ func TestUnit_ExternalNeighborCount(t *testing.T) {
 	u2 := NewUnit(io2, "example2", nil)
 	require.Equal(t, 0, u2.ExternalNeighborCount())
 
-	err := u1.Attach(g)
-	require.NoError(t, err)
-	err = u2.Attach(g)
-	require.NoError(t, err)
+	require.NoError(t, u1.Attach(g))
+	require.NoError(t, u2.Attach(g))
 
-	err = Patch(g, u1.Out["out"], u2.In["in"])
-	require.NoError(t, err)
+	require.NoError(t, Patch(g, u1.Out["out"], u2.In["in"]))
 
 	require.Equal(t, 1, u1.ExternalNeighborCount())
 	require.Equal(t, 1, u2.ExternalNeighborCount())
 
-	err = Unpatch(g, u2.In["in"])
+	require.NoError(t, Unpatch(g, u2.In["in"]))
 	require.Equal(t, 0, u1.ExternalNeighborCount())
+	require.Equal(t, 0, u2.ExternalNeighborCount())
+}
+
+func TestUnit_DetachInboundConnectionRemoval(t *testing.T) {
+	g := graph.New()
+
+	io1 := NewIO()
+	io1.NewIn("in", dsp.Float64(0))
+	io1.NewOut("out")
+	u1 := NewUnit(io1, "example1", nil)
+	require.Equal(t, 0, u1.ExternalNeighborCount())
+
+	io2 := NewIO()
+	io2.NewIn("in", dsp.Float64(0))
+	io2.NewOut("out")
+	u2 := NewUnit(io2, "example2", nil)
+	require.Equal(t, 0, u2.ExternalNeighborCount())
+
+	require.NoError(t, u1.Attach(g))
+	require.NoError(t, u2.Attach(g))
+
+	require.NoError(t, Patch(g, u1.Out["out"], u2.In["in"]))
+
+	require.Equal(t, 1, u1.ExternalNeighborCount())
+	require.Equal(t, 1, u2.ExternalNeighborCount())
+
+	require.NoError(t, u2.Detach(g))
+
+	require.Equal(t, 0, u1.ExternalNeighborCount())
+}
+
+func TestUnit_DetachOutboundConnectionRemoval(t *testing.T) {
+	g := graph.New()
+
+	io1 := NewIO()
+	io1.NewIn("in", dsp.Float64(0))
+	io1.NewOut("out")
+	u1 := NewUnit(io1, "example1", nil)
+	require.Equal(t, 0, u1.ExternalNeighborCount())
+
+	io2 := NewIO()
+	io2.NewIn("in", dsp.Float64(0))
+	io2.NewOut("out")
+	u2 := NewUnit(io2, "example2", nil)
+	require.Equal(t, 0, u2.ExternalNeighborCount())
+
+	require.NoError(t, u1.Attach(g))
+	require.NoError(t, u2.Attach(g))
+
+	require.NoError(t, Patch(g, u1.Out["out"], u2.In["in"]))
+
+	require.Equal(t, 1, u1.ExternalNeighborCount())
+	require.Equal(t, 1, u2.ExternalNeighborCount())
+
+	require.NoError(t, u1.Detach(g))
+
 	require.Equal(t, 0, u2.ExternalNeighborCount())
 }
 

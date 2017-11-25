@@ -362,6 +362,20 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
+			unit: "overload",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in":   []float64{3, 1, 3, -3},
+						"gain": []float64{1, 1, 10, 1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0.950212931632136, 0.6321205588285577, 0.9999999999999064, -0.950212931632136},
+					},
+				},
+			},
+		},
+		{
 			unit: "clock-mult",
 			scenario: []scenario{
 				{
@@ -792,6 +806,22 @@ func TestAllUnits(t *testing.T) {
 					},
 					outputs: map[string][]float64{
 						"out": []float64{0, 1, 1, 2},
+					},
+				},
+			},
+		},
+		{
+			// TODO: This just checks for explosions. Find a better way to test this monster.
+			unit: "reverb",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"a": []float64{0, 1},
+						"b": []float64{0, 1},
+					},
+					outputs: map[string][]float64{
+						"a": []float64{0, 1},
+						"b": []float64{0, 1},
 					},
 				},
 			},

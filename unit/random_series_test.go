@@ -21,7 +21,7 @@ func TestRandemSeries(t *testing.T) {
 	)
 
 	var (
-		clockv        float64 = 1
+		clockv        = 1.0
 		gates, values []float64
 		triggerAt     = 0
 	)
