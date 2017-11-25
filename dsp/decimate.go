@@ -36,7 +36,6 @@ func (d *Decimate) Tick(in, rate, bits float64) float64 {
 		_, frac := math.Modf((in + x*step*0.5) * stepRatio)
 		delta := frac * step
 		d.last = in - delta
-		return d.last
 	}
 	return d.last
 }
