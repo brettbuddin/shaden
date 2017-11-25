@@ -14,12 +14,11 @@ import (
 
 // Engine is the connection of the synthesizer to PortAudio
 type Engine struct {
-	messages   MessageChannel
-	backend    Backend
-	graph      *graph.Graph
-	unit       *unit.Unit
-	processors []unit.FrameProcessor
-	// messages             chan *Message
+	messages             MessageChannel
+	backend              Backend
+	graph                *graph.Graph
+	unit                 *unit.Unit
+	processors           []unit.FrameProcessor
 	errors, stop         chan error
 	input                []float64
 	lout, rout           []float64
