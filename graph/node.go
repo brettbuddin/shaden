@@ -13,18 +13,6 @@ type Node struct {
 	Value           interface{}
 }
 
-// Neighbors returns the Nodes connected to this Node in the Graph
-func (n *Node) Neighbors() []*Node {
-	nodes := make([]*Node, len(n.inputs)+len(n.outputs))
-	for i, e := range n.inputs {
-		nodes[i] = e.end
-	}
-	for i, e := range n.outputs {
-		nodes[(len(n.inputs)-1)+i] = e.end
-	}
-	return nodes
-}
-
 // InNeighbors returns only neighboring Nodes with an inbound connection to this Node
 func (n *Node) InNeighbors() []*Node {
 	nodes := make([]*Node, 0, len(n.inputs))
