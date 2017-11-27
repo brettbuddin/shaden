@@ -48,8 +48,8 @@ func (b *backend) Start(cb func([]float32, [][]float32)) error {
 	copy(b.written, out)
 	return nil
 }
-func (backend) Stop() error    { return nil }
-func (backend) FrameSize() int { return dsp.FrameSize }
+func (*backend) Stop() error    { return nil }
+func (*backend) FrameSize() int { return dsp.FrameSize }
 
 type messageChannel struct {
 	messages chan *engine.Message

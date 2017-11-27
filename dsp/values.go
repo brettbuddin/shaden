@@ -33,6 +33,14 @@ type Hz struct {
 
 // Frequency returns a scalar value in Hz
 func Frequency(v float64) Hz { return Hz{Raw: v, Valuer: Float64(v / SampleRate)} }
+
+// Float64 returns the constant value
+func (hz Hz) Float64() float64 {
+	if hz.Valuer == nil {
+		return 0
+	}
+	return hz.Valuer.Float64()
+}
 func (hz Hz) String() string { return fmt.Sprintf("%.2fHz", hz.Raw) }
 
 // ParsePitch parses the scientific notation of a pitch
@@ -53,6 +61,13 @@ type Pitch struct {
 	Raw string
 }
 
+// Float64 returns the constant value
+func (p Pitch) Float64() float64 {
+	if p.Valuer == nil {
+		return 0
+	}
+	return p.Valuer.Float64()
+}
 func (p Pitch) String() string { return p.Raw }
 
 // MS is a value representation of milliseconds
@@ -72,6 +87,13 @@ func Duration(v float64) MS {
 	}
 }
 
+// Float64 returns the constant value
+func (ms MS) Float64() float64 {
+	if ms.Valuer == nil {
+		return 0
+	}
+	return ms.Valuer.Float64()
+}
 func (ms MS) String() string { return fmt.Sprintf("%.2fms", ms.Raw) }
 
 // BeatsPerMin represents beats-per-minute
@@ -88,4 +110,11 @@ func BPM(v float64) BeatsPerMin {
 	}
 }
 
+// Float64 returns the constant value
+func (bpm BeatsPerMin) Float64() float64 {
+	if bpm.Valuer == nil {
+		return 0
+	}
+	return bpm.Valuer.Float64()
+}
 func (bpm BeatsPerMin) String() string { return fmt.Sprintf("%.2fBPM", bpm.Raw) }

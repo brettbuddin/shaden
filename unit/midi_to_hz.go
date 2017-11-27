@@ -21,5 +21,5 @@ type midiToHz struct {
 
 func (m *midiToHz) ProcessSample(i int) {
 	in := m.in.Read(i)
-	m.out.Write(i, 440*math.Pow(2, (in-69)/12))
+	m.out.Write(i, 440*math.Pow(2, (in-69)/12)/dsp.SampleRate)
 }

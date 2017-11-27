@@ -17,8 +17,7 @@ func TestAllUnits(t *testing.T) {
 		scenario []scenario
 	}{
 		{
-			unit:   "adjust",
-			config: nil,
+			unit: "adjust",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -33,8 +32,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "abs",
-			config: nil,
+			unit: "abs",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -47,8 +45,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "sum",
-			config: nil,
+			unit: "sum",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -62,8 +59,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "ceil",
-			config: nil,
+			unit: "ceil",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -76,8 +72,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "floor",
-			config: nil,
+			unit: "floor",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -90,8 +85,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "invert",
-			config: nil,
+			unit: "invert",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -104,8 +98,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "noop",
-			config: nil,
+			unit: "noop",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -118,8 +111,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "not",
-			config: nil,
+			unit: "not",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -132,8 +124,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "val-gate",
-			config: nil,
+			unit: "val-gate",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -146,8 +137,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "diff",
-			config: nil,
+			unit: "diff",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -161,8 +151,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "mult",
-			config: nil,
+			unit: "mult",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -176,8 +165,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "div",
-			config: nil,
+			unit: "div",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -191,8 +179,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "mod",
-			config: nil,
+			unit: "mod",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -206,8 +193,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "gt",
-			config: nil,
+			unit: "gt",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -221,8 +207,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "lt",
-			config: nil,
+			unit: "lt",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -236,8 +221,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "and",
-			config: nil,
+			unit: "and",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -251,8 +235,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "or",
-			config: nil,
+			unit: "or",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -266,8 +249,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "xor",
-			config: nil,
+			unit: "xor",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -281,8 +263,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "nand",
-			config: nil,
+			unit: "nand",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -296,8 +277,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "nor",
-			config: nil,
+			unit: "nor",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -311,8 +291,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "imply",
-			config: nil,
+			unit: "imply",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -326,8 +305,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "xnor",
-			config: nil,
+			unit: "xnor",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -341,8 +319,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "max",
-			config: nil,
+			unit: "max",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -356,8 +333,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "min",
-			config: nil,
+			unit: "min",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -371,8 +347,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "clip",
-			config: nil,
+			unit: "clip",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -387,8 +362,21 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "clock-mult",
-			config: nil,
+			unit: "overload",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in":   []float64{3, 1, 3, -3},
+						"gain": []float64{1, 1, 10, 1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0.950212931632136, 0.6321205588285577, 0.9999999999999064, -0.950212931632136},
+					},
+				},
+			},
+		},
+		{
+			unit: "clock-mult",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -402,8 +390,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "clock-div",
-			config: nil,
+			unit: "clock-div",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -417,8 +404,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "cond",
-			config: nil,
+			unit: "cond",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -433,8 +419,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "count",
-			config: nil,
+			unit: "count",
 			scenario: []scenario{
 				{
 					description: "basic counting",
@@ -480,8 +465,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "xfade",
-			config: nil,
+			unit: "xfade",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -496,8 +480,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "xfeed",
-			config: nil,
+			unit: "xfeed",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -513,8 +496,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "pan",
-			config: nil,
+			unit: "pan",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -529,8 +511,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "fold",
-			config: nil,
+			unit: "fold",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -561,8 +542,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "mix",
-			config: nil,
+			unit: "mix",
 			scenario: []scenario{
 				{
 					description: "all inputs",
@@ -592,8 +572,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "panmix",
-			config: nil,
+			unit: "panmix",
 			scenario: []scenario{
 				{
 					description: "all inputs",
@@ -626,8 +605,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "switch",
-			config: nil,
+			unit: "switch",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -677,8 +655,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "toggle",
-			config: nil,
+			unit: "toggle",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -691,8 +668,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "transpose",
-			config: nil,
+			unit: "transpose",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -706,8 +682,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "transpose-interval",
-			config: nil,
+			unit: "transpose-interval",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -722,8 +697,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "chebyshev",
-			config: nil,
+			unit: "chebyshev",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -734,6 +708,120 @@ func TestAllUnits(t *testing.T) {
 					},
 					outputs: map[string][]float64{
 						"out": []float64{0.7, 3},
+					},
+				},
+			},
+		},
+		{
+			unit: "cluster",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"freq": []float64{A4, A4},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0, 0.6008394124819831},
+					},
+				},
+			},
+		},
+		{
+			unit: "decimate",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in":   []float64{0, 1},
+						"bits": []float64{24, 2},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{-5.956334429922412e-08, 0.7494803197428395},
+					},
+				},
+			},
+		},
+		{
+			unit: "midi-hz",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in": []float64{60, 24},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0.005932552501147361, 0.0007415690626434202},
+					},
+				},
+			},
+		},
+		{
+			unit: "pitch",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"class":  []float64{0, 7},
+						"octave": []float64{0, 4},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0.0006606629273215556, A4},
+					},
+				},
+			},
+		},
+		{
+			unit: "smooth",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in":   []float64{1, 2, 2, 2},
+						"time": []float64{1, 3, 3, 3},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{1, 1.3333333333333335, 1.5555555555555558, 1.7037037037037037},
+					},
+				},
+			},
+		},
+		{
+			unit: "gate-mix",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"0": []float64{-1, -1, 1, 1},
+						"1": []float64{-1, 1, 1, -1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{-1, 1, 1, 1},
+					},
+				},
+			},
+		},
+		{
+			unit: "lerp",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in":    []float64{0, 1, 0.5, 0.25},
+						"min":   []float64{0, 1, 0, 0},
+						"max":   []float64{0, 1, 2, 2},
+						"scale": []float64{0, 1, 1, 4},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0, 1, 1, 2},
+					},
+				},
+			},
+		},
+		{
+			// TODO: This just checks for explosions. Find a better way to test this monster.
+			unit: "reverb",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"a": []float64{0, 1},
+						"b": []float64{0, 1},
+					},
+					outputs: map[string][]float64{
+						"a": []float64{0, 1},
+						"b": []float64{0, 1},
 					},
 				},
 			},

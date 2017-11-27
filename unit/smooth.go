@@ -21,6 +21,14 @@ type smooth struct {
 }
 
 func (s *smooth) ProcessSample(i int) {
-	s.average.Window = int(s.time.Read(i))
-	s.out.Write(i, s.average.Tick(s.in.Read(i)))
+	in := s.in.Read(i)
+	time := s.time.Read(i)
+
+	if time == 0 {
+		s.out.Write(i, in)
+		return
+	}
+
+	s.average.Window = int(time)
+	s.out.Write(i, s.average.Tick(in))
 }

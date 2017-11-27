@@ -30,12 +30,6 @@ type delay struct {
 	last                            float64
 }
 
-func (d *delay) Process(n int) {
-	for i := 0; i < n; i++ {
-		d.ProcessSample(i)
-	}
-}
-
 func (d *delay) ProcessSample(i int) {
 	var (
 		in     = d.in.Read(i)

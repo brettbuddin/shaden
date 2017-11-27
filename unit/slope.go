@@ -17,6 +17,7 @@ func newSlope(name string, _ Config) (*Unit, error) {
 		gate:      io.NewIn("gate", dsp.Float64(0)),
 		rise:      io.NewIn("rise", dsp.Duration(100)),
 		fall:      io.NewIn("fall", dsp.Duration(100)),
+		retrigger: io.NewIn("retrigger", dsp.Float64(1)),
 		cycle:     io.NewIn("cycle", dsp.Float64(0)),
 		ratio:     io.NewIn("ratio", dsp.Float64(0.01)),
 		out:       io.NewOut("out"),
@@ -27,14 +28,15 @@ func newSlope(name string, _ Config) (*Unit, error) {
 }
 
 type slope struct {
-	trigger, gate, rise, fall, cycle, ratio *In
-	out, mirror, eoc, eor                   *Out
-	state                                   *slopeState
-	stateFunc                               slopeStateFunc
+	trigger, retrigger, gate, rise, fall, cycle, ratio *In
+	out, mirror, eoc, eor                              *Out
+	state                                              *slopeState
+	stateFunc                                          slopeStateFunc
 }
 
 func (s *slope) ProcessSample(i int) {
 	s.state.trigger = s.trigger.Read(i)
+	s.state.retrigger = s.retrigger.ReadSlow(i, ident)
 	s.state.gate = s.gate.Read(i)
 	s.state.rise = math.Abs(s.rise.Read(i))
 	s.state.fall = math.Abs(s.fall.Read(i))
@@ -53,10 +55,10 @@ func (s *slope) ProcessSample(i int) {
 type slopeStateFunc func(*slopeState) slopeStateFunc
 
 type slopeState struct {
-	trigger, gate, rise, fall, cycle, ratio float64
-	base, multiplier                        float64
-	lastTrigger, lastGate                   float64
-	out, eoc, eor                           float64
+	trigger, retrigger, gate, rise, fall, cycle, ratio float64
+	base, multiplier                                   float64
+	lastTrigger, lastGate                              float64
+	out, eoc, eor                                      float64
 }
 
 func slopeIdle(s *slopeState) slopeStateFunc {
@@ -93,7 +95,7 @@ func slopeHold(s *slopeState) slopeStateFunc {
 func slopeFall(s *slopeState) slopeStateFunc {
 	s.eoc = -1
 	s.eor = -1
-	if isTrig(s.lastTrigger, s.trigger) || isTrig(s.lastGate, s.gate) {
+	if isHigh(s.retrigger) && isTrig(s.lastTrigger, s.trigger) || isTrig(s.lastGate, s.gate) {
 		return prepSlopeRise(s)
 	}
 	s.out = s.base + s.out*s.multiplier

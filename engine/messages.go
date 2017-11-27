@@ -1,6 +1,10 @@
 package engine
 
-import "time"
+import (
+	"time"
+
+	"github.com/pkg/errors"
+)
 
 // NewMessage creates a new Message to be sent to the Engine for evaluation.
 func NewMessage(action interface{}) *Message {
@@ -24,3 +28,38 @@ type Reply struct {
 	Data     interface{}
 	Error    error
 }
+
+// MessageChannel is abstraction of a channel that handles engine messages. This provides us a means of implementing
+// slightly more strict synchronization behavior during testing.
+type MessageChannel interface {
+	Receive() *Message
+	Send(*Message) error
+	Close()
+}
+
+func newMessageChannel() messageChannel {
+	return messageChannel{make(chan *Message)}
+}
+
+type messageChannel struct {
+	messages chan *Message
+}
+
+func (b messageChannel) Receive() *Message {
+	select {
+	case msg := <-b.messages:
+		return msg
+	default:
+		return nil
+	}
+}
+
+func (b messageChannel) Send(msg *Message) error {
+	select {
+	case b.messages <- msg:
+	case <-time.After(10 * time.Second):
+		return errors.New("timeout sending message")
+	}
+	return nil
+}
+func (b messageChannel) Close() { close(b.messages) }

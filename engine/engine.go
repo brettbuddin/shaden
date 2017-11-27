@@ -9,17 +9,15 @@ import (
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/graph"
 	"buddin.us/shaden/unit"
-	"github.com/pkg/errors"
 )
 
 // Engine is the connection of the synthesizer to PortAudio
 type Engine struct {
-	messages   MessageChannel
-	backend    Backend
-	graph      *graph.Graph
-	unit       *unit.Unit
-	processors []unit.FrameProcessor
-	// messages             chan *Message
+	messages             MessageChannel
+	backend              Backend
+	graph                *graph.Graph
+	unit                 *unit.Unit
+	processors           []unit.FrameProcessor
 	errors, stop         chan error
 	input                []float64
 	lout, rout           []float64
@@ -105,6 +103,7 @@ func (e *Engine) Reset() error {
 	return nil
 }
 
+// SendMessage sends a message to to the engine for it to handle within its goroutine
 func (e *Engine) SendMessage(msg *Message) error {
 	return e.messages.Send(msg)
 }
@@ -251,37 +250,4 @@ func (g group) ProcessFrame(n int) {
 			p.ProcessSample(i)
 		}
 	}
-}
-
-func newMessageChannel() messageChannel {
-	return messageChannel{make(chan *Message)}
-}
-
-type messageChannel struct {
-	messages chan *Message
-}
-
-func (b messageChannel) Receive() *Message {
-	select {
-	case msg := <-b.messages:
-		return msg
-	default:
-		return nil
-	}
-}
-
-func (b messageChannel) Send(msg *Message) error {
-	select {
-	case b.messages <- msg:
-	case <-time.After(10 * time.Second):
-		return errors.New("timeout sending message")
-	}
-	return nil
-}
-func (b messageChannel) Close() { close(b.messages) }
-
-type MessageChannel interface {
-	Receive() *Message
-	Send(*Message) error
-	Close()
 }

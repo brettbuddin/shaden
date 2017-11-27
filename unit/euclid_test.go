@@ -5,10 +5,47 @@ import (
 	"fmt"
 	"testing"
 
+	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 
-func TestEuclid(t *testing.T) {
+func TestEuclidUnit(t *testing.T) {
+	builder := Builders()["euclid"]
+	u, err := builder(nil)
+	require.NoError(t, err)
+
+	clock := u.In["clock"]
+	fill := u.In["fill"]
+	span := u.In["span"]
+	out := u.Out["out"].Out()
+
+	var (
+		clockv = -1.0
+		gates  []float64
+	)
+	for i := 0; i < dsp.FrameSize; i++ {
+		clock.Write(i, clockv)
+		fill.Write(i, 2)
+		span.Write(i, 4)
+		u.ProcessSample(i)
+		if clockv > 0 {
+			clockv = -1
+		} else {
+			clockv = 1
+		}
+		gates = append(gates, out.Read(i))
+	}
+
+	var count int
+	for _, v := range gates {
+		if v > 0 {
+			count++
+		}
+	}
+	require.Equal(t, 64, count)
+}
+
+func TestEuclidPatternCreation(t *testing.T) {
 	var tests = []struct {
 		pattern    string
 		span, fill int
