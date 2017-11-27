@@ -826,6 +826,34 @@ func TestAllUnits(t *testing.T) {
 				},
 			},
 		},
+		{
+			unit:   "bipolar",
+			config: nil,
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"x": []float64{0, 0.25, 0.50, 0.75, 1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{-1, -0.5, 0, 0.5, 1},
+					},
+				},
+			},
+		},
+		{
+			unit:   "unipolar",
+			config: nil,
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"x": []float64{-1, -0.5, 0, 0.5, 1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0, 0.25, 0.50, 0.75, 1},
+					},
+				},
+			},
+		},
 	}
 
 	builders := Builders()
