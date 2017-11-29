@@ -30,6 +30,8 @@ func newReverb(name string, _ Config) (*Unit, error) {
 		aPostFilter: &dsp.SVFilter{Poles: 4},
 		bFilter:     &dsp.SVFilter{Poles: 4},
 		bPostFilter: &dsp.SVFilter{Poles: 4},
+		blockA:      &dsp.DCBlock{},
+		blockB:      &dsp.DCBlock{},
 	}
 
 	r.ap[0] = dsp.NewAllPass(141)
@@ -62,6 +64,7 @@ type reverb struct {
 	aPostDL, bPostDL     *dsp.DelayLine
 	ap, aAP, bAP         []*dsp.AllPass
 	aLast, bLast, phase  float64
+	blockA, blockB       *dsp.DCBlock
 }
 
 func decayClamp(v float64) float64  { return dsp.Clamp(v, 0, 0.9) }
@@ -123,6 +126,6 @@ func (r *reverb) ProcessSample(i int) {
 	bOut += r.bPostDL.ReadRelative(0.8)
 	r.bLast = r.bPostDL.ReadRelative(0.6)
 
-	r.aOut.Write(i, dsp.Mix(mix, a, aOut))
-	r.bOut.Write(i, dsp.Mix(mix, b, bOut))
+	r.aOut.Write(i, r.blockA.Tick(dsp.Mix(mix, a, aOut)))
+	r.bOut.Write(i, r.blockB.Tick(dsp.Mix(mix, b, bOut)))
 }
