@@ -19,6 +19,7 @@ func newDelay(name string, _ Config) (*Unit, error) {
 		fbgain:   io.NewIn("fb-gain", dsp.Float64(0)),
 		out:      io.NewOut("out"),
 		fbsend:   io.NewOut("fb-send"),
+		block:    &dsp.DCBlock{},
 	}
 	return NewUnit(io, name, d), nil
 }
@@ -28,6 +29,7 @@ type delay struct {
 	out, fbsend                     *Out
 	dl                              *dsp.DelayLine
 	last                            float64
+	block                           *dsp.DCBlock
 }
 
 func (d *delay) ProcessSample(i int) {
@@ -46,5 +48,5 @@ func (d *delay) ProcessSample(i int) {
 	} else {
 		d.last = wet
 	}
-	d.out.Write(i, dsp.Mix(mix, in, d.last))
+	d.out.Write(i, d.block.Tick(dsp.Mix(mix, in, d.last)))
 }
