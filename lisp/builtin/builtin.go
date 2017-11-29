@@ -23,6 +23,8 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("-", diffFn)
 	env.DefineSymbol("/", divFn)
 	env.DefineSymbol("=", equalFn)
+	env.DefineSymbol("<", lessThanFn)
+	env.DefineSymbol(">", greaterThanFn)
 	env.DefineSymbol("and", andFn)
 	env.DefineSymbol("append", appendFn)
 	env.DefineSymbol("apply", applyFn)

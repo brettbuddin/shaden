@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 
 	"buddin.us/shaden/lisp"
 )
@@ -18,6 +18,56 @@ func notEqualFn(args lisp.List) (value interface{}, err error) {
 		return nil, err
 	}
 	return args[0] != args[1], nil
+}
+
+func lessThanFn(args lisp.List) (value interface{}, err error) {
+	if err := checkArityEqual(args, "<", 2); err != nil {
+		return nil, err
+	}
+
+	switch x := args[0].(type) {
+	case int:
+		switch y := args[1].(type) {
+		case int:
+			return x < y, nil
+		default:
+			return nil, errors.Errorf("cannot compare %T and %T", x, y)
+		}
+	case float64:
+		switch y := args[1].(type) {
+		case float64:
+			return x < y, nil
+		default:
+			return nil, errors.Errorf("cannot compare %T and %T", x, y)
+		}
+	default:
+		return nil, errors.Errorf("cannot compare %T and %T", args[0], args[1])
+	}
+}
+
+func greaterThanFn(args lisp.List) (value interface{}, err error) {
+	if err := checkArityEqual(args, ">", 2); err != nil {
+		return nil, err
+	}
+
+	switch x := args[0].(type) {
+	case int:
+		switch y := args[1].(type) {
+		case int:
+			return x > y, nil
+		default:
+			return nil, errors.Errorf("cannot compare %T and %T", x, y)
+		}
+	case float64:
+		switch y := args[1].(type) {
+		case float64:
+			return x > y, nil
+		default:
+			return nil, errors.Errorf("cannot compare %T and %T", x, y)
+		}
+	default:
+		return nil, errors.Errorf("cannot compare %T and %T", args[0], args[1])
+	}
 }
 
 func andFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
