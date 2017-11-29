@@ -15,7 +15,7 @@ func newReverb(name string, _ Config) (*Unit, error) {
 	r := &reverb{
 		a:          io.NewIn("a", dsp.Float64(0)),
 		b:          io.NewIn("b", dsp.Float64(0)),
-		defuse:     io.NewIn("defuse", dsp.Float64(0.5)),
+		defuse:     io.NewIn("defuse", dsp.Float64(0.625)),
 		mix:        io.NewIn("mix", dsp.Float64(0)),
 		precutoff:  io.NewIn("cutoff-pre", dsp.Frequency(300)),
 		postcutoff: io.NewIn("cutoff-post", dsp.Frequency(500)),
@@ -23,22 +23,21 @@ func newReverb(name string, _ Config) (*Unit, error) {
 		aOut:       io.NewOut("a"),
 		bOut:       io.NewOut("b"),
 
-		ap:          make([]*dsp.AllPass, 5),
+		ap:          make([]*dsp.AllPass, 4),
 		aAP:         make([]*dsp.AllPass, 2),
 		bAP:         make([]*dsp.AllPass, 2),
-		aFilter:     &dsp.SVFilter{Poles: 4},
-		aPostFilter: &dsp.SVFilter{Poles: 4},
-		bFilter:     &dsp.SVFilter{Poles: 4},
-		bPostFilter: &dsp.SVFilter{Poles: 4},
+		aFilter:     &dsp.SVFilter{Poles: 1},
+		aPostFilter: &dsp.SVFilter{Poles: 2},
+		bFilter:     &dsp.SVFilter{Poles: 1},
+		bPostFilter: &dsp.SVFilter{Poles: 2},
 		blockA:      &dsp.DCBlock{},
 		blockB:      &dsp.DCBlock{},
 	}
 
-	r.ap[0] = dsp.NewAllPass(141)
-	r.ap[1] = dsp.NewAllPass(201)
-	r.ap[2] = dsp.NewAllPass(297)
+	r.ap[0] = dsp.NewAllPass(117)
+	r.ap[1] = dsp.NewAllPass(151)
+	r.ap[2] = dsp.NewAllPass(237)
 	r.ap[3] = dsp.NewAllPass(351)
-	r.ap[4] = dsp.NewAllPass(537)
 
 	r.aPreDL = dsp.NewDelayLine(3541)
 	r.aAP[0] = dsp.NewAllPass(2182)
@@ -57,17 +56,17 @@ type reverb struct {
 	a, b, defuse, mix, precutoff, postcutoff, decay *In
 	aOut, bOut                                      *Out
 
-	aPhase, bPhase       float64
-	aFilter, aPostFilter *dsp.SVFilter
-	bFilter, bPostFilter *dsp.SVFilter
-	aPreDL, bPreDL       *dsp.DelayLine
-	aPostDL, bPostDL     *dsp.DelayLine
-	ap, aAP, bAP         []*dsp.AllPass
-	aLast, bLast, phase  float64
-	blockA, blockB       *dsp.DCBlock
+	prePhase, aPhase, bPhase float64
+	aFilter, aPostFilter     *dsp.SVFilter
+	bFilter, bPostFilter     *dsp.SVFilter
+	aPreDL, bPreDL           *dsp.DelayLine
+	aPostDL, bPostDL         *dsp.DelayLine
+	ap, aAP, bAP             []*dsp.AllPass
+	aLast, bLast, phase      float64
+	blockA, blockB           *dsp.DCBlock
 }
 
-func decayClamp(v float64) float64  { return dsp.Clamp(v, 0, 0.9) }
+func decayClamp(v float64) float64  { return dsp.Clamp(v, 0, 0.99) }
 func defuseClamp(v float64) float64 { return dsp.Clamp(v, 0.4, 0.625) }
 
 func (r *reverb) ProcessSample(i int) {
@@ -85,47 +84,47 @@ func (r *reverb) ProcessSample(i int) {
 	d = r.ap[1].Tick(d, defuse)
 	d = r.ap[2].Tick(d, defuse)
 	d = r.ap[3].Tick(d, defuse)
-	d = r.ap[4].Tick(d, defuse)
 
 	r.aFilter.Cutoff = precutoff
 	r.bFilter.Cutoff = precutoff
 	r.aPostFilter.Cutoff = postcutoff
 	r.bPostFilter.Cutoff = postcutoff
 
-	aTravel := dsp.Sin(r.aPhase)*0.0015 + 0.9
-	r.aPhase += (aTravelFreq * twoPi)
-	if r.aPhase >= twoPi {
-		r.aPhase -= twoPi
-	}
-
 	aSig := d + (r.bLast * decay)
+
+	aTravel := dsp.Sin(r.aPhase)*0.007 + 0.9
+	advanceLFO(&r.aPhase, aTravelFreq)
 	aSig = r.aPreDL.TickRelative(aSig, aTravel)
-	aSig, _, _ = r.aFilter.Tick(aSig)
+	_, aSig, _ = r.aFilter.Tick(aSig)
+
 	aSig = r.aAP[0].Tick(aSig, defuse)
-	aSig = r.aAP[1].Tick(aSig*decay, defuse)
-	aSig, _, _ = r.aPostFilter.Tick(aSig)
+	aSig = r.aAP[1].Tick(aSig, defuse)
+	_, aSig, _ = r.aPostFilter.Tick(aSig)
 
-	aOut := r.aPostDL.Tick(aSig)
-	aOut += r.aPostDL.ReadRelative(0.8)
-	r.aLast = r.aPostDL.ReadRelative(0.6)
-
-	bTravel := dsp.Sin(r.bPhase)*0.0015 + 0.9
-	r.bPhase += (bTravelFreq * twoPi)
-	if r.bPhase >= twoPi {
-		r.bPhase -= twoPi
-	}
+	aOut := r.aPostDL.TickRelative(aSig, decay)
+	r.aLast = aOut
 
 	bSig := d + (r.aLast * decay)
-	bSig = r.aPreDL.TickRelative(bSig, bTravel)
-	bSig, _, _ = r.bFilter.Tick(bSig)
-	bSig = r.bAP[0].Tick(bSig, defuse)
-	bSig = r.bAP[1].Tick(bSig*decay, defuse)
-	bSig, _, _ = r.bPostFilter.Tick(bSig)
 
-	bOut := r.bPostDL.Tick(bSig)
-	bOut += r.bPostDL.ReadRelative(0.8)
-	r.bLast = r.bPostDL.ReadRelative(0.6)
+	bTravel := dsp.Sin(r.bPhase)*0.007 + 0.9
+	advanceLFO(&r.bPhase, bTravelFreq)
+	bSig = r.bPreDL.TickRelative(bSig, bTravel)
+	_, bSig, _ = r.bFilter.Tick(bSig)
+
+	bSig = r.bAP[0].Tick(bSig, defuse)
+	bSig = r.bAP[1].Tick(bSig, defuse)
+	_, bSig, _ = r.bPostFilter.Tick(bSig)
+
+	bOut := r.bPostDL.TickRelative(bSig, decay)
+	r.bLast = bOut
 
 	r.aOut.Write(i, r.blockA.Tick(dsp.Mix(mix, a, aOut)))
 	r.bOut.Write(i, r.blockB.Tick(dsp.Mix(mix, b, bOut)))
+}
+
+func advanceLFO(phase *float64, freq float64) {
+	*phase += (freq * twoPi)
+	if *phase >= twoPi {
+		*phase -= twoPi
+	}
 }
