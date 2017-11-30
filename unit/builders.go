@@ -56,6 +56,7 @@ var (
 		"lag":                newLag,
 		"latch":              newLatch,
 		"lerp":               newInterpolate,
+		"logic":              newLogic,
 		"midi-hz":            newMIDIToHz,
 		"mix":                newMix,
 		"mux":                newMux,

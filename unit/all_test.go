@@ -854,6 +854,45 @@ func TestAllUnits(t *testing.T) {
 				},
 			},
 		},
+		{
+			unit:   "logic",
+			config: nil,
+			scenario: []scenario{
+				{
+					description: "OR/AND",
+					inputs: map[string][]float64{
+						"x":    []float64{1, 0, 1, 1},
+						"y":    []float64{0, 1, 1, 0},
+						"mode": []float64{0, 0, 1, 1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{1, 1, 1, -1},
+					},
+				},
+				{
+					description: "XOR/NOR",
+					inputs: map[string][]float64{
+						"x":    []float64{1, 1, 1, 0},
+						"y":    []float64{0, 1, 0, 0},
+						"mode": []float64{2, 2, 3, 3},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{1, -1, -1, 1},
+					},
+				},
+				{
+					description: "NAND/XNOR",
+					inputs: map[string][]float64{
+						"x":    []float64{1, 0, 1, 0},
+						"y":    []float64{1, 0, 0, 0},
+						"mode": []float64{4, 4, 5, 5},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{-1, 1, -1, 1},
+					},
+				},
+			},
+		},
 	}
 
 	builders := Builders()

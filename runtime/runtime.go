@@ -181,6 +181,14 @@ func loadConstants(env *lisp.Environment) {
 	env.DefineSymbol("quality/major", 2)
 	env.DefineSymbol("quality/diminished", 3)
 	env.DefineSymbol("quality/augmented", 4)
+
+	// Logic Modes
+	env.DefineSymbol("logic/or", 0)
+	env.DefineSymbol("logic/and", 1)
+	env.DefineSymbol("logic/xor", 2)
+	env.DefineSymbol("logic/nor", 3)
+	env.DefineSymbol("logic/nand", 4)
+	env.DefineSymbol("logic/xnor", 5)
 }
 
 func engineClear(r *Runtime) func(*lisp.Environment, lisp.List) (interface{}, error) {
