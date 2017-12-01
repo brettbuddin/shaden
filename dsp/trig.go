@@ -14,11 +14,11 @@ var (
 
 func init() {
 	for i := 0; i < sineLength; i++ {
-		sineTable[i] = float64(math.Sin(float64(i) * (1 / sineStep)))
+		sineTable[i] = math.Sin(float64(i) * (1 / sineStep))
 	}
 	for i := 0; i < sineLength; i++ {
 		next := sineTable[(i+1)%sineLength]
-		sineDiff[i] = float64(next - sineTable[i])
+		sineDiff[i] = next - sineTable[i]
 	}
 }
 

@@ -18,6 +18,6 @@ func (f *Follow) Tick(in float64) float64 {
 	if in > f.env {
 		slope = f.Rise
 	}
-	f.env = float64(math.Pow(0.01, float64(1.0/slope)))*(f.env-in) + in
+	f.env = math.Pow(0.01, 1.0/slope)*(f.env-in) + in
 	return f.env
 }

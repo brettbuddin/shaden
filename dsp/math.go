@@ -12,7 +12,7 @@ func RandRange(min, max float64) float64 {
 
 // ExpRatio produces an (inverse-)exponential curve that's inflection can be controlled by a specific ratio
 func ExpRatio(ratio, speed float64) float64 {
-	return math.Exp(-math.Log(float64((1+ratio)/ratio)) / float64(speed))
+	return math.Exp(-math.Log((1+ratio)/ratio) / speed)
 }
 
 // SoftClamp limits a value to a specific range, but compresses the value as it goes beyond the threshold
