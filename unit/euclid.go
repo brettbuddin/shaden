@@ -59,9 +59,9 @@ func (e *euclid) ProcessSample(i int) {
 	e.lastFill = fill
 
 	if isTrig(e.lastTrigger, trig) {
-		e.idx = (e.idx + 1) % int(span)
+		e.idx = (e.idx + 1) % span
 	}
-	idx := (e.idx + offset + span) % int(span)
+	idx := (e.idx + offset + span) % span
 	if e.pattern[idx] && e.idx == e.lastIdx {
 		out = 1
 	}

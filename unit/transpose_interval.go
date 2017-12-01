@@ -59,5 +59,5 @@ func (t *transposeInterval) calc(in float64, qual, step int) float64 {
 		interval = musictheory.Augmented(step)
 	}
 
-	return float64(in * interval.Ratio())
+	return in * interval.Ratio()
 }

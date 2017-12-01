@@ -25,5 +25,5 @@ func (t *transpose) ProcessSample(i int) {
 		in        = t.in.Read(i)
 		semitones = t.semitones.Read(i)
 	)
-	t.out.Write(i, float64(in*math.Pow(2, semitones/12)))
+	t.out.Write(i, in*math.Pow(2, semitones/12))
 }

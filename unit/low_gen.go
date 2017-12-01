@@ -179,9 +179,9 @@ func (o *lowGenTriangle) ProcessSample(i int) {
 		*o.phase = 0
 	}
 	if p < math.Pi {
-		next = float64(-1*amp+twoDivPi*p) * amp
+		next = (-1*amp + twoDivPi*p) * amp
 	} else {
-		next = float64(3*amp-twoDivPi*p) * amp
+		next = (3*amp - twoDivPi*p) * amp
 	}
 	*o.phase = stepPhase(freq, 0, *o.phase, 1)
 	o.out.Write(i, offset+next)

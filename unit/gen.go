@@ -327,10 +327,10 @@ func blep(p float64, freq, fm float64) float64 {
 	delta := math.Abs(freq + fm)
 	if p < delta {
 		p /= delta
-		return float64(p + p - p*p - 1)
+		return p + p - p*p - 1
 	} else if p > 1-delta {
 		p = (p - 1) / delta
-		return float64(p + p + p*p + 1)
+		return p + p + p*p + 1
 	}
 	return 0
 }
