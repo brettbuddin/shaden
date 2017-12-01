@@ -2,10 +2,21 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newGate(name string, _ Config) (*Unit, error) {
+func newGate(name string, c Config) (*Unit, error) {
+	var config struct {
+		Poles int
+	}
+	if err := c.Decode(&config); err != nil {
+		return nil, err
+	}
+
+	if config.Poles == 0 {
+		config.Poles = 4
+	}
+
 	io := NewIO()
 	return NewUnit(io, name, &gate{
-		filter:     &dsp.SVFilter{Poles: 4},
+		filter:     &dsp.SVFilter{Poles: config.Poles},
 		in:         io.NewIn("in", dsp.Float64(0)),
 		control:    io.NewIn("control", dsp.Float64(1)),
 		mode:       io.NewIn("mode", dsp.Float64(gateModeCombo)),
