@@ -221,7 +221,7 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 			e.handle(msg)
 		}
 
-		offset := int(dsp.FrameSize * k)
+		offset := dsp.FrameSize * k
 		for i := 0; i < int(dsp.FrameSize); i++ {
 			e.input[i] = float64(in[offset+i])
 		}
