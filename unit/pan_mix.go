@@ -44,8 +44,6 @@ type panMix struct {
 	inputs, levels, pans []*In
 	master               *In
 	a, b                 *Out
-
-	size int
 }
 
 func (m *panMix) ProcessSample(i int) {

@@ -26,7 +26,6 @@ func newInterpolate(name string, c Config) (*Unit, error) {
 type interpolate struct {
 	in, min, max, scale *In
 	out                 *Out
-	smoothTime          dsp.MS
 	average             dsp.RollingAverage
 }
 

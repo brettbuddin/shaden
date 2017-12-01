@@ -35,10 +35,10 @@ func newGateSeries(name string, c Config) (*Unit, error) {
 }
 
 type gateSeries struct {
-	clock, advance, reset             *In
-	outs                              []*Out
-	target                            int
-	lastClock, lastAdvance, lastReset float64
+	clock, advance, reset  *In
+	outs                   []*Out
+	target                 int
+	lastAdvance, lastReset float64
 }
 
 func (g *gateSeries) ProcessSample(i int) {

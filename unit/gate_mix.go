@@ -35,8 +35,6 @@ func newGateMix(name string, c Config) (*Unit, error) {
 type gateMix struct {
 	inputs []*In
 	out    *Out
-
-	size int
 }
 
 func (m *gateMix) ProcessSample(i int) {

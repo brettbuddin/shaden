@@ -10,7 +10,7 @@ import (
 	"buddin.us/shaden/graph"
 )
 
-var namePattern = regexp.MustCompile("\\w+")
+var namePattern = regexp.MustCompile(`\w+`)
 
 func TestRegisteredNames(t *testing.T) {
 	for k := range Builders() {

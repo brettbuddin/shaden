@@ -31,7 +31,6 @@ func newTransposeInterval(name string, _ Config) (*Unit, error) {
 type transposeInterval struct {
 	in, quality, step *In
 	interval          musictheory.Interval
-	zero              bool
 	out               *Out
 }
 

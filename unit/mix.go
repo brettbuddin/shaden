@@ -42,8 +42,6 @@ type mix struct {
 	levelValues    []float64
 	master         *In
 	out            *Out
-
-	size int
 }
 
 func (m *mix) ProcessSample(i int) {

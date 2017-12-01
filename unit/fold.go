@@ -15,8 +15,8 @@ func newFold(name string, _ Config) (*Unit, error) {
 }
 
 type fold struct {
-	in, level, gain, stages *In
-	out                     *Out
+	in, level, gain *In
+	out             *Out
 }
 
 func (f *fold) ProcessSample(i int) {

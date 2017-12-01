@@ -29,7 +29,6 @@ func newLowGen(name string, _ Config) (*Unit, error) {
 
 type lowGen struct {
 	freq, amp, pw, offset, sync *In
-	algorithm                   string
 	phases                      []float64
 }
 
@@ -158,9 +157,9 @@ func (o *lowGenPulse) ProcessSample(i int) {
 
 type lowGenTriangle struct {
 	*lowGen
-	phase          *float64
-	out            *Out
-	last, lastSync float64
+	phase    *float64
+	out      *Out
+	lastSync float64
 }
 
 func (o *lowGenTriangle) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }

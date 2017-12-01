@@ -5,7 +5,6 @@ import (
 )
 
 var (
-	maxPredelay = dsp.Duration(500).Float64()
 	aTravelFreq = dsp.Frequency(0.5).Float64()
 	bTravelFreq = dsp.Frequency(0.3).Float64()
 )
@@ -56,14 +55,14 @@ type reverb struct {
 	a, b, defuse, mix, precutoff, postcutoff, decay *In
 	aOut, bOut                                      *Out
 
-	prePhase, aPhase, bPhase float64
-	aFilter, aPostFilter     *dsp.SVFilter
-	bFilter, bPostFilter     *dsp.SVFilter
-	aPreDL, bPreDL           *dsp.DelayLine
-	aPostDL, bPostDL         *dsp.DelayLine
-	ap, aAP, bAP             []*dsp.AllPass
-	aLast, bLast, phase      float64
-	blockA, blockB           *dsp.DCBlock
+	aPhase, bPhase       float64
+	aFilter, aPostFilter *dsp.SVFilter
+	bFilter, bPostFilter *dsp.SVFilter
+	aPreDL, bPreDL       *dsp.DelayLine
+	aPostDL, bPostDL     *dsp.DelayLine
+	ap, aAP, bAP         []*dsp.AllPass
+	aLast, bLast         float64
+	blockA, blockB       *dsp.DCBlock
 }
 
 func decayClamp(v float64) float64  { return dsp.Clamp(v, 0, 0.99) }

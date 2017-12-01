@@ -175,10 +175,6 @@ func isHigh(v float64) bool {
 	return v > 0
 }
 
-func isLow(v float64) bool {
-	return v <= 0
-}
-
 func newFrame() []float64 {
 	return make([]float64, dsp.FrameSize)
 }

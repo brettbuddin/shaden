@@ -25,10 +25,8 @@ func newPitch(name string, _ Config) (*Unit, error) {
 }
 
 type pitch struct {
-	class, octave         *In
-	out                   *Out
-	lastClass, lastOctave float64
-	freq                  float64
+	class, octave *In
+	out           *Out
 }
 
 func (p *pitch) ProcessSample(i int) {

@@ -24,7 +24,6 @@ type Out struct {
 	unit  *Unit
 	node  *graph.Node
 	frame []float64
-	last  float64
 }
 
 // NewOut returns a new output

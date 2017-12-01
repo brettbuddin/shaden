@@ -118,6 +118,7 @@ func (s *pulseSequencer) ProcessSample(i int) {
 	s.fillGate(i, clock)
 	s.fillFreq(i, glideTime)
 	s.fillData(i)
+	s.fillEOS(i)
 
 	s.lastStage = s.stageInput
 }
