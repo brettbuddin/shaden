@@ -5,7 +5,6 @@ import "math"
 // DelayLine is a simple delay line
 type DelayLine struct {
 	buffer []float64
-	sizeMS MS
 	size   int
 	offset int
 }

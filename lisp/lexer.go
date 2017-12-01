@@ -41,7 +41,6 @@ type lexer struct {
 	tokens chan token
 	input  string
 	pos,
-	lastPos,
 	start,
 	width pos
 	parenDepth int

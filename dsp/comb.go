@@ -40,8 +40,7 @@ func NewFFCombMS(ms MS) *FFComb {
 
 // FFComb is a feedforward comb filter
 type FFComb struct {
-	dl   *DelayLine
-	last float64
+	dl *DelayLine
 }
 
 // Tick advances the filter's state with the default delay
