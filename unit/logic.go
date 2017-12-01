@@ -18,7 +18,7 @@ func newLogic(name string, _ Config) (*Unit, error) {
 	return NewUnit(io, name, &logic{
 		x:    io.NewIn("x", dsp.Float64(0)),
 		y:    io.NewIn("y", dsp.Float64(0)),
-		mode: io.NewIn("mode", dsp.Float64(0)),
+		mode: io.NewIn("mode", dsp.Float64(logicOR)),
 		out:  io.NewOut("out"),
 	}), nil
 }

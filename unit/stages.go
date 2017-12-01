@@ -42,7 +42,7 @@ func newStages(name string, c Config) (*Unit, error) {
 		stageInputs[i] = pulseSequencerStage{
 			freq:   io.NewIn(fmt.Sprintf("%d/freq", i), dsp.Float64(0)),
 			pulses: io.NewIn(fmt.Sprintf("%d/pulses", i), dsp.Float64(1)),
-			mode:   io.NewIn(fmt.Sprintf("%d/mode", i), dsp.Float64(1)),
+			mode:   io.NewIn(fmt.Sprintf("%d/mode", i), dsp.Float64(pulseModeFirst)),
 			glide:  io.NewIn(fmt.Sprintf("%d/glide", i), dsp.Float64(0)),
 			data:   io.NewIn(fmt.Sprintf("%d/data", i), dsp.Float64(0)),
 		}
@@ -50,7 +50,7 @@ func newStages(name string, c Config) (*Unit, error) {
 
 	return NewUnit(io, name, &pulseSequencer{
 		clock:       io.NewIn("clock", dsp.Float64(-1)),
-		mode:        io.NewIn("mode", dsp.Float64(0)),
+		mode:        io.NewIn("mode", dsp.Float64(patternModeForward)),
 		reset:       io.NewIn("reset", dsp.Float64(-1)),
 		totalStages: io.NewIn("stages", dsp.Float64(config.Size)),
 		glidetime:   io.NewIn("glide-time", dsp.Float64(0)),

@@ -8,7 +8,7 @@ func newGate(name string, _ Config) (*Unit, error) {
 		filter:     &dsp.SVFilter{Poles: 4},
 		in:         io.NewIn("in", dsp.Float64(0)),
 		control:    io.NewIn("control", dsp.Float64(1)),
-		mode:       io.NewIn("mode", dsp.Float64(1)),
+		mode:       io.NewIn("mode", dsp.Float64(gateModeCombo)),
 		cutoffhigh: io.NewIn("cutoff-high", dsp.Frequency(20000)),
 		cutofflow:  io.NewIn("cutoff-low", dsp.Frequency(0)),
 		resonance:  io.NewIn("res", dsp.Float64(1)),
