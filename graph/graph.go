@@ -194,7 +194,3 @@ type NotInGraphError struct {
 func (n NotInGraphError) Error() string {
 	return fmt.Sprintf("node: %v not in graph", n.Node)
 }
-
-type typer interface {
-	Type() string
-}
