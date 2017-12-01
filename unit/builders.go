@@ -32,6 +32,7 @@ var (
 
 		"adjust":             newAdjust,
 		"adsr":               newAdsr,
+		"center":             newCenter,
 		"chebyshev":          newChebyshev,
 		"clip":               newClip,
 		"clock":              newClock,

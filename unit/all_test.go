@@ -893,6 +893,20 @@ func TestAllUnits(t *testing.T) {
 				},
 			},
 		},
+		{
+			unit:   "center",
+			config: nil,
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in": []float64{0, 1, -1},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0, 1, -1.005},
+					},
+				},
+			},
+		},
 	}
 
 	builders := Builders()
