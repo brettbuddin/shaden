@@ -93,6 +93,6 @@ func TestGen_Triangle(t *testing.T) {
 		}
 	}
 
-	require.Equal(t, 0.7976553547840302, out.Out().Read(0))
-	require.Equal(t, -0.6286510142212376, out.Out().Read(170))
+	require.Equal(t, 0.7994370616290737, out.Out().Read(0))
+	require.Equal(t, -0.6227234073821785, out.Out().Read(170))
 }
