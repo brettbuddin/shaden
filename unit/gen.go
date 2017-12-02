@@ -126,9 +126,9 @@ func (o *genSine) ProcessSample(i int) {
 		*o.phase = 0
 	}
 
-	next := dsp.Sin(*o.phase+pm) * amp
+	next := dsp.Sin(*o.phase + pm)
 	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
-	o.out.Write(i, offset+next)
+	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
 
@@ -165,10 +165,10 @@ func (o *genSaw) ProcessSample(i int) {
 	}
 
 	p := (*o.phase + pm) / twoPi
-	next = (2*p - 1) * amp
+	next = (2*p - 1)
 	next -= blep(p, freq, fm)
 	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
-	o.out.Write(i, offset+next)
+	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
 
@@ -206,16 +206,16 @@ func (o *genPulse) ProcessSample(i int) {
 	}
 
 	if *o.phase+pm < math.Pi*pw {
-		next = 1 * amp
+		next = 1
 	} else {
-		next = -1 * amp
+		next = -1
 	}
 	p := (*o.phase + pm) / twoPi
 	next += blep(p, freq, fm)
 	next -= blep(math.Mod(p+0.5, 1), freq, fm)
 
 	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
-	o.out.Write(i, offset+next)
+	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
 
@@ -251,9 +251,9 @@ func (o *genTriangle) ProcessSample(i int) {
 	}
 
 	if *o.phase+pm < math.Pi {
-		next = 1 * amp * 4
+		next = 1
 	} else {
-		next = -1 * amp * 4
+		next = -1
 	}
 	p := (*o.phase + pm) / twoPi
 	next += blep(p, freq, fm)
@@ -261,7 +261,7 @@ func (o *genTriangle) ProcessSample(i int) {
 	next = freq*next + (1-freq)*o.last
 
 	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
-	o.out.Write(i, offset+next)
+	o.out.Write(i, (4*amp*next)+offset)
 	o.last = next
 	o.lastSync = sync
 }
