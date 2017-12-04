@@ -18,10 +18,6 @@ func consFn(args lisp.List) (interface{}, error) {
 		for _, e := range v {
 			list = append(list, e)
 		}
-	case lisp.Table:
-		for k, e := range v {
-			list = append(list, lisp.List{k, e})
-		}
 	default:
 		list = append(list, v)
 	}
