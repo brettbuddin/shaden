@@ -129,11 +129,11 @@ func (in *input) ProcessSample(i int) {
 
 func (in *input) Close() error {
 	if in.stream != nil {
+		in.stopEvent <- struct{}{}
 		if err := in.stream.Close(); err != nil {
 			return err
 		}
 		in.stream = nil
-		go func() { in.stopEvent <- struct{}{} }()
 	}
 	return nil
 }
