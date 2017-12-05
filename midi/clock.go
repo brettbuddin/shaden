@@ -103,11 +103,11 @@ func (c *clock) ProcessSample(i int) {
 
 func (c *clock) Close() error {
 	if c.stream != nil {
+		c.stopEvent <- struct{}{}
 		if err := c.stream.Close(); err != nil {
 			return err
 		}
 		c.stream = nil
-		go func() { c.stopEvent <- struct{}{} }()
 	}
 	return nil
 }
