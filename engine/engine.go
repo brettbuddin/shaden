@@ -3,6 +3,7 @@ package engine
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	"buddin.us/shaden/dsp"
@@ -89,8 +90,24 @@ func (e *Engine) UnitBuilders() map[string]unit.BuildFunc {
 	return unitBuilders(e)
 }
 
+func (e *Engine) closeProcessors() error {
+	for _, p := range e.processors {
+		closer, ok := p.(io.Closer)
+		if !ok {
+			continue
+		}
+		if err := closer.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Reset clears the state of the Engine. This includes clearing the audio graph.
 func (e *Engine) Reset() error {
+	if err := e.closeProcessors(); err != nil {
+		return err
+	}
 	e.graph = graph.New()
 
 	sinkUnit, sink := newSink(e.fadeIn)
@@ -122,6 +139,12 @@ func (e *Engine) Run() {
 		e.errors <- err
 	}
 	<-e.stop
+
+	err := e.closeProcessors()
+	if err != nil {
+		e.stop <- err
+		return
+	}
 	e.stop <- e.backend.Stop()
 }
 
@@ -247,4 +270,17 @@ func (g group) ProcessFrame(n int) {
 			p.ProcessSample(i)
 		}
 	}
+}
+
+func (g group) Close() error {
+	for _, p := range g.processors {
+		closer, ok := p.(io.Closer)
+		if !ok {
+			continue
+		}
+		if err := closer.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
