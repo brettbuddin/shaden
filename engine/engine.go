@@ -3,7 +3,6 @@ package engine
 
 import (
 	"fmt"
-	"sync/atomic"
 	"time"
 
 	"buddin.us/shaden/dsp"
@@ -23,7 +22,7 @@ type Engine struct {
 	lout, rout           []float64
 	chunks               int
 	singleSampleDisabled bool
-	stopping             *uint32
+	fadeIn               bool
 }
 
 // Backend is a low-level callback-based engine
@@ -50,33 +49,37 @@ func WithSingleSampleDisabled() Option {
 	}
 }
 
+// WithFadeIn fades the engine output in to prevent pops
+func WithFadeIn() Option {
+	return func(e *Engine) {
+		e.fadeIn = true
+	}
+}
+
 // New returns a new Sink
 func New(backend Backend, opts ...Option) (*Engine, error) {
-	var stopping uint32
-
-	sinkUnit, sink := newSink(&stopping)
-	g := graph.New()
-	if err := sinkUnit.Attach(g); err != nil {
-		return nil, err
-	}
-
 	e := &Engine{
 		backend:  backend,
-		graph:    g,
 		messages: newMessageChannel(),
-		unit:     sinkUnit,
-		lout:     sink.left.out,
-		rout:     sink.right.out,
+		graph:    graph.New(),
 		errors:   make(chan error),
 		stop:     make(chan error),
 		input:    make([]float64, dsp.FrameSize),
 		chunks:   int(dsp.Float64(backend.FrameSize()) / dsp.FrameSize),
-		stopping: &stopping,
 	}
 
 	for _, opt := range opts {
 		opt(e)
 	}
+
+	sinkUnit, sink := newSink(e.fadeIn)
+	if err := sinkUnit.Attach(e.graph); err != nil {
+		return nil, err
+	}
+
+	e.unit = sinkUnit
+	e.lout = sink.left.out
+	e.rout = sink.right.out
 
 	return e, nil
 }
@@ -90,7 +93,7 @@ func (e *Engine) UnitBuilders() map[string]unit.BuildFunc {
 func (e *Engine) Reset() error {
 	e.graph = graph.New()
 
-	sinkUnit, sink := newSink(e.stopping)
+	sinkUnit, sink := newSink(e.fadeIn)
 	if err := sinkUnit.Attach(e.graph); err != nil {
 		return err
 	}
@@ -119,12 +122,6 @@ func (e *Engine) Run() {
 		e.errors <- err
 	}
 	<-e.stop
-
-	// Mark the flag for shutdown so that the sink's outputs know we are leaving. This will cause them to perform a
-	// fade-out while we wait. Not imperative that we synchronize things so a sleep will do.
-	atomic.AddUint32(e.stopping, 1)
-	time.Sleep(150 * time.Millisecond)
-
 	e.stop <- e.backend.Stop()
 }
 

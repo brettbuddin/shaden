@@ -1,8 +1,6 @@
 package engine
 
 import (
-	"sync/atomic"
-
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/unit"
 )
@@ -13,18 +11,18 @@ func unitBuilders(e *Engine) map[string]unit.BuildFunc {
 	}
 }
 
-func newSink(stopping *uint32) (*unit.Unit, *sink) {
+func newSink(fadeIn bool) (*unit.Unit, *sink) {
 	io := unit.NewIO()
 	s := &sink{
 		left: &channel{
-			stopping: stopping,
-			in:       io.NewIn("l", dsp.Float64(0)),
-			out:      make([]float64, dsp.FrameSize),
+			fadeIn: fadeIn,
+			in:     io.NewIn("l", dsp.Float64(0)),
+			out:    make([]float64, dsp.FrameSize),
 		},
 		right: &channel{
-			stopping: stopping,
-			in:       io.NewIn("r", dsp.Float64(0)),
-			out:      make([]float64, dsp.FrameSize),
+			fadeIn: fadeIn,
+			in:     io.NewIn("r", dsp.Float64(0)),
+			out:    make([]float64, dsp.FrameSize),
 		},
 	}
 	return unit.NewUnit(io, "sink", s), s
@@ -46,21 +44,20 @@ type channel struct {
 	out       []float64
 	level     float64
 	hasSignal bool
-	stopping  *uint32
+	fadeIn    bool
 }
 
 func (c *channel) tick(i int) {
 	in := c.in.Read(i)
 	c.out[i] = in * c.level
-	if atomic.LoadUint32(c.stopping) == 0 {
-		if !c.hasSignal && (in > 0 || in < 0) {
-			c.hasSignal = true
+	if !c.hasSignal && in != 0 {
+		c.hasSignal = true
+	}
+	if c.level < 1 {
+		c.level += 1 / fadeSamples
+		if c.level > 1 {
+			c.level = 1
 		}
-		if c.hasSignal && c.level < 1 {
-			c.level += 1 / fadeSamples
-		}
-	} else if c.level > 0 {
-		c.level -= 1 / fadeSamples
 	}
 }
 

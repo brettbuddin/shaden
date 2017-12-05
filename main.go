@@ -96,7 +96,7 @@ func run(args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "creating portaudio backend")
 	}
-	opts := []engine.Option{}
+	opts := []engine.Option{engine.WithFadeIn()}
 	if *singleSampleDisabled {
 		opts = append(opts, engine.WithSingleSampleDisabled())
 	}
