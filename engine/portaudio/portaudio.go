@@ -5,8 +5,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"buddin.us/shaden/errors"
 	portaudio "github.com/gordonklaus/portaudio"
-	"github.com/pkg/errors"
 )
 
 const (

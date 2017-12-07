@@ -1,8 +1,7 @@
 package builtin
 
 import (
-	"github.com/pkg/errors"
-
+	"buddin.us/shaden/errors"
 	"buddin.us/shaden/lisp"
 )
 

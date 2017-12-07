@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/pkg/errors"
+	"buddin.us/shaden/errors"
 )
 
 const unquote = Symbol("unquote")
@@ -202,7 +202,7 @@ func fnName(v interface{}) string {
 func (e *Environment) callFunc(name string, fn func(List) (interface{}, error), args List) (interface{}, error) {
 	result, err := fn(args)
 	if err != nil {
-		return result, errors.Wrap(err, fmt.Sprintf("error calling %s", name))
+		return result, errors.Wrapf(err, "failed to call %s", name)
 	}
 	return result, nil
 }
@@ -210,7 +210,7 @@ func (e *Environment) callFunc(name string, fn func(List) (interface{}, error), 
 func (e *Environment) callEnvFunc(name string, fn func(*Environment, List) (interface{}, error), args List) (interface{}, error) {
 	result, err := fn(e, args)
 	if err != nil {
-		return result, errors.Wrap(err, fmt.Sprintf("error calling %s", name))
+		return result, errors.Wrapf(err, "failed to call %s", name)
 	}
 	return result, nil
 }

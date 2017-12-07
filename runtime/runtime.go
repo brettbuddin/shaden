@@ -8,9 +8,9 @@ import (
 	"os"
 
 	prompt "github.com/c-bata/go-prompt"
-	"github.com/pkg/errors"
 
 	"buddin.us/shaden/engine"
+	"buddin.us/shaden/errors"
 	"buddin.us/shaden/lisp"
 	"buddin.us/shaden/lisp/builtin"
 	"buddin.us/shaden/unit"
@@ -83,7 +83,7 @@ func (r *Runtime) Eval(code []byte) (interface{}, error) {
 	}
 	v, err := r.user.Eval(node)
 	if err != nil {
-		return v, errors.Wrapf(err, "evaluating <string>")
+		return v, errors.Wrap(err, "failed to evaluating <string>")
 	}
 	return v, nil
 }
@@ -102,7 +102,7 @@ func (r *Runtime) Load(path string) error {
 	}
 
 	if _, err := r.user.Eval(node); err != nil {
-		return errors.Wrapf(err, "evaluating %q", path)
+		return errors.Wrapf(err, "failed to evaluating %q", path)
 	}
 	return nil
 }

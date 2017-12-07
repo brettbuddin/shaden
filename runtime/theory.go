@@ -1,9 +1,8 @@
 package runtime
 
 import (
-	"github.com/pkg/errors"
-
 	"buddin.us/musictheory"
+	"buddin.us/shaden/errors"
 	"buddin.us/shaden/lisp"
 )
 

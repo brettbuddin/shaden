@@ -1,6 +1,6 @@
 package runtime
 
-import "github.com/pkg/errors"
+import "buddin.us/shaden/errors"
 
 func typeError(name, typ string, arg int) error {
 	return errors.Errorf("%s expects %s for argument %d", name, typ, arg)

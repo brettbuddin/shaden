@@ -3,9 +3,8 @@ package engine
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
-
 	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/errors"
 	"buddin.us/shaden/graph"
 	"buddin.us/shaden/unit"
 )

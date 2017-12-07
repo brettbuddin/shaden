@@ -15,18 +15,17 @@ import (
 
 	_ "net/http/pprof"
 
-	"github.com/pkg/errors"
-
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/engine"
 	"buddin.us/shaden/engine/portaudio"
+	"buddin.us/shaden/errors"
 	"buddin.us/shaden/midi"
 	"buddin.us/shaden/runtime"
 )
 
 func main() {
 	if err := run(os.Args[1:]); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 }
@@ -130,6 +129,7 @@ func run(args []string) error {
 
 	if len(set.Args()) > 0 {
 		if err := run.Load(set.Arg(0)); err != nil {
+			// printError(err)
 			return errors.Wrap(err, "file eval failed")
 		}
 	}
@@ -194,4 +194,19 @@ func serve(addr string, run *runtime.Runtime) error {
 		fmt.Fprintf(w, "OK")
 	})
 	return http.ListenAndServe(addr, nil)
+}
+
+// func printError(err error) {
+// 	for err != nil {
+// 		fmt.Println(err)
+// 		cause, ok := err.(causer)
+// 		if !ok {
+// 			break
+// 		}
+// 		err = cause.Cause()
+// 	}
+// }
+
+type causer interface {
+	Cause() error
 }

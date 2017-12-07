@@ -5,9 +5,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/pkg/errors"
-
 	"buddin.us/shaden/engine"
+	"buddin.us/shaden/errors"
 	"buddin.us/shaden/lisp"
 	"buddin.us/shaden/midi"
 	"buddin.us/shaden/unit"

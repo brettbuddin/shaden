@@ -32,12 +32,6 @@
   revision = "d0303fe809921458f417bcf828397a65db30a7e4"
 
 [[projects]]
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/pkg/term"
   packages = ["termios"]
@@ -76,6 +70,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "93bc5d1020fbb9bce8342e00d6e6c4daae296b85cfe2a5e0b0ff50b1d5f40605"
+  inputs-digest = "99227efcb3a27c788e788a0bda2a31282494d7c27713379b4d1e5fbbec3bb7da"
   solver-name = "gps-cdcl"
   solver-version = 1
