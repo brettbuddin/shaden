@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"testing"
 
+	"buddin.us/shaden/errors"
 	"buddin.us/shaden/lisp"
 	"github.com/stretchr/testify/require"
 )
 
 func TestParser(t *testing.T) {
+	errors.Separator = ": "
+
 	var tests = []struct {
 		input  []byte
 		result interface{}
@@ -90,11 +93,11 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(> 1 2)`), result: false},
 		{input: []byte(`(> 2 1)`), result: true},
 		{input: []byte(`(> 2 2)`), result: false},
-		{input: []byte(`(> 2.0 2)`), error: "error calling >: cannot compare float64 and int"},
+		{input: []byte(`(> 2.0 2)`), error: "failed to call >: cannot compare float64 and int"},
 		{input: []byte(`(< 1 2)`), result: true},
 		{input: []byte(`(< 2 1)`), result: false},
 		{input: []byte(`(< 2 2)`), result: false},
-		{input: []byte(`(< 2.0 2)`), error: "error calling <: cannot compare float64 and int"},
+		{input: []byte(`(< 2.0 2)`), error: "failed to call <: cannot compare float64 and int"},
 		{input: []byte(`(not (= 1 2))`), result: true},
 		{input: []byte(`(if true "hello" "world")`), result: "hello"},
 		{input: []byte(`(if false "hello" "world")`), result: "world"},
@@ -126,7 +129,7 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(define hello 100) hello`), result: 100},
 		{input: []byte(`((fn (x y) (+ x y)) 5 8)`), result: 13},
 		{input: []byte(`((fn (x y) (set x (+ x y)) (+ x 1)) 5 8)`), result: 14},
-		{input: []byte(`((fn (_ y) _) 1 2)`), error: "error calling anonymous function: undefined symbol _"},
+		{input: []byte(`((fn (_ y) _) 1 2)`), error: "failed to call anonymous function: undefined symbol _"},
 		{input: []byte(`((fn (_ y) y) 1 2)`), result: 2},
 		{input: []byte(`(apply (fn (x y) (+ x y)) (list 5 8))`), result: 13},
 		{input: []byte(`(apply (fn (x y) (+ x y)) 5 9)`), result: 14},
@@ -140,7 +143,7 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(define (vary x y & z) x) (vary 1 2 3 4 5)`), result: 1},
 		{input: []byte(`(define (vary x y & z) y) (vary 1 2 3 4 5)`), result: 2},
 		{input: []byte(`(define (vary x y & z) z) (vary 1 2 3 4 5)`), result: lisp.List{3, 4, 5}},
-		{input: []byte(`(define (vary x y & z w) z) (vary 1 2 3 4 5)`), error: "error calling vary: definition has too many arguments after variadic symbol &"},
+		{input: []byte(`(define (vary x y & z w) z) (vary 1 2 3 4 5)`), error: "failed to call vary: definition has too many arguments after variadic symbol &"},
 		{input: []byte(`(define (vary x y & z) z) (vary 1 2)`), result: lisp.List{}},
 
 		// Iterators

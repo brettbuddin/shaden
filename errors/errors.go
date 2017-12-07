@@ -6,6 +6,9 @@ import (
 	"fmt"
 )
 
+// Separator between errors and their causes. Overridable for situations where a newline and tab aren't desired.
+var Separator = ":\n\t"
+
 // New creates a new error
 func New(msg string) error {
 	return &Error{
@@ -50,7 +53,7 @@ func (e *Error) Error() string {
 	b := bytes.NewBuffer(nil)
 	b.WriteString(e.error.Error())
 	if e.cause != nil {
-		writeString(b, ":\n\t")
+		writeString(b, Separator)
 		b.WriteString(e.cause.Error())
 	}
 	return b.String()
