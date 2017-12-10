@@ -50,8 +50,6 @@
            :cutoff-high (hz 500)))
 
 (define mix (unit/mix))
-(define delay (unit/delay))
-(define filter (unit/filter))
 
 (-> mix
     (table :master (db -24))
@@ -60,15 +58,17 @@
       (table :in (<- voice2-gate))
       (table :in (<- voice3-gate))))
 
-(define lfo (unit/low-gen))
+(define delay (unit/delay))
+(define delay-filter (unit/filter))
+(define delay-lfo (unit/low-gen))
 
-(-> lfo (table :freq (hz 0.1) :amp (ms 10) :offset (ms 115)))
+(-> delay-lfo (table :freq (hz 0.1) :amp (ms 10) :offset (ms 115)))
 (-> delay 
     (table :in (<- mix) 
-           :time (<- lfo :sine) 
-           :fb-return (<- filter :bp) 
+           :time (<- delay-lfo :sine) 
+           :fb-return (<- delay-filter :bp) 
            :fb-gain 0.9 
            :mix 0.3))
-(-> filter (table :in (<- delay :fb-send) :cutoff (hz 500)))
+(-> delay-filter (table :in (<- delay :fb-send) :cutoff (hz 500)))
 
 (emit (<- delay))
