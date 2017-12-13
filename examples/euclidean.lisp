@@ -52,7 +52,7 @@
 (define mix (unit/mix))
 
 (-> mix
-    (table :master (db -24))
+    (table :master (db -12))
     (list 
       (table :in (<- voice1-gate))
       (table :in (<- voice2-gate))
