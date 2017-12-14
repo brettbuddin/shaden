@@ -16,14 +16,6 @@ func errorfFn(args lisp.List) (interface{}, error) {
 	return errors.Errorf(format, args[1:]...), nil
 }
 
-// func attemptAllFn(env *lisp.Environment, args []lisp.Node) (interface{}, error) {
-// 	return nil, nil
-// }
-
-// func ifFailureFn(env *lisp.Environment, args []lisp.Node) (interface{}, error) {
-// 	return nil, nil
-// }
-
 func checkArityEqual(l lisp.List, name string, expected int) error {
 	actual := len(l)
 	if actual != expected {
@@ -40,14 +32,6 @@ func checkArityAtLeast(l lisp.List, name string, expected int) error {
 			plural = "s"
 		}
 		return errors.Errorf("%s expects at least %d argument%s; %d given", name, expected, plural, actual)
-	}
-	return nil
-}
-
-func checkArityRange(l lisp.List, name string, min, max int) error {
-	actual := len(l)
-	if actual < min || max > actual {
-		return errors.Errorf("%s expects between %d and %d arguments; %d given", name, min, max, actual)
 	}
 	return nil
 }

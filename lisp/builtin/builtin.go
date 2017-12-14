@@ -15,15 +15,18 @@ import (
 // Load populates a lisp.Environment with builtin symbols.
 func Load(env *lisp.Environment) {
 	lispPath := os.Getenv("SHADEN_LISP_PATH")
-	loadPath := strings.Split(lispPath, string(filepath.ListSeparator))
+	var loadPath lisp.List
+	for _, str := range strings.Split(lispPath, string(filepath.ListSeparator)) {
+		loadPath = append(loadPath, str)
+	}
 
 	env.DefineSymbol("!=", notEqualFn)
 	env.DefineSymbol("*", multFn)
 	env.DefineSymbol("+", sumFn)
 	env.DefineSymbol("-", diffFn)
 	env.DefineSymbol("/", divFn)
-	env.DefineSymbol("=", equalFn)
 	env.DefineSymbol("<", lessThanFn)
+	env.DefineSymbol("=", equalFn)
 	env.DefineSymbol(">", greaterThanFn)
 	env.DefineSymbol("and", andFn)
 	env.DefineSymbol("append", appendFn)
@@ -37,6 +40,7 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("dotimes", dotimesFn)
 	env.DefineSymbol("each", eachFn)
 	env.DefineSymbol("empty?", isEmptyFn)
+	env.DefineSymbol("error?", isErrorFn)
 	env.DefineSymbol("errorf", errorfFn)
 	env.DefineSymbol("eval", evalFn)
 	env.DefineSymbol("first", firstFn)
@@ -85,7 +89,6 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("undefine", undefineFn)
 	env.DefineSymbol("unless", unlessFn)
 	env.DefineSymbol("when", whenFn)
-	env.DefineSymbol("zero-value?", isZeroValueFn)
 }
 
 func evalFn(env *lisp.Environment, args lisp.List) (interface{}, error) {

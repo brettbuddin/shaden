@@ -29,8 +29,8 @@ func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 
 	var found string
-	for _, segment := range loadPath.([]string) {
-		fullpath := filepath.Join(segment, path)
+	for _, segment := range loadPath.(lisp.List) {
+		fullpath := filepath.Join(segment.(string), path)
 		if _, err := os.Stat(fullpath); err == nil {
 			found = fullpath
 		}

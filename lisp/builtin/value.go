@@ -154,14 +154,6 @@ func isEmptyFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func isZeroValueFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "zero-value?", 1); err != nil {
-		return nil, err
-	}
-	v := reflect.ValueOf(args[0])
-	return !v.IsValid(), nil
-}
-
 func intFn(args lisp.List) (interface{}, error) {
 	if err := checkArityEqual(args, "int", 1); err != nil {
 		return nil, err
