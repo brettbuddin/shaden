@@ -2,6 +2,7 @@ package unit
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	"buddin.us/shaden/dsp"
@@ -36,10 +37,10 @@ func newStages(name string, c Config) (*Unit, error) {
 
 	var (
 		io          = NewIO()
-		stageInputs = make([]pulseSequencerStage, config.Size)
+		stageInputs = make([]*pulseSequencerStage, config.Size)
 	)
 	for i := range stageInputs {
-		stageInputs[i] = pulseSequencerStage{
+		stageInputs[i] = &pulseSequencerStage{
 			freq:   io.NewIn(fmt.Sprintf("%d/freq", i), dsp.Float64(0)),
 			pulses: io.NewIn(fmt.Sprintf("%d/pulses", i), dsp.Float64(1)),
 			mode:   io.NewIn(fmt.Sprintf("%d/mode", i), dsp.Float64(pulseModeFirst)),
@@ -63,7 +64,6 @@ func newStages(name string, c Config) (*Unit, error) {
 		pulse:       -1,
 		lastClock:   -1,
 		lastReset:   -1,
-		lastStage:   -1,
 	}), nil
 }
 
@@ -78,15 +78,15 @@ type pulseSequencerValues struct {
 
 type pulseSequencer struct {
 	clock, reset, mode, glidetime, totalStages *In
-	stageInputs                                []pulseSequencerStage
+	stageInputs                                []*pulseSequencerStage
 	out, gate, data, eos                       *Out
 
-	slew              *slew
-	pong              bool
-	stageInput, pulse int
-	stage             int
-	lastStage         int
+	slew         *slew
+	pong         bool
+	stage, pulse int
 
+	stageOnset           bool
+	lastStage            int
 	lastClock, lastReset float64
 }
 
@@ -100,115 +100,122 @@ func (s *pulseSequencer) ProcessSample(i int) {
 	}
 
 	var (
-		totalStages = int(s.totalStages.Read(i))
-		glideTime   = s.glidetime.ReadSlow(i, minZero)
-		clock       = s.clock.Read(i)
-		reset       = s.reset.Read(i)
+		actualStageCount = float64(len(s.stageInputs))
+		totalStages      = int(math.Min(actualStageCount, s.totalStages.Read(i)))
+		glideTime        = s.glidetime.ReadSlow(i, minZero)
+		clock            = s.clock.Read(i)
+		reset            = s.reset.Read(i)
+		mode             = int(s.mode.Read(i))
 	)
 
-	if isTrig(s.lastReset, reset) {
-		s.stageInput = 0
+	if isTrig(s.lastClock, clock) {
+		s.advance(totalStages, mode)
+	} else if isTrig(s.lastReset, reset) {
+		s.stage = 0
 		s.pulse = 0
-	} else if isTrig(s.lastClock, clock) {
-		s.advance(totalStages, int(s.mode.Read(i)))
 	}
-	s.lastClock = clock
-	s.lastReset = reset
 
 	s.fillGate(i, clock)
 	s.fillFreq(i, glideTime)
 	s.fillData(i)
 	s.fillEOS(i)
 
-	s.lastStage = s.stageInput
+	s.lastClock = clock
+	s.lastReset = reset
+	s.lastStage = s.stage
 }
 
-func (s *pulseSequencer) advance(stageCount, mode int) {
-	pulses := int(s.stageInputs[s.stageInput].values.pulses)
+func (s *pulseSequencer) advance(totalStages, mode int) {
+	pulses := int(s.stageInputs[s.stage].values.pulses)
 
-	if pulses > 0 {
-		s.pulse = (s.pulse + 1) % pulses
-		if s.lastStage < 0 || s.pulse != 0 {
-			return // Keep counting pulses
-		}
+	if s.pulse < 0 {
+		s.pulse++
+		return
 	}
 
-	s.stage = (s.stage + 1) % stageCount
-	if s.stage == 0 {
-		s.stageInput = -1
+	s.pulse = (s.pulse + 1) % pulses
+	if s.lastStage < 0 || s.pulse != 0 {
+		return // Keep counting pulses
 	}
+
 	s.pulse = 0
 
 	switch mode {
 	case patternModeForward:
+		s.stage = (s.stage + 1) % totalStages
 		s.pong = false
-		s.stageInput = (s.stageInput + 1) % len(s.stageInputs)
 	case patternModeReverse:
-		s.pong = false
-		s.stageInput = s.stageInput - 1
-		if s.stageInput < 0 {
-			s.stageInput = len(s.stageInputs) - 1
+		s.stage -= 1
+		if s.stage < 0 {
+			s.stage = totalStages - 1
 		}
+		s.pong = false
 	case patternModePingPong:
 		var inc = 1
 		if s.pong {
 			inc = -1
 		}
-		s.stageInput += inc
+		s.stage += inc
 
-		if s.stageInput > len(s.stageInputs)-1 {
-			s.stageInput = len(s.stageInputs) - 1
+		if s.stage > totalStages-1 {
+			s.stage = totalStages - 1
 			s.pong = true
-		} else if s.stageInput < 0 {
-			s.stageInput = 0
+		} else if s.stage < 0 {
+			s.stage = 0
 			s.pong = false
 		}
 	case patternModeRandom:
+		s.stage = rand.Intn(totalStages)
 		s.pong = false
-		s.stageInput = rand.Intn(len(s.stageInputs))
 	}
 }
 
 func (s *pulseSequencer) fillGate(i int, clock float64) {
 	var (
-		mode = int(s.stageInputs[s.stageInput].values.mode)
-		last = int(s.stageInputs[s.stageInput].values.pulses) - 1
+		stage     = s.stageInputs[s.stage]
+		mode      = int(stage.values.mode)
+		lastPulse = int(stage.values.pulses) - 1
 	)
 
-	switch mode {
-	case pulseModeHold:
-		if s.lastStage != s.stageInput {
-			s.gate.Write(i, -1)
-		} else {
-			s.gate.Write(i, 1)
-		}
-	case pulseModeAll:
-		if isHigh(clock) {
-			s.gate.Write(i, 1)
-		} else {
-			s.gate.Write(i, -1)
-		}
-	case pulseModeFirst:
-		if s.pulse == 0 && isHigh(clock) {
-			s.gate.Write(i, 1)
-		} else {
-			s.gate.Write(i, -1)
-		}
-	case pulseModeLast:
-		if s.pulse == last && isHigh(clock) {
-			s.gate.Write(i, 1)
-		} else {
-			s.gate.Write(i, -1)
-		}
-	case pulseModeRest:
+	if s.lastStage != s.stage {
 		s.gate.Write(i, -1)
+		s.stageOnset = true
+	} else {
+		switch mode {
+		case pulseModeHold:
+			s.gate.Write(i, 1)
+		case pulseModeAll:
+			if s.stageOnset || isHigh(clock) {
+				s.gate.Write(i, 1)
+			} else {
+				s.gate.Write(i, -1)
+			}
+		case pulseModeFirst:
+			if s.stageOnset || (s.pulse == 0 && isHigh(clock)) {
+				s.gate.Write(i, 1)
+			} else {
+				s.gate.Write(i, -1)
+			}
+		case pulseModeLast:
+			if s.stageOnset || (s.pulse == lastPulse && isHigh(clock)) {
+				s.gate.Write(i, 1)
+			} else {
+				s.gate.Write(i, -1)
+			}
+		case pulseModeRest:
+			s.gate.Write(i, -1)
+		}
+
+		s.stageOnset = false
 	}
 }
 
 func (s *pulseSequencer) fillFreq(i int, glidetime float64) {
-	stage := s.stageInputs[s.stageInput]
-	freq := stage.values.freq
-	glide := stage.values.glide
+	var (
+		stage = s.stageInputs[s.stage]
+		freq  = stage.values.freq
+		glide = stage.values.glide
+	)
 	if glide == 0 {
 		glidetime = 0
 	}
@@ -216,11 +223,11 @@ func (s *pulseSequencer) fillFreq(i int, glidetime float64) {
 }
 
 func (s *pulseSequencer) fillData(i int) {
-	s.data.Write(i, s.stageInputs[s.stageInput].values.data)
+	s.data.Write(i, s.stageInputs[s.stage].values.data)
 }
 
 func (s *pulseSequencer) fillEOS(i int) {
-	if s.lastStage != s.stageInput {
+	if s.lastStage != s.stage {
 		s.eos.Write(i, 1)
 	} else {
 		s.eos.Write(i, -1)
