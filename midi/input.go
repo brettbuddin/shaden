@@ -21,52 +21,50 @@ func init() {
 	}
 }
 
-func newInput(c unit.Config) (*unit.Unit, error) {
-	var config struct {
-		Device   int
-		Channels []int
-	}
-	if err := mapstructure.Decode(c, &config); err != nil {
-		return nil, err
-	}
-
-	stream, err := portmidi.NewInputStream(portmidi.DeviceID(config.Device), int64(dsp.FrameSize))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(config.Channels) == 0 {
-		config.Channels = []int{1}
-	}
-
-	stop := make(chan struct{})
-	io := unit.NewIO()
-
-	ctrl := &input{
-		stopEvent: stop,
-		stream:    stream,
-		eventChan: eventStream(stream, stop),
-		events:    make([]portmidi.Event, dsp.FrameSize),
-	}
-
-	for _, ch := range config.Channels {
-		io.ExposeOutProcessor(ctrl.newPitch(ch))
-		io.ExposeOutProcessor(ctrl.newPitchRaw(ch))
-		io.ExposeOutProcessor(ctrl.newGate(ch))
-		io.ExposeOutProcessor(ctrl.newBend(ch))
-		for i := 1; i < 128; i++ {
-			io.ExposeOutProcessor(ctrl.newCC(ch, i))
+func newInput(creator StreamCreator) unit.BuildFunc {
+	return func(c unit.Config) (*unit.Unit, error) {
+		var config struct {
+			Device   int
+			Channels []int
 		}
-	}
+		if err := mapstructure.Decode(c, &config); err != nil {
+			return nil, err
+		}
 
-	return unit.NewUnit(io, "midi-input", ctrl), nil
+		stream, err := creator.NewStream(portmidi.DeviceID(config.Device), int64(dsp.FrameSize))
+		if err != nil {
+			return nil, err
+		}
+
+		if len(config.Channels) == 0 {
+			config.Channels = []int{1}
+		}
+
+		ctrl := &input{
+			stream:    stream,
+			eventChan: stream.Channel(),
+			events:    make([]portmidi.Event, dsp.FrameSize),
+		}
+
+		io := unit.NewIO()
+		for _, ch := range config.Channels {
+			io.ExposeOutProcessor(ctrl.newPitch(ch))
+			io.ExposeOutProcessor(ctrl.newPitchRaw(ch))
+			io.ExposeOutProcessor(ctrl.newGate(ch))
+			io.ExposeOutProcessor(ctrl.newBend(ch))
+			for i := 1; i < 128; i++ {
+				io.ExposeOutProcessor(ctrl.newCC(ch, i))
+			}
+		}
+
+		return unit.NewUnit(io, "midi-input", ctrl), nil
+	}
 }
 
 type input struct {
-	stream    *portmidi.Stream
+	stream    Stream
 	eventChan <-chan portmidi.Event
 	events    []portmidi.Event
-	stopEvent chan struct{}
 }
 
 func (in *input) newPitch(ch int) *pitch {
@@ -119,23 +117,13 @@ func (in *input) ProcessSample(i int) {
 	if in.stream == nil {
 		return
 	}
-	select {
-	case e := <-in.eventChan:
-		in.events[i] = e
-	default:
-		in.events[i] = portmidi.Event{}
-	}
+	in.events[i] = <-in.eventChan
 }
 
 func (in *input) Close() error {
-	if in.stream != nil {
-		in.stopEvent <- struct{}{}
-		if err := in.stream.Close(); err != nil {
-			return err
-		}
-		in.stream = nil
-	}
-	return nil
+	err := in.stream.Close()
+	in.stream = nil
+	return err
 }
 
 const (

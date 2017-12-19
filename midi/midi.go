@@ -4,6 +4,7 @@ package midi
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -11,11 +12,16 @@ import (
 	"github.com/rakyll/portmidi"
 )
 
+var defaultStreamCreator = streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	s, err := portmidi.NewInputStream(deviceID, frameSize)
+	return &stream{Stream: s, stop: make(chan struct{})}, err
+})
+
 // UnitBuilders returns the list of units provided by this package.
 func UnitBuilders() map[string]unit.BuildFunc {
 	return map[string]unit.BuildFunc{
-		"midi-clock": newClock,
-		"midi-input": newInput,
+		"midi-clock": newClock(defaultStreamCreator),
+		"midi-input": newInput(defaultStreamCreator),
 	}
 }
 
@@ -58,28 +64,62 @@ func (l DeviceList) String() string {
 	return out.String()
 }
 
-func eventStream(s *portmidi.Stream, stop <-chan struct{}) <-chan portmidi.Event {
+// StreamCreator provides new Streams
+type StreamCreator interface {
+	NewStream(deviceID portmidi.DeviceID, frameSize int64) (Stream, error)
+}
+
+// Stream is a stream of PortMIDI events that can be closed
+type Stream interface {
+	Channel() <-chan portmidi.Event
+	io.Closer
+}
+
+type stream struct {
+	*portmidi.Stream
+	stop chan struct{}
+}
+
+// Channel returns a channel that emits PortMIDI events. Every call to Channel should be terminated by a call to Close;
+// failure to do so will result in a leaked goroutine.
+func (s stream) Channel() <-chan portmidi.Event {
 	ch := make(chan portmidi.Event)
 	go func() {
 		t := time.NewTicker(10 * time.Millisecond)
 
 		for {
-			if s == nil {
-				continue
-			}
 			select {
-			case <-stop:
+			case <-s.stop:
+				close(s.stop)
 				return
 			case <-t.C:
-				events, err := s.Read(1024)
+				events, err := s.Stream.Read(1024)
 				if err != nil {
 					continue
 				}
 				for i := range events {
 					ch <- events[i]
 				}
+			default:
+				select {
+				case <-s.stop:
+					return
+				case ch <- portmidi.Event{}:
+				}
 			}
 		}
 	}()
 	return ch
+}
+
+// Close closes the underlying PortMIDI stream
+func (s stream) Close() error {
+	s.stop <- struct{}{}
+	return s.Stream.Close()
+}
+
+type streamCreatorFunc func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error)
+
+func (f streamCreatorFunc) NewStream(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	return f(deviceID, frameSize)
 }
