@@ -932,7 +932,7 @@ func TestAllUnits(t *testing.T) {
 			},
 			scenario: []scenario{
 				{
-					description: "first gate mode",
+					description: "first gate mode + data",
 					inputs: map[string][]float64{
 						"0/pulses": []float64{2, 2, 2, 2, 2, 2},
 						"0/mode":   []float64{1, 1, 1, 1, 1, 1},
@@ -945,6 +945,22 @@ func TestAllUnits(t *testing.T) {
 					outputs: map[string][]float64{
 						"gate": []float64{-1, 1, -1, -1, -1, -1},
 						"data": []float64{100, 100, 100, 100, 100, 200},
+					},
+				},
+				{
+					description: "first gate mode + frequency",
+					inputs: map[string][]float64{
+						"0/pulses": []float64{2, 2, 2, 2, 2, 2},
+						"0/mode":   []float64{1, 1, 1, 1, 1, 1},
+						"0/freq":   []float64{0.1, 0.1, 0.1, 0.1, 0.1, 0.1},
+						"1/pulses": []float64{1, 1, 1, 1, 1, 1},
+						"1/mode":   []float64{1, 1, 1, 1, 1, 1},
+						"1/freq":   []float64{0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
+						"clock":    []float64{-1, 1, -1, 1, -1, 1},
+					},
+					outputs: map[string][]float64{
+						"gate": []float64{-1, 1, -1, -1, -1, -1},
+						"freq": []float64{0.1, 0.1, 0.1, 0.1, 0.1, 0.2},
 					},
 				},
 				{
