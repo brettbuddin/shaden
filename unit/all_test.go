@@ -827,8 +827,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "bipolar",
-			config: nil,
+			unit: "bipolar",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -841,8 +840,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "unipolar",
-			config: nil,
+			unit: "unipolar",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -855,8 +853,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "logic",
-			config: nil,
+			unit: "logic",
 			scenario: []scenario{
 				{
 					description: "OR/AND",
@@ -894,8 +891,7 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "center",
-			config: nil,
+			unit: "center",
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -921,6 +917,22 @@ func TestAllUnits(t *testing.T) {
 					outputs: map[string][]float64{
 						"0": []float64{-1, 1, -1, -1},
 						"1": []float64{-1, -1, -1, 1},
+					},
+				},
+			},
+		},
+		{
+			unit: "dynamics",
+			scenario: []scenario{
+				{
+					inputs: map[string][]float64{
+						"in":      []float64{1, 1, 1, 1},
+						"clamp":   []float64{1, 1, 1, 1},
+						"relax":   []float64{1, 1, 1, 1},
+						"control": []float64{0, 0, 0, 0},
+					},
+					outputs: map[string][]float64{
+						"out": []float64{0, 0.00390625, 0.0077777099609375, 0.011614613437652587},
 					},
 				},
 			},
