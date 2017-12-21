@@ -72,7 +72,7 @@ On macOS you can install these dependencies with: `brew install go portaudio por
     $ curl -X POST http://127.0.0.1:5000/eval -d "(define source (unit/gen)) ; ..."
 
 This is my preferred way of interacting with the synthesizer. I've written a small Vim plugin that can send over
-snippets of Lisp code to the program for evaluation. You can get [that plugin here](extra/shaden.vim). Someone has also [ported the plugin to VSCode](https://github.com/semrekkers/shaden-vscode).
+snippets of Lisp code to the program for evaluation. You can get [that plugin here](extra/shaden.vim). Someone has also created a [VS Code plugin](https://github.com/semrekkers/shaden-vscode).
 
 The HTTP interface is limited to Lisp evaluation at the moment, but I have hopes of providing an API for direct graph
 manipulation via HTTP.
