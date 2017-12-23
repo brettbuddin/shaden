@@ -32,7 +32,21 @@ func keywordFn(args lisp.List) (interface{}, error) {
 	case lisp.Keyword:
 		return v, nil
 	default:
-		return nil, errors.New("keyword expects a string for argument 1")
+		return lisp.Keyword(fmt.Sprintf("%v", v)), nil
+	}
+}
+
+func stringFn(args lisp.List) (interface{}, error) {
+	if err := checkArityEqual(args, "string", 1); err != nil {
+		return nil, err
+	}
+	switch v := args[0].(type) {
+	case string:
+		return v, nil
+	case lisp.Keyword:
+		return string(v), nil
+	default:
+		return fmt.Sprintf("%v", v), nil
 	}
 }
 
