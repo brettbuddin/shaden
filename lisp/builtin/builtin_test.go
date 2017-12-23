@@ -21,6 +21,7 @@ func TestParser(t *testing.T) {
 		{input: []byte("1"), result: 1},
 		{input: []byte(`"hello"`), result: `hello`},
 		{input: []byte(`(string-split "hello/world" "/")`), result: lisp.List{"hello", "world"}},
+		{input: []byte(`(string-join (list "hello" "world") "/")`), result: "hello/world"},
 		{input: []byte(`(string? (string :hello))`), result: true},
 		{input: []byte(`:hello`), result: lisp.Keyword(`hello`)},
 		{input: []byte(`(keyword "hello")`), result: lisp.Keyword(`hello`)},
