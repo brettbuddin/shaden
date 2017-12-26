@@ -87,4 +87,4 @@ The best way to get to know the way patching works in Shaden is to look at the [
 sounds that can be created with it:
 
 - The synth was used to create the intro music for the [GothamGo 2017 conference videos](https://www.youtube.com/watch?v=l_FkVIPerzE)
-- I frequently post patches I've created with Shaden [on Instagram](https://www.instagram.com/brettbuddin/)
+- I frequently post patches I've created [on Instagram](https://www.instagram.com/brettbuddin/) and recordings [on Bandcamp](https://returnnil.bandcamp.com).
