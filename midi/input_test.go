@@ -2,6 +2,7 @@ package midi
 
 import (
 	"testing"
+	"time"
 
 	"buddin.us/shaden/unit"
 	"github.com/rakyll/portmidi"
@@ -26,7 +27,7 @@ var _ = []midiOutput{
 
 func TestInput_Pitch(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -36,7 +37,7 @@ func TestInput_Pitch(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127}
 	}()
 
-	u, err := newInput(creator)(nil)
+	u, err := newInput(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -53,7 +54,7 @@ func TestInput_Pitch(t *testing.T) {
 
 func TestInput_PitchRaw(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -63,7 +64,7 @@ func TestInput_PitchRaw(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127}
 	}()
 
-	u, err := newInput(creator)(nil)
+	u, err := newInput(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -80,7 +81,7 @@ func TestInput_PitchRaw(t *testing.T) {
 
 func TestInput_Gate_NoteOff(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -92,7 +93,7 @@ func TestInput_Gate_NoteOff(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator)(nil)
+	u, err := newInput(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -114,7 +115,7 @@ func TestInput_Gate_NoteOff(t *testing.T) {
 
 func TestInput_Gate_NoNoteOff(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -127,7 +128,7 @@ func TestInput_Gate_NoNoteOff(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127, Timestamp: 4}
 	}()
 
-	u, err := newInput(creator)(nil)
+	u, err := newInput(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -149,7 +150,7 @@ func TestInput_Gate_NoNoteOff(t *testing.T) {
 
 func TestInput_Gate_Rolling(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -161,7 +162,7 @@ func TestInput_Gate_Rolling(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator)(nil)
+	u, err := newInput(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -183,7 +184,7 @@ func TestInput_Gate_Rolling(t *testing.T) {
 
 func TestInput_CC(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -195,7 +196,7 @@ func TestInput_CC(t *testing.T) {
 		ch <- portmidi.Event{Status: 176, Data1: 1, Data2: 0, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator)(nil)
+	u, err := newInput(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -220,7 +221,7 @@ func TestInput_CC(t *testing.T) {
 
 func TestInput_Bend(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -232,7 +233,7 @@ func TestInput_Bend(t *testing.T) {
 		ch <- portmidi.Event{Status: 224, Data1: 0, Data2: 0, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator)(nil)
+	u, err := newInput(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -252,5 +253,5 @@ type streamMock struct {
 	err    error
 }
 
-func (s streamMock) Channel() <-chan portmidi.Event { return s.events }
-func (s streamMock) Close() error                   { return s.err }
+func (s streamMock) Channel(time.Duration) <-chan portmidi.Event { return s.events }
+func (s streamMock) Close() error                                { return s.err }

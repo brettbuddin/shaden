@@ -8,11 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"buddin.us/shaden/unit"
 	"github.com/rakyll/portmidi"
+
+	"buddin.us/shaden/unit"
 )
 
-var defaultStreamCreator = streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+const sendInterval = 10 * time.Millisecond
+
+var defaultStreamCreator = streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 	s, err := portmidi.NewInputStream(deviceID, frameSize)
 	return &stream{Stream: s, stop: make(chan struct{})}, err
 })
@@ -20,8 +23,8 @@ var defaultStreamCreator = streamCreatorFunc(func(deviceID portmidi.DeviceID, fr
 // UnitBuilders returns the list of units provided by this package.
 func UnitBuilders() map[string]unit.BuildFunc {
 	return map[string]unit.BuildFunc{
-		"midi-clock": newClock(defaultStreamCreator),
-		"midi-input": newInput(defaultStreamCreator),
+		"midi-clock": newClock(defaultStreamCreator, nonBlockingReceiver),
+		"midi-input": newInput(defaultStreamCreator, nonBlockingReceiver),
 	}
 }
 
@@ -64,14 +67,31 @@ func (l DeviceList) String() string {
 	return out.String()
 }
 
-// StreamCreator provides new Streams
-type StreamCreator interface {
-	NewStream(deviceID portmidi.DeviceID, frameSize int64) (Stream, error)
+// eventReceiver is a function that receives values from a channel
+type eventReceiver func(<-chan portmidi.Event) portmidi.Event
+
+// nonBlockingReceiver is an eventReceiver that doesn't wait for an event to become available if the sender isn't ready;
+// in the event the sender isn't ready it will return an empty event.
+func nonBlockingReceiver(events <-chan portmidi.Event) portmidi.Event {
+	select {
+	case e := <-events:
+		return e
+	default:
+		return portmidi.Event{}
+	}
 }
 
-// Stream is a stream of PortMIDI events that can be closed
-type Stream interface {
-	Channel() <-chan portmidi.Event
+// blockingReceiver is a eventReceiver that always waits for the sender to be ready. Used in testing.
+func blockingReceiver(events <-chan portmidi.Event) portmidi.Event { return <-events }
+
+// streamCreator provides new Streams
+type streamCreator interface {
+	NewStream(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error)
+}
+
+// eventStream is a stream of PortMIDI events that can be closed
+type eventStream interface {
+	Channel(time.Duration) <-chan portmidi.Event
 	io.Closer
 }
 
@@ -82,10 +102,10 @@ type stream struct {
 
 // Channel returns a channel that emits PortMIDI events. Every call to Channel should be terminated by a call to Close;
 // failure to do so will result in a leaked goroutine.
-func (s stream) Channel() <-chan portmidi.Event {
+func (s stream) Channel(interval time.Duration) <-chan portmidi.Event {
 	ch := make(chan portmidi.Event)
 	go func() {
-		t := time.NewTicker(10 * time.Millisecond)
+		t := time.NewTicker(interval)
 
 		for {
 			select {
@@ -100,12 +120,6 @@ func (s stream) Channel() <-chan portmidi.Event {
 				for i := range events {
 					ch <- events[i]
 				}
-			default:
-				select {
-				case <-s.stop:
-					return
-				case ch <- portmidi.Event{}:
-				}
 			}
 		}
 	}()
@@ -118,8 +132,8 @@ func (s stream) Close() error {
 	return s.Stream.Close()
 }
 
-type streamCreatorFunc func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error)
+type streamCreatorFunc func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error)
 
-func (f streamCreatorFunc) NewStream(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+func (f streamCreatorFunc) NewStream(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 	return f(deviceID, frameSize)
 }

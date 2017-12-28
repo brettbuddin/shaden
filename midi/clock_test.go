@@ -10,7 +10,7 @@ import (
 
 func TestClock(t *testing.T) {
 	ch := make(chan portmidi.Event)
-	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (Stream, error) {
+	creator := streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 		return streamMock{
 			events: ch,
 		}, nil
@@ -24,7 +24,7 @@ func TestClock(t *testing.T) {
 		ch <- portmidi.Event{Status: 250, Timestamp: 5}
 	}()
 
-	u, err := newClock(creator)(nil)
+	u, err := newClock(creator, blockingReceiver)(nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 

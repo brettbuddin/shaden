@@ -21,7 +21,7 @@ func init() {
 	}
 }
 
-func newInput(creator StreamCreator) unit.BuildFunc {
+func newInput(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
 	return func(c unit.Config) (*unit.Unit, error) {
 		var config struct {
 			Device   int
@@ -42,7 +42,8 @@ func newInput(creator StreamCreator) unit.BuildFunc {
 
 		ctrl := &input{
 			stream:    stream,
-			eventChan: stream.Channel(),
+			eventChan: stream.Channel(sendInterval),
+			receiver:  receiver,
 			events:    make([]portmidi.Event, dsp.FrameSize),
 		}
 
@@ -62,8 +63,9 @@ func newInput(creator StreamCreator) unit.BuildFunc {
 }
 
 type input struct {
-	stream    Stream
+	stream    eventStream
 	eventChan <-chan portmidi.Event
+	receiver  eventReceiver
 	events    []portmidi.Event
 }
 
@@ -117,7 +119,7 @@ func (in *input) ProcessSample(i int) {
 	if in.stream == nil {
 		return
 	}
-	in.events[i] = <-in.eventChan
+	in.events[i] = in.receiver(in.eventChan)
 }
 
 func (in *input) Close() error {

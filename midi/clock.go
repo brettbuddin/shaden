@@ -8,7 +8,7 @@ import (
 	"buddin.us/shaden/unit"
 )
 
-func newClock(creator StreamCreator) unit.BuildFunc {
+func newClock(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
 	return func(c unit.Config) (*unit.Unit, error) {
 		var config struct {
 			Device    int
@@ -30,7 +30,8 @@ func newClock(creator StreamCreator) unit.BuildFunc {
 		io := unit.NewIO()
 		clk := &clock{
 			stream:    stream,
-			events:    stream.Channel(),
+			eventChan: stream.Channel(sendInterval),
+			receiver:  receiver,
 			frameRate: config.FrameRate,
 			out:       io.NewOut("out"),
 			reset:     io.NewOut("reset"),
@@ -44,8 +45,9 @@ func newClock(creator StreamCreator) unit.BuildFunc {
 
 type clock struct {
 	out, reset, start, stop, spp *unit.Out
-	stream                       Stream
-	events                       <-chan portmidi.Event
+	stream                       eventStream
+	eventChan                    <-chan portmidi.Event
+	receiver                     eventReceiver
 	frameRate, count             int
 	lastSPP                      float64
 }
@@ -68,7 +70,7 @@ func (c *clock) ProcessSample(i int) {
 		start = -1.0
 		reset = -1.0
 	)
-	e := <-c.events
+	e := c.receiver(c.eventChan)
 	if e.Status == midiClockTick || e.Status == midiClockReset {
 		c.count++
 	}
