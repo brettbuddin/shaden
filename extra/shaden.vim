@@ -22,12 +22,16 @@ endif
 
 function! ShadenPatchSelection()
     let content = s:escape(s:get_visual_selection())
-	echom "shaden: " . system(s:command(content))
+    for LINE in systemlist(s:command(content))
+        echo LINE
+    endfor
 endfunction
 
 function! ShadenPatchLine()
     let content = s:escape(getline('.'))
-	echom "shaden: " . system(s:command(content))
+    for LINE in systemlist(s:command(content))
+        echo LINE
+    endfor
 endfunction
 
 function! s:escape(str)
