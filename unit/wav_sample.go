@@ -39,17 +39,11 @@ func newWAVSample(name string, c Config) (*Unit, error) {
 	}
 
 	var (
-		raw   = buf.AsFloatBuffer().Data
+		raw   = buf.AsFloat32Buffer().Data
 		frame = make([]float64, len(raw))
-		max   float64
 	)
-	for _, s := range raw {
-		if s > max {
-			max = s
-		}
-	}
 	for i, s := range raw {
-		frame[i] = s / max
+		frame[i] = float64(s)
 	}
 
 	io := NewIO()
