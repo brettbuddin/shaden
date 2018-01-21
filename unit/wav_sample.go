@@ -7,6 +7,7 @@ import (
 	"github.com/go-audio/wav"
 
 	"buddin.us/shaden/dsp"
+	"buddin.us/shaden/errors"
 )
 
 func newWAVSample(name string, c Config) (*Unit, error) {
@@ -17,6 +18,10 @@ func newWAVSample(name string, c Config) (*Unit, error) {
 		return nil, err
 	}
 
+	if config.File == "" {
+		return nil, errors.New("no WAV file specified")
+	}
+
 	f, err := os.Open(config.File)
 	if err != nil {
 		return nil, err
@@ -24,6 +29,10 @@ func newWAVSample(name string, c Config) (*Unit, error) {
 	defer f.Close()
 
 	w := wav.NewDecoder(f)
+	if w.IsValidFile() {
+		return nil, errors.Errorf("%q is not a valid WAV file", config.File)
+	}
+
 	buf, err := w.FullPCMBuffer()
 	if err != nil {
 		return nil, err
