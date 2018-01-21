@@ -1,96 +1,132 @@
 package unit
 
 import (
+	"math"
+	"os"
+
+	"github.com/go-audio/wav"
+
 	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/wav"
 )
 
 func newWAVSample(name string, c Config) (*Unit, error) {
 	var config struct {
-		Files []string
+		File string
 	}
 	if err := c.Decode(&config); err != nil {
 		return nil, err
 	}
 
-	frames := make([][]float64, len(config.Files))
-	for i, filename := range config.Files {
-		w, err := wav.Open(filename)
-		if err != nil {
-			return nil, err
+	f, err := os.Open(config.File)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	w := wav.NewDecoder(f)
+	buf, err := w.FullPCMBuffer()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		raw   = buf.AsFloatBuffer().Data
+		frame = make([]float64, len(raw))
+		max   float64
+	)
+	for _, s := range raw {
+		if s > max {
+			max = s
 		}
-		defer w.Close()
-		frames[i], err = loadSamples(w)
-		if err != nil {
-			return nil, err
-		}
+	}
+	for i, s := range raw {
+		frame[i] = s / max
 	}
 
 	io := NewIO()
 	return NewUnit(io, name, &wavSample{
-		selection: io.NewIn("select", dsp.Float64(0)),
-		reset:     io.NewIn("reset", dsp.Float64(0)),
-		offset:    io.NewIn("offset", dsp.Float64(0)),
-		direction: io.NewIn("direction", dsp.Float64(1)),
-		out:       io.NewOut("out"),
-		frames:    frames,
-		lastReset: -1,
+		trigger:     io.NewIn("trigger", dsp.Float64(-1)),
+		direction:   io.NewIn("direction", dsp.Float64(1)),
+		begin:       io.NewIn("begin", dsp.Float64(0)),
+		end:         io.NewIn("end", dsp.Float64(1)),
+		cycle:       io.NewIn("cycle", dsp.Float64(0)),
+		a:           io.NewOut("a"),
+		b:           io.NewOut("b"),
+		channels:    buf.Format.NumChannels,
+		length:      buf.NumFrames(),
+		frame:       frame,
+		lastTrigger: -1,
 	}), nil
 }
 
 type wavSample struct {
-	selection, reset, offset, direction *In
-	frames                              [][]float64
-	current                             int
-	out                                 *Out
-	lastReset                           float64
+	trigger, begin, end, direction, cycle *In
+	length, channels                      int
+	frame                                 []float64
+	current                               int
+	a, b                                  *Out
+	playing                               bool
+	lastTrigger                           float64
 }
 
 func (w *wavSample) ProcessSample(i int) {
-	direction := w.direction.Read(i)
-	sel := dsp.Clamp(w.selection.Read(i), 0, float64(len(w.frames)-1))
-	offset := dsp.Clamp(w.offset.Read(i), 0, 0.95)
+	var (
+		direction = w.direction.Read(i)
+		begin     = dsp.Clamp(w.begin.Read(i), 0, 0.95)
+		end       = math.Max(begin, dsp.Clamp(w.end.Read(i), 0, 1))
+		trigger   = w.trigger.Read(i)
+		cycle     = w.cycle.Read(i)
+		channels  = w.channels
+		length    = int(math.Min(float64(w.length), float64(w.length)*end))
+	)
 
-	reset := w.reset.Read(i)
-	frame := w.frames[int(sel)]
-
-	if w.lastReset < 0 && reset > 0 {
+	// Trigger and reset
+	if isTrig(w.lastTrigger, trigger) {
 		if direction > 0 {
-			w.current = int(float64(len(frame)) * offset)
+			w.current = int(float64(length) * begin)
 		} else {
-			w.current = int((float64(len(frame)) - 1) - float64(len(frame))*offset)
+			w.current = int((float64(length) - 1) - float64(length)*begin)
 		}
+		w.playing = true
 	}
-	if direction > 0 && w.current > len(frame)-1 {
-		w.current = int(float64(len(frame)) * offset)
+
+	// Wrapping
+	if direction > 0 && w.current > length-1 {
+		w.current = int(float64(length) * begin)
+		if cycle <= 0 {
+			w.playing = false
+		}
 	}
 	if direction <= 0 && w.current < 0 {
-		w.current = int((float64(len(frame)) - 1) - float64(len(frame))*offset)
-	}
-	w.out.Write(i, frame[w.current])
-	if direction > 0 {
-		w.current++
-	} else if direction < 0 {
-		w.current--
-	}
-	w.lastReset = reset
-}
-
-func loadSamples(w *wav.Wav) ([]float64, error) {
-	samples, err := w.ReadAll()
-	if err != nil {
-		return nil, err
-	}
-	ratio := int(dsp.SampleRate / float64(w.SampleRate))
-	size := len(samples) * ratio
-	frame := make([]float64, size)
-
-	var i int
-	for _, s := range samples {
-		for j := 0; j < ratio; j++ {
-			frame[i+j] = float64(s)
+		w.current = int((float64(length) - 1) - float64(length)*begin)
+		if cycle <= 0 {
+			w.playing = false
 		}
-		i += ratio
 	}
-	return frame, nil
+
+	// Write output
+	if w.playing {
+		w.a.Write(i, w.frame[w.current])
+
+		var incr int
+		switch channels {
+		case 1:
+			w.b.Write(i, 0)
+			incr = 1
+		case 2:
+			w.b.Write(i, w.frame[w.current+1])
+			incr = 2
+		}
+
+		if direction > 0 {
+			w.current += incr
+		} else if direction < 0 {
+			w.current -= incr
+		}
+	} else {
+		w.a.Write(i, 0)
+		w.b.Write(i, 0)
+	}
+
+	w.lastTrigger = trigger
 }

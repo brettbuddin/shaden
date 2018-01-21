@@ -2,10 +2,10 @@
 
 
 [[projects]]
+  branch = "master"
   name = "buddin.us/musictheory"
   packages = ["."]
-  revision = "40169c3cf984a69d75678a5625514383bb63d51a"
-  version = "v0.0.8"
+  revision = "6afbb57780ddef267e7cb7671e928170a089b8a8"
 
 [[projects]]
   name = "github.com/c-bata/go-prompt"
@@ -21,9 +21,27 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/go-audio/audio"
+  packages = ["."]
+  revision = "7baf9c12ef58aa25fcbbd2265f8f38a12eca3204"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/go-audio/wav"
+  packages = ["."]
+  revision = "5a351b022b0ce3c5746f29c0d2c0a049f37ccc5c"
+
+[[projects]]
+  branch = "master"
   name = "github.com/gordonklaus/portaudio"
   packages = ["."]
   revision = "9d16a7dfd66850cd0d78b8d06f9dc4331a86f3f3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mattetti/audio"
+  packages = ["riff"]
+  revision = "22c1d7c78180089e0ef4d3eb5dd1d20a682d5373"
 
 [[projects]]
   branch = "master"
@@ -70,6 +88,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "99227efcb3a27c788e788a0bda2a31282494d7c27713379b4d1e5fbbec3bb7da"
+  inputs-digest = "aab1fa2e8aea37a95184ec5d650e56f88d663a86c41edd4e8d952932cf02b4cf"
   solver-name = "gps-cdcl"
   solver-version = 1
