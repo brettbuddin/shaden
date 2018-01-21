@@ -29,7 +29,7 @@ func newWAVSample(name string, c Config) (*Unit, error) {
 	defer f.Close()
 
 	w := wav.NewDecoder(f)
-	if w.IsValidFile() {
+	if !w.IsValidFile() {
 		return nil, errors.Errorf("%q is not a valid WAV file", config.File)
 	}
 
