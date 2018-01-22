@@ -75,33 +75,35 @@ type wavSample struct {
 func (w *wavSample) ProcessSample(i int) {
 	var (
 		direction = w.direction.Read(i)
-		begin     = dsp.Clamp(w.begin.Read(i), 0, 0.95)
-		end       = math.Max(begin, dsp.Clamp(w.end.Read(i), 0, 1))
+		length    = float64(w.length - 1)
+		begin     = w.begin.Read(i)
+		end       = w.end.Read(i)
+		absBegin  = int(math.Min(end, dsp.Clamp(begin, 0, 0.95)) * length)
+		absEnd    = int(math.Max(begin, dsp.Clamp(end, 0.05, 1)) * length)
 		trigger   = w.trigger.Read(i)
 		cycle     = w.cycle.Read(i)
 		channels  = w.channels
-		length    = int(math.Min(float64(w.length), float64(w.length)*end))
 	)
 
 	// Trigger and reset
 	if isTrig(w.lastTrigger, trigger) {
 		if direction > 0 {
-			w.current = int(float64(length) * begin)
+			w.current = absBegin
 		} else {
-			w.current = int((float64(length) - 1) - float64(length)*begin)
+			w.current = absEnd
 		}
 		w.playing = true
 	}
 
 	// Wrapping
-	if direction > 0 && w.current > length-1 {
-		w.current = int(float64(length) * begin)
+	if direction > 0 && w.current > absEnd {
+		w.current = absBegin
 		if cycle <= 0 {
 			w.playing = false
 		}
 	}
-	if direction <= 0 && w.current < 0 {
-		w.current = int((float64(length) - 1) - float64(length)*begin)
+	if direction <= 0 && w.current < absBegin {
+		w.current = absEnd
 		if cycle <= 0 {
 			w.playing = false
 		}
@@ -109,21 +111,26 @@ func (w *wavSample) ProcessSample(i int) {
 
 	// Write output
 	if w.playing {
-		w.a.Write(i, w.frame[w.current])
+		var left, right = w.a, w.b
+		if direction <= 0 {
+			right, left = left, right
+		}
+
+		left.Write(i, w.frame[w.current])
 
 		var incr int
 		switch channels {
 		case 1:
-			w.b.Write(i, 0)
+			right.Write(i, 0)
 			incr = 1
 		case 2:
-			w.b.Write(i, w.frame[w.current+1])
+			right.Write(i, w.frame[w.current+1])
 			incr = 2
 		}
 
 		if direction > 0 {
 			w.current += incr
-		} else if direction < 0 {
+		} else if direction <= 0 {
 			w.current -= incr
 		}
 	} else {
