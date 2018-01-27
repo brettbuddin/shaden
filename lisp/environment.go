@@ -111,7 +111,7 @@ func (e *Environment) Eval(node interface{}) (interface{}, error) {
 		if node == nil {
 			return nil, nil
 		}
-		return nil, newLineError(errors.Errorf("unknown node type %T", node), 0)
+		return nil, errors.Errorf("unknown node type %T", node)
 	}
 }
 
@@ -153,7 +153,7 @@ func (e *Environment) QuasiQuoteEval(node interface{}) (interface{}, error) {
 		if node == nil {
 			return nil, nil
 		}
-		return nil, newLineError(errors.Errorf("unknown node type %T", node), 0)
+		return nil, errors.Errorf("unknown node type %T", node)
 	}
 }
 
