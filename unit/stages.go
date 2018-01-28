@@ -101,7 +101,7 @@ func (s *pulseSequencer) ProcessSample(i int) {
 
 	var (
 		actualStageCount = float64(len(s.stageInputs))
-		totalStages      = int(math.Min(actualStageCount, s.totalStages.Read(i)))
+		totalStages      = int(math.Max(math.Min(actualStageCount, s.totalStages.Read(i)), 1))
 		glideTime        = s.glidetime.ReadSlow(i, minZero)
 		clock            = s.clock.Read(i)
 		reset            = s.reset.Read(i)
