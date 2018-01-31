@@ -65,6 +65,7 @@ var (
 		"pan":                newPan,
 		"panmix":             newPanMix,
 		"pitch":              newPitch,
+		"probability-series": newProbabilitySeries,
 		"quantize":           newQuantize,
 		"random-series":      newRandomSeries,
 		"reverb":             newReverb,

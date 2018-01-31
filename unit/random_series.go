@@ -11,7 +11,7 @@ const maxRandomSeriesSize = 64
 func newRandomSeries(name string, _ Config) (*Unit, error) {
 	io := NewIO()
 	return NewUnit(io, name, &randomSeries{
-		clock:       io.NewIn("clock", dsp.Float64(8)),
+		clock:       io.NewIn("clock", dsp.Float64(-1)),
 		size:        io.NewIn("size", dsp.Float64(8)),
 		trigger:     io.NewIn("trigger", dsp.Float64(-1)),
 		min:         io.NewIn("min", dsp.Float64(0)),
