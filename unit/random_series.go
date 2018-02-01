@@ -52,7 +52,11 @@ func (s *randomSeries) ProcessSample(i int) {
 			s.values[i], lastValue = lastValue, s.values[i]
 		}
 		if lock != 1 && data > lock {
-			s.gates[0] = round(data)
+			if round(data) < 1 {
+				s.gates[0] = -1
+			} else {
+				s.gates[0] = 1
+			}
 			s.values[0] = dsp.Lerp(min, max, rand.Float64())
 		}
 	}
