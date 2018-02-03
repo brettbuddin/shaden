@@ -16,6 +16,7 @@ type Output interface {
 type OutputProcessor interface {
 	Output
 	SampleProcessor
+	FrameProcessor
 }
 
 // Out is a unit output

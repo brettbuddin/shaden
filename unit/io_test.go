@@ -32,6 +32,12 @@ func (o output) ProcessSample(i int) {
 	o.proc(i)
 }
 
+func (o output) ProcessFrame(n int) {
+	for i := 0; i < n; i++ {
+		o.ProcessSample(i)
+	}
+}
+
 func TestExposeOutProcessor(t *testing.T) {
 	io := NewIO()
 

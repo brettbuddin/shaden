@@ -55,6 +55,12 @@ func (p outProcessor) ProcessSample(i int) {
 	}
 }
 
+func (p outProcessor) ProcessFrame(n int) {
+	for i := 0; i < n; i++ {
+		p.ProcessSample(i)
+	}
+}
+
 type sampleProcessorCloser struct {
 	sampleProcessor
 	closer
