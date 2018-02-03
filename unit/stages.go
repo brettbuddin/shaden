@@ -155,14 +155,18 @@ func (s *pulseSequencer) advance(totalStages, mode int) {
 		if s.pong {
 			inc = -1
 		}
-		s.stage += inc
 
-		if s.stage > totalStages-1 {
-			s.stage = totalStages - 1
+		if s.stage == totalStages-1 {
+			inc = -1
 			s.pong = true
-		} else if s.stage < 0 {
-			s.stage = 0
+		} else if s.stage == 0 {
+			inc = 1
 			s.pong = false
+		}
+
+		s.stage += inc
+		if s.stage < 0 {
+			s.stage = 0
 		}
 	case patternModeRandom:
 		s.stage = rand.Intn(totalStages)
