@@ -171,50 +171,10 @@ func (e *Engine) call(action interface{}) (interface{}, error) {
 func (e *Engine) sort() {
 	processors := e.processors[:0]
 	for _, v := range e.graph.Sorted() {
-		e.collectProcessor(&processors, v)
+		collectProcessor(&processors, v, e.singleSampleDisabled)
 	}
 	e.processors = processors
 	e.graph.AckChange()
-}
-
-func (e *Engine) collectProcessor(processors *[]unit.FrameProcessor, nodes []*graph.Node) {
-	if len(nodes) > 1 {
-		e.collectGroup(processors, nodes)
-		return
-	}
-
-	first := nodes[0]
-	if in, ok := first.Value.(*unit.In); ok && !e.singleSampleDisabled {
-		in.Mode = unit.Block
-	}
-	if p, ok := first.Value.(unit.FrameProcessor); ok {
-		if isp, ok := p.(unit.CondProcessor); ok {
-			if isp.IsProcessable() {
-				*processors = append(*processors, p)
-			}
-		} else {
-			*processors = append(*processors, p)
-		}
-	}
-}
-
-func (e *Engine) collectGroup(processors *[]unit.FrameProcessor, nodes []*graph.Node) {
-	var g group
-	for _, w := range nodes {
-		if in, ok := w.Value.(*unit.In); ok && !e.singleSampleDisabled {
-			in.Mode = unit.Sample
-		}
-		if p, ok := w.Value.(unit.SampleProcessor); ok {
-			if isp, ok := p.(unit.CondProcessor); ok {
-				if isp.IsProcessable() {
-					g.processors = append(g.processors, p)
-				}
-			} else {
-				g.processors = append(g.processors, p)
-			}
-		}
-	}
-	*processors = append(*processors, g)
 }
 
 func (e *Engine) handle(msg *Message) {
@@ -258,6 +218,46 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 			}
 		}
 	}
+}
+
+func collectProcessor(processors *[]unit.FrameProcessor, nodes []*graph.Node, singleSampleDisabled bool) {
+	if len(nodes) > 1 {
+		collectGroup(processors, nodes, singleSampleDisabled)
+		return
+	}
+
+	first := nodes[0]
+	if in, ok := first.Value.(*unit.In); ok && !singleSampleDisabled {
+		in.Mode = unit.Block
+	}
+	if p, ok := first.Value.(unit.FrameProcessor); ok {
+		if isp, ok := p.(unit.CondProcessor); ok {
+			if isp.IsProcessable() {
+				*processors = append(*processors, p)
+			}
+		} else {
+			*processors = append(*processors, p)
+		}
+	}
+}
+
+func collectGroup(processors *[]unit.FrameProcessor, nodes []*graph.Node, singleSampleDisabled bool) {
+	var g group
+	for _, w := range nodes {
+		if in, ok := w.Value.(*unit.In); ok && !singleSampleDisabled {
+			in.Mode = unit.Sample
+		}
+		if p, ok := w.Value.(unit.SampleProcessor); ok {
+			if isp, ok := p.(unit.CondProcessor); ok {
+				if isp.IsProcessable() {
+					g.processors = append(g.processors, p)
+				}
+			} else {
+				g.processors = append(g.processors, p)
+			}
+		}
+	}
+	*processors = append(*processors, g)
 }
 
 type group struct {
