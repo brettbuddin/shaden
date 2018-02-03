@@ -73,16 +73,7 @@ func New(backend Backend, opts ...Option) (*Engine, error) {
 		opt(e)
 	}
 
-	sinkUnit, sink := newSink(e.fadeIn)
-	if err := sinkUnit.Attach(e.graph); err != nil {
-		return nil, err
-	}
-
-	e.unit = sinkUnit
-	e.lout = sink.left.out
-	e.rout = sink.right.out
-
-	return e, nil
+	return e, e.createSink()
 }
 
 // UnitBuilders returns all unit.BuildFuncs for Units provided by the Engine.
@@ -110,6 +101,15 @@ func (e *Engine) Reset() error {
 	}
 	e.graph = graph.New()
 
+	if err := e.createSink(); err != nil {
+		return err
+	}
+	e.sort()
+
+	return nil
+}
+
+func (e *Engine) createSink() error {
 	sinkUnit, sink := newSink(e.fadeIn)
 	if err := sinkUnit.Attach(e.graph); err != nil {
 		return err
@@ -117,9 +117,6 @@ func (e *Engine) Reset() error {
 	e.unit = sinkUnit
 	e.lout = sink.left.out
 	e.rout = sink.right.out
-
-	e.sort()
-
 	return nil
 }
 
