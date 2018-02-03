@@ -17,10 +17,10 @@ func newLowGen(name string, _ Config) (*Unit, error) {
 		sync:   io.NewIn("sync", dsp.Float64(-1)),
 	}
 
-	io.ExposeOutProcessor(g.newSine())
-	io.ExposeOutProcessor(g.newTriangle())
-	io.ExposeOutProcessor(g.newPulse())
-	io.ExposeOutProcessor(g.newSaw())
+	io.ExposeOutputProcessor(g.newSine())
+	io.ExposeOutputProcessor(g.newTriangle())
+	io.ExposeOutputProcessor(g.newPulse())
+	io.ExposeOutputProcessor(g.newSaw())
 
 	u := NewUnit(io, name, nil)
 	u.rate = RateControl

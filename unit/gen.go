@@ -24,15 +24,15 @@ func newGen(name string, _ Config) (*Unit, error) {
 		offset: io.NewIn("offset", dsp.Float64(0)),
 	}
 
-	io.ExposeOutProcessor(g.newSine("sine", 1))
-	io.ExposeOutProcessor(g.newSine("sub-sine", 0.5))
-	io.ExposeOutProcessor(g.newSaw("saw", 1))
-	io.ExposeOutProcessor(g.newSaw("sub-saw", 0.5))
-	io.ExposeOutProcessor(g.newTriangle())
-	io.ExposeOutProcessor(g.newPulse("pulse", 1))
-	io.ExposeOutProcessor(g.newPulse("sub-pulse", 0.5))
-	io.ExposeOutProcessor(g.newNoise())
-	io.ExposeOutProcessor(g.newCluster())
+	io.ExposeOutputProcessor(g.newSine("sine", 1))
+	io.ExposeOutputProcessor(g.newSine("sub-sine", 0.5))
+	io.ExposeOutputProcessor(g.newSaw("saw", 1))
+	io.ExposeOutputProcessor(g.newSaw("sub-saw", 0.5))
+	io.ExposeOutputProcessor(g.newTriangle())
+	io.ExposeOutputProcessor(g.newPulse("pulse", 1))
+	io.ExposeOutputProcessor(g.newPulse("sub-pulse", 0.5))
+	io.ExposeOutputProcessor(g.newNoise())
+	io.ExposeOutputProcessor(g.newCluster())
 
 	return NewUnit(io, name, nil), nil
 }

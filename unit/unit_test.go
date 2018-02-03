@@ -185,7 +185,7 @@ func TestUnit_Close(t *testing.T) {
 	io := NewIO()
 	io.NewIn("in", dsp.Float64(0))
 	out := NewOut("out", newFrame())
-	io.ExposeOutProcessor(outProcessorCloser{
+	io.ExposeOutputProcessor(outProcessorCloser{
 		closer: closer{
 			fn: func() error {
 				closeCalled++

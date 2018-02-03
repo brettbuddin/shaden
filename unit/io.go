@@ -50,8 +50,8 @@ func (io *IO) NewOutWithFrame(name string, f []float64) *Out {
 	return io.newOut(name, f)
 }
 
-// ExposeOutProcessor registers a new output that is also a Processor
-func (io *IO) ExposeOutProcessor(o OutputProcessor) {
+// ExposeOutputProcessor registers a new output that is also a Processor
+func (io *IO) ExposeOutputProcessor(o OutputProcessor) {
 	io.Out[o.Out().Name] = o
 }
 

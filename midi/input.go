@@ -49,12 +49,12 @@ func newInput(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
 
 		io := unit.NewIO()
 		for _, ch := range config.Channels {
-			io.ExposeOutProcessor(ctrl.newPitch(ch))
-			io.ExposeOutProcessor(ctrl.newPitchRaw(ch))
-			io.ExposeOutProcessor(ctrl.newGate(ch))
-			io.ExposeOutProcessor(ctrl.newBend(ch))
+			io.ExposeOutputProcessor(ctrl.newPitch(ch))
+			io.ExposeOutputProcessor(ctrl.newPitchRaw(ch))
+			io.ExposeOutputProcessor(ctrl.newGate(ch))
+			io.ExposeOutputProcessor(ctrl.newBend(ch))
 			for i := 1; i < 128; i++ {
-				io.ExposeOutProcessor(ctrl.newCC(ch, i))
+				io.ExposeOutputProcessor(ctrl.newCC(ch, i))
 			}
 		}
 

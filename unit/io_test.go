@@ -42,7 +42,7 @@ func TestExposeOutProcessor(t *testing.T) {
 	io := NewIO()
 
 	var called bool
-	io.ExposeOutProcessor(output{
+	io.ExposeOutputProcessor(output{
 		out: NewOut("x", make([]float64, dsp.FrameSize)),
 		proc: func(n int) {
 			called = true
