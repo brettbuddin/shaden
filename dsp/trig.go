@@ -43,7 +43,7 @@ func Sin(x float64) float64 {
 
 // Tan is a lookup table version of math.Tan
 func Tan(x float64) float64 {
-	return Sin(x) / Sin(x+0.5*math.Pi)
+	return Sin(x) / Cos(x)
 }
 
 // Cos is a lookup table version of math.Cos
