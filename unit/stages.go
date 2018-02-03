@@ -61,6 +61,7 @@ func newStages(name string, c Config) (*Unit, error) {
 		eos:         io.NewOut("eos"),
 		slew:        newSlew(),
 		stageInputs: stageInputs,
+		lastStage:   -1,
 		pulse:       -1,
 		lastClock:   -1,
 		lastReset:   -1,
@@ -201,7 +202,7 @@ func (s *pulseSequencer) fillGate(i int, clock float64) {
 				s.gate.Write(i, -1)
 			}
 		case pulseModeLast:
-			if s.stageOnset || (s.pulse == lastPulse && isHigh(clock)) {
+			if s.pulse == lastPulse && isHigh(clock) {
 				s.gate.Write(i, 1)
 			} else {
 				s.gate.Write(i, -1)
