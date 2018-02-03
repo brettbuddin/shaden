@@ -83,12 +83,10 @@ func (e *Engine) UnitBuilders() map[string]unit.BuildFunc {
 
 func (e *Engine) closeProcessors() error {
 	for _, p := range e.processors {
-		closer, ok := p.(io.Closer)
-		if !ok {
-			continue
-		}
-		if err := closer.Close(); err != nil {
-			return err
+		if closer, ok := p.(io.Closer); ok {
+			if err := closer.Close(); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -271,12 +269,10 @@ func (g group) ProcessFrame(n int) {
 
 func (g group) Close() error {
 	for _, p := range g.processors {
-		closer, ok := p.(io.Closer)
-		if !ok {
-			continue
-		}
-		if err := closer.Close(); err != nil {
-			return err
+		if closer, ok := p.(io.Closer); ok {
+			if err := closer.Close(); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
