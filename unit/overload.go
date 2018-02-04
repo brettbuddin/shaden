@@ -18,5 +18,9 @@ type overload struct {
 }
 
 func (o *overload) ProcessSample(i int) {
-	o.out.Write(i, dsp.Overload(o.in.Read(i)*o.gain.Read(i)))
+	var (
+		in   = o.in.Read(i)
+		gain = o.gain.ReadSlow(i, ident)
+	)
+	o.out.Write(i, dsp.Overload(in*gain))
 }

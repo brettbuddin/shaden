@@ -368,11 +368,11 @@ func TestAllUnits(t *testing.T) {
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
-						"in":   []float64{3, 1, 3, -3},
-						"gain": []float64{1, 1, 10, 1},
+						"in":   repeatControl([]float64{3, 1, 3, -3}),
+						"gain": padControl([]float64{1, 1, 10, 1}),
 					},
 					outputs: map[string][]float64{
-						"out": []float64{0.950212931632136, 0.6321205588285577, 0.9999999999999064, -0.950212931632136},
+						"out": repeatControl([]float64{0.950212931632136, 0.6321205588285577, 0.9999999999999064, -0.950212931632136}),
 					},
 				},
 			},
@@ -732,11 +732,11 @@ func TestAllUnits(t *testing.T) {
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
-						"in":   []float64{0, 1},
-						"bits": []float64{24, 2},
+						"in":   repeatControl([]float64{1, 0.5}),
+						"bits": padControl([]float64{24, 2}),
 					},
 					outputs: map[string][]float64{
-						"out": []float64{-5.956334429922412e-08, 0.7494803197428395},
+						"out": repeatControl([]float64{0.9999999933746846, 0.24982677324761315}),
 					},
 				},
 			},
@@ -1171,4 +1171,25 @@ func (s scenario) TestUnit(t *testing.T, index int, u *Unit) {
 			require.Equal(t, v, u.Out[name].Out().Read(i), fmt.Sprintf("scenario %d -> output %q -> sample %d", index, name, i))
 		}
 	}
+}
+
+func repeatControl(s []float64) []float64 {
+	var ss []float64
+	for _, v := range s {
+		for i := 0; i < controlPeriod; i++ {
+			ss = append(ss, v)
+		}
+	}
+	return ss
+}
+
+func padControl(s []float64) []float64 {
+	var ss []float64
+	for _, v := range s {
+		ss = append(ss, v)
+		for i := 0; i < controlPeriod-1; i++ {
+			ss = append(ss, 0)
+		}
+	}
+	return ss
 }

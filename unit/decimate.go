@@ -21,5 +21,10 @@ type decimate struct {
 }
 
 func (d *decimate) ProcessSample(i int) {
-	d.out.Write(i, d.decimate.Tick(d.in.Read(i), d.rate.Read(i), d.bits.Read(i)))
+	var (
+		in   = d.in.Read(i)
+		rate = d.rate.ReadSlow(i, ident)
+		bits = d.bits.ReadSlow(i, ident)
+	)
+	d.out.Write(i, d.decimate.Tick(in, rate, bits))
 }
