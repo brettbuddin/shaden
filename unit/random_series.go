@@ -8,6 +8,11 @@ import (
 )
 
 func newRandomSeries(name string, _ Config) (*Unit, error) {
+	gates := make([]float64, 16)
+	for i := range gates {
+		gates[i] = -1
+	}
+
 	io := NewIO()
 	return NewUnit(io, name, &randomSeries{
 		clock:     io.NewIn("clock", dsp.Float64(-1)),
@@ -15,7 +20,7 @@ func newRandomSeries(name string, _ Config) (*Unit, error) {
 		lock:      io.NewIn("lock", dsp.Float64(0)),
 		min:       io.NewIn("min", dsp.Float64(0)),
 		max:       io.NewIn("max", dsp.Float64(1)),
-		gates:     make([]float64, 16),
+		gates:     gates,
 		values:    make([]float64, 16),
 		gate:      io.NewOut("gate"),
 		value:     io.NewOut("value"),
@@ -35,8 +40,8 @@ type randomSeries struct {
 func (s *randomSeries) ProcessSample(i int) {
 	var (
 		clock     = s.clock.Read(i)
-		min       = s.min.Read(i)
-		max       = s.max.Read(i)
+		min       = s.min.ReadSlow(i, ident)
+		max       = s.max.ReadSlow(i, ident)
 		length    = dsp.Clamp(s.length.ReadSlow(i, ident), 2, 16)
 		lengthInt = int(length)
 		lock      = s.lock.ReadSlow(i, ident)

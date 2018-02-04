@@ -2,10 +2,12 @@ package unit
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 
-	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
+
+	"buddin.us/shaden/dsp"
 )
 
 var A4 = dsp.Frequency(440).Float64()
@@ -686,12 +688,12 @@ func TestAllUnits(t *testing.T) {
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
-						"in":      []float64{A4, A4},
-						"quality": []float64{0, 1},
-						"step":    []float64{1, 2},
+						"in":      []float64{A4, A4, A4, A4, A4},
+						"quality": []float64{0, 1, 2, 3, 4},
+						"step":    []float64{1, 2, 3, 5, 4},
 					},
 					outputs: map[string][]float64{
-						"out": []float64{0.009977324263038548, 0.010570606837144897},
+						"out": []float64{0.009977324263038548, 0.010570606837144897, 0.01257064086062912, 0.01411006728898326, 0.01411006728898326},
 					},
 				},
 			},
@@ -938,6 +940,61 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
+			unit: "random-series",
+			scenario: []scenario{
+				{
+					description: "unlocked",
+					inputs: map[string][]float64{
+						"clock": []float64{
+							-1, 1, -1, 1,
+							-1, 1, -1, 1,
+						},
+						"length": []float64{
+							2, 2, 2, 2,
+							2, 2, 2, 2,
+						},
+					},
+					outputs: map[string][]float64{
+						"gate": []float64{
+							-1, -1, -1, 1,
+							1, 1, 1, -1,
+						},
+						"value": []float64{
+							0, 0, 0, 0.9405090880450124,
+							0.9405090880450124, 0.4377141871869802, 0.4377141871869802, 0.6868230728671094,
+						},
+					},
+				},
+				{
+					description: "partially locked",
+					inputs: map[string][]float64{
+						"clock": []float64{
+							-1, 1, -1, 1,
+							-1, 1, -1, 1,
+						},
+						"length": []float64{
+							2, 2, 2, 2,
+							2, 2, 2, 2,
+						},
+						"lock": []float64{
+							0.5, 0.5, 0.5, 0.5,
+							0.5, 0.5, 0.5, 0.5,
+						},
+					},
+					outputs: map[string][]float64{
+						"gate": []float64{
+							-1, -1, -1, 1,
+							1, 1, 1, 1,
+						},
+						"value": []float64{
+							0, 0, 0, 0.9405090880450124,
+							0.9405090880450124, 0.4377141871869802, 0.4377141871869802, 0.9405090880450124,
+						},
+					},
+				},
+			},
+		},
+		{
 			unit: "stages",
 			config: Config{
 				"size": 3,
@@ -1075,6 +1132,7 @@ func TestAllUnits(t *testing.T) {
 				name += "_" + s.description
 			}
 			t.Run(name, func(t *testing.T) {
+				rand.Seed(1)
 				builder := builders[test.unit]
 				u, err := builder(test.config)
 				require.NoError(t, err)
