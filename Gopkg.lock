@@ -8,10 +8,10 @@
   revision = "6afbb57780ddef267e7cb7671e928170a089b8a8"
 
 [[projects]]
+  branch = "master"
   name = "github.com/c-bata/go-prompt"
   packages = ["."]
-  revision = "c292a2f4b4fe8563883871456e19028ff9df0f26"
-  version = "v0.1.1"
+  revision = "95fb1dd6f46bb6fd222e42eaac1ae92a77c5ca28"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -70,8 +70,8 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert","require"]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [[projects]]
   branch = "master"
@@ -88,6 +88,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aab1fa2e8aea37a95184ec5d650e56f88d663a86c41edd4e8d952932cf02b4cf"
+  inputs-digest = "eb4cc5cab1974ed952d2d23d6ed062fbb32229398222dd4fce7f1671ed8cd1b0"
   solver-name = "gps-cdcl"
   solver-version = 1
