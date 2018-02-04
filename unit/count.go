@@ -35,10 +35,10 @@ func (c *count) ProcessSample(i int) {
 		resetOut float64 = -1
 	)
 
-	if c.lastReset < 0 && reset > 0 {
+	if isTrig(c.lastReset, reset) {
 		c.count = 0
 		resetOut = 1
-	} else if c.lastTrigger < 0 && trigger > 0 {
+	} else if isTrig(c.lastTrigger, trigger) {
 		c.count = (c.count + int(step) + limit) % limit
 		if c.count == 0 {
 			resetOut = 1

@@ -49,9 +49,9 @@ func (s *seqSwitch) ProcessSample(i int) {
 		trigger = s.trigger.Read(i)
 		reset   = s.reset.Read(i)
 	)
-	if s.lastReset < 0 && reset > 0 {
+	if isTrig(s.lastReset, reset) {
 		s.step = 0
-	} else if s.lastClock < 0 && trigger > 0 {
+	} else if isTrig(s.lastClock, trigger) {
 		s.step = (s.step + 1) % len(s.inputs)
 	}
 	s.lastClock = trigger
