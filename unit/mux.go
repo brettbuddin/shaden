@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newMux(name string, c Config) (*Unit, error) {
+func newMux(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -18,14 +18,12 @@ func newMux(name string, c Config) (*Unit, error) {
 		config.Size = 2
 	}
 
-	io := NewIO()
-
 	inputs := make([]*In, config.Size)
 	for i := range inputs {
 		inputs[i] = io.NewIn(fmt.Sprintf("%d", i), dsp.Float64(0))
 	}
 
-	return NewUnit(io, name, &mux{
+	return NewUnit(io, &mux{
 		selection: io.NewIn("select", dsp.Float64(1)),
 		out:       io.NewOut("out"),
 		inputs:    inputs,

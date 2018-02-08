@@ -12,8 +12,7 @@ const (
 	twoDivPi = 2 / math.Pi
 )
 
-func newGen(name string, _ Config) (*Unit, error) {
-	io := NewIO()
+func newGen(io *IO, _ Config) (*Unit, error) {
 	g := &gen{
 		freq:   io.NewIn("freq", dsp.Frequency(440)),
 		amp:    io.NewIn("amp", dsp.Float64(1)),
@@ -34,7 +33,7 @@ func newGen(name string, _ Config) (*Unit, error) {
 	io.ExposeOutputProcessor(g.newNoise())
 	io.ExposeOutputProcessor(g.newCluster())
 
-	return NewUnit(io, name, nil), nil
+	return NewUnit(io, nil), nil
 }
 
 type gen struct {

@@ -7,8 +7,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newLowGen(name string, _ Config) (*Unit, error) {
-	io := NewIO()
+func newLowGen(io *IO, _ Config) (*Unit, error) {
 	g := &lowGen{
 		freq:   io.NewIn("freq", dsp.Frequency(1)),
 		amp:    io.NewIn("amp", dsp.Float64(1)),
@@ -22,7 +21,7 @@ func newLowGen(name string, _ Config) (*Unit, error) {
 	io.ExposeOutputProcessor(g.newPulse())
 	io.ExposeOutputProcessor(g.newSaw())
 
-	u := NewUnit(io, name, nil)
+	u := NewUnit(io, nil)
 	u.rate = RateControl
 	return u, nil
 }

@@ -2,9 +2,8 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newPan(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &pan{
+func newPan(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &pan{
 		in:  io.NewIn("in", dsp.Float64(0)),
 		pan: io.NewIn("pan", dsp.Float64(0)),
 		a:   io.NewOut("a"),

@@ -4,7 +4,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newFilter(name string, c Config) (*Unit, error) {
+func newFilter(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Poles int
 	}
@@ -16,8 +16,7 @@ func newFilter(name string, c Config) (*Unit, error) {
 		config.Poles = 4
 	}
 
-	io := NewIO()
-	return NewUnit(io, name, &filter{
+	return NewUnit(io, &filter{
 		filter: &dsp.SVFilter{Poles: config.Poles},
 		in:     io.NewIn("in", dsp.Float64(0)),
 		cutoff: io.NewIn("cutoff", dsp.Frequency(1000)),

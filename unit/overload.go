@@ -2,14 +2,12 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newOverload(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	d := &overload{
+func newOverload(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &overload{
 		in:   io.NewIn("in", dsp.Float64(0)),
 		gain: io.NewIn("gain", dsp.Float64(1)),
 		out:  io.NewOut("out"),
-	}
-	return NewUnit(io, name, d), nil
+	}), nil
 }
 
 type overload struct {

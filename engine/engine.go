@@ -76,9 +76,9 @@ func New(backend Backend, opts ...Option) (*Engine, error) {
 	return e, e.createSink()
 }
 
-// UnitBuilders returns all unit.BuildFuncs for Units provided by the Engine.
-func (e *Engine) UnitBuilders() map[string]unit.BuildFunc {
-	return unitBuilders(e)
+// UnitBuilders returns all unit.Builders for Units provided by the Engine.
+func (e *Engine) UnitBuilders() map[string]unit.Builder {
+	return unit.PrepareBuilders(unitBuilders(e))
 }
 
 func (e *Engine) closeProcessors() error {

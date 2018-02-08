@@ -6,15 +6,12 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newUnary(name string, op unaryOp) BuildFunc {
-	return func(Config) (*Unit, error) {
-		io := NewIO()
-		return NewUnit(io, name, &unary{
-			x:   io.NewIn("x", dsp.Float64(0)),
-			out: io.NewOut("out"),
-			op:  op,
-		}), nil
-	}
+func newUnary(io *IO, op unaryOp) (*Unit, error) {
+	return NewUnit(io, &unary{
+		x:   io.NewIn("x", dsp.Float64(0)),
+		out: io.NewOut("out"),
+		op:  op,
+	}), nil
 }
 
 type unary struct {

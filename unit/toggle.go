@@ -4,9 +4,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newToggle(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &toggle{
+func newToggle(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &toggle{
 		trigger: io.NewIn("trigger", dsp.Float64(-1)),
 		out:     io.NewOut("out"),
 	}), nil

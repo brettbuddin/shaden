@@ -2,9 +2,7 @@
 package unit
 
 import (
-	"fmt"
 	"io"
-	"sync/atomic"
 
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/errors"
@@ -35,27 +33,17 @@ const (
 	RateControl
 )
 
-var idCount uint32
-
 // Unit is a synthesizer unit
 type Unit struct {
-	SampleProcessor
 	*IO
-	ID, Type string
-	rate     Rate
-	node     *graph.Node
+	SampleProcessor
+	rate Rate
+	node *graph.Node
 }
 
 // NewUnit creates a new Unit that defaults to audio rate.
-func NewUnit(io *IO, typ string, p SampleProcessor) *Unit {
-	u := &Unit{
-		SampleProcessor: p,
-		IO:              io,
-		ID:              fmt.Sprintf("%s-%d", typ, idCount),
-		Type:            typ,
-	}
-	atomic.AddUint32(&idCount, 1)
-	return u
+func NewUnit(io *IO, p SampleProcessor) *Unit {
+	return &Unit{IO: io, SampleProcessor: p}
 }
 
 // IsProcessable determines whether or not this Unit's ProcessFrame method should be called by the engine

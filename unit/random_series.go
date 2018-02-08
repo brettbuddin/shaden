@@ -7,14 +7,13 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newRandomSeries(name string, _ Config) (*Unit, error) {
+func newRandomSeries(io *IO, _ Config) (*Unit, error) {
 	gates := make([]float64, 16)
 	for i := range gates {
 		gates[i] = -1
 	}
 
-	io := NewIO()
-	return NewUnit(io, name, &randomSeries{
+	return NewUnit(io, &randomSeries{
 		clock:     io.NewIn("clock", dsp.Float64(-1)),
 		length:    io.NewIn("length", dsp.Float64(8)),
 		lock:      io.NewIn("lock", dsp.Float64(0)),

@@ -4,9 +4,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newClip(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &clip{
+func newClip(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &clip{
 		in:    io.NewIn("in", dsp.Float64(0)),
 		level: io.NewIn("level", dsp.Float64(1)),
 		soft:  io.NewIn("soft", dsp.Float64(1)),

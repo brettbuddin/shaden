@@ -3,32 +3,32 @@ package unit
 import "github.com/mitchellh/mapstructure"
 
 var (
-	builders = map[string]nameBuildFunc{
-		"abs":      unaryBuildFunc(unaryAbs),
-		"bipolar":  unaryBuildFunc(unaryBipolar),
-		"ceil":     unaryBuildFunc(unaryCeil),
-		"floor":    unaryBuildFunc(unaryFloor),
-		"invert":   unaryBuildFunc(unaryInv),
-		"not":      unaryBuildFunc(unaryNOT),
-		"noop":     unaryBuildFunc(unaryNoop),
-		"unipolar": unaryBuildFunc(unaryUnipolar),
+	builders = map[string]IOBuilder{
+		"abs":      buildUnary(unaryAbs),
+		"bipolar":  buildUnary(unaryBipolar),
+		"ceil":     buildUnary(unaryCeil),
+		"floor":    buildUnary(unaryFloor),
+		"invert":   buildUnary(unaryInv),
+		"not":      buildUnary(unaryNOT),
+		"noop":     buildUnary(unaryNoop),
+		"unipolar": buildUnary(unaryUnipolar),
 
-		"and":   binaryBuildFunc(binaryAND),
-		"diff":  binaryBuildFunc(binaryDiff),
-		"div":   binaryBuildFunc(binaryDiv),
-		"gt":    binaryBuildFunc(binaryGT),
-		"imply": binaryBuildFunc(binaryIMPLY),
-		"lt":    binaryBuildFunc(binaryLT),
-		"max":   binaryBuildFunc(binaryMax),
-		"min":   binaryBuildFunc(binaryMin),
-		"mod":   binaryBuildFunc(binaryMod),
-		"mult":  binaryBuildFunc(binaryMult),
-		"nand":  binaryBuildFunc(binaryNAND),
-		"nor":   binaryBuildFunc(binaryNOR),
-		"or":    binaryBuildFunc(binaryOR),
-		"sum":   binaryBuildFunc(binarySum),
-		"xnor":  binaryBuildFunc(binaryXNOR),
-		"xor":   binaryBuildFunc(binaryXOR),
+		"and":   buildBinary(binaryAND),
+		"diff":  buildBinary(binaryDiff),
+		"div":   buildBinary(binaryDiv),
+		"gt":    buildBinary(binaryGT),
+		"imply": buildBinary(binaryIMPLY),
+		"lt":    buildBinary(binaryLT),
+		"max":   buildBinary(binaryMax),
+		"min":   buildBinary(binaryMin),
+		"mod":   buildBinary(binaryMod),
+		"mult":  buildBinary(binaryMult),
+		"nand":  buildBinary(binaryNAND),
+		"nor":   buildBinary(binaryNOR),
+		"or":    buildBinary(binaryOR),
+		"sum":   buildBinary(binarySum),
+		"xnor":  buildBinary(binaryXNOR),
+		"xor":   buildBinary(binaryXOR),
 
 		"adjust":             newAdjust,
 		"adsr":               newAdsr,
@@ -83,10 +83,13 @@ var (
 	}
 )
 
-// BuildFunc is a constructor function for Units.
-type BuildFunc func(Config) (*Unit, error)
+// IOBuilder provides an IO, containing identifying information, for a Unit to be constructed around.
+type IOBuilder func(*IO, Config) (*Unit, error)
 
-// Config is a map that's used to provide configuration options to BuildFunc.
+// Builder constructs a Unit of some type.
+type Builder func(Config) (*Unit, error)
+
+// Config is a map that's used to provide configuration options to Builders.
 type Config map[string]interface{}
 
 // Decode loads a struct with the contents of the raw Config object.
@@ -94,29 +97,32 @@ func (c Config) Decode(v interface{}) error {
 	return mapstructure.Decode(c, v)
 }
 
-// Builders returns all BuildFuncs for all Units provided by this package.
-func Builders() map[string]BuildFunc {
-	m := map[string]BuildFunc{}
+// Builders returns all Builders for all Units provided by this package.
+func Builders() map[string]Builder {
+	return PrepareBuilders(builders)
+}
+
+// PrepareBuilders converts sets of IOBuilders to sets of Builders.
+func PrepareBuilders(builders map[string]IOBuilder) map[string]Builder {
+	m := map[string]Builder{}
 	for k, v := range builders {
-		m[k] = func(name string, f nameBuildFunc) BuildFunc {
+		m[k] = func(typ string, f IOBuilder) Builder {
 			return func(cfg Config) (*Unit, error) {
-				return f(name, cfg)
+				return f(NewIO(typ), cfg)
 			}
 		}(k, v)
 	}
 	return m
 }
 
-type nameBuildFunc func(string, Config) (*Unit, error)
-
-func unaryBuildFunc(op unaryOp) nameBuildFunc {
-	return func(name string, c Config) (*Unit, error) {
-		return newUnary(name, op)(c)
+func buildUnary(op unaryOp) IOBuilder {
+	return func(io *IO, c Config) (*Unit, error) {
+		return newUnary(io, op)
 	}
 }
 
-func binaryBuildFunc(op binaryOp) nameBuildFunc {
-	return func(name string, c Config) (*Unit, error) {
-		return newBinary(name, op)(c)
+func buildBinary(op binaryOp) IOBuilder {
+	return func(io *IO, c Config) (*Unit, error) {
+		return newBinary(io, op)
 	}
 }

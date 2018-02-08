@@ -2,7 +2,7 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newGate(name string, c Config) (*Unit, error) {
+func newGate(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Poles int
 	}
@@ -14,8 +14,7 @@ func newGate(name string, c Config) (*Unit, error) {
 		config.Poles = 4
 	}
 
-	io := NewIO()
-	return NewUnit(io, name, &gate{
+	return NewUnit(io, &gate{
 		filter:     &dsp.SVFilter{Poles: config.Poles},
 		in:         io.NewIn("in", dsp.Float64(0)),
 		control:    io.NewIn("control", dsp.Float64(1)),

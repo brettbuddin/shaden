@@ -8,9 +8,8 @@ import (
 
 const maxEuclidLayers = 256
 
-func newEuclid(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	e := &euclid{
+func newEuclid(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &euclid{
 		clock:       io.NewIn("clock", dsp.Float64(-1)),
 		span:        io.NewIn("span", dsp.Float64(5)),
 		fill:        io.NewIn("fill", dsp.Float64(2)),
@@ -20,8 +19,7 @@ func newEuclid(name string, _ Config) (*Unit, error) {
 		pattern:     make([]bool, maxEuclidLayers),
 		lastTrigger: -1,
 		out:         io.NewOut("out"),
-	}
-	return NewUnit(io, name, e), nil
+	}), nil
 }
 
 type euclid struct {

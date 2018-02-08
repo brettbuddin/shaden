@@ -11,9 +11,8 @@ var (
 	log1        = math.Log(0.1)
 )
 
-func newDynamics(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &dynamics{
+func newDynamics(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &dynamics{
 		in:        io.NewIn("in", dsp.Float64(0)),
 		control:   io.NewIn("control", dsp.Float64(0)),
 		threshold: io.NewIn("threshold", dsp.Float64(0.5)),

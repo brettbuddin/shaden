@@ -15,9 +15,8 @@ func init() {
 	}
 }
 
-func newPitch(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &pitch{
+func newPitch(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &pitch{
 		class:  io.NewIn("class", dsp.Float64(0)),
 		octave: io.NewIn("octave", dsp.Float64(4)),
 		out:    io.NewOut("out"),

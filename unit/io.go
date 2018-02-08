@@ -1,21 +1,33 @@
 package unit
 
-import "buddin.us/shaden/dsp"
+import (
+	"fmt"
+	"sync/atomic"
+
+	"buddin.us/shaden/dsp"
+)
+
+var idCount uint32
 
 // IO is the registry of inputs, outputs and properties for a Module
 type IO struct {
-	Prop map[string]*Prop
-	In   map[string]*In
-	Out  map[string]Output
+	ID, Type string
+	Prop     map[string]*Prop
+	In       map[string]*In
+	Out      map[string]Output
 }
 
 // NewIO returns a new IO
-func NewIO() *IO {
-	return &IO{
+func NewIO(typ string) *IO {
+	io := &IO{
+		ID:   fmt.Sprintf("%s-%d", typ, idCount),
+		Type: typ,
 		Prop: map[string]*Prop{},
 		In:   map[string]*In{},
 		Out:  map[string]Output{},
 	}
+	atomic.AddUint32(&idCount, 1)
+	return io
 }
 
 // NewProp registers a new property

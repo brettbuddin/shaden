@@ -8,7 +8,7 @@ import (
 
 const alphaSeries = "abcdefghijklmnopqrstuvwxyz"
 
-func newChebyshev(name string, c Config) (*Unit, error) {
+func newChebyshev(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -24,7 +24,6 @@ func newChebyshev(name string, c Config) (*Unit, error) {
 		return nil, fmt.Errorf("maximum size is %d", len(alphaSeries))
 	}
 
-	io := NewIO()
 	cheb := &chebyshev{
 		in:     io.NewIn("in", dsp.Float64(0)),
 		coeffs: make([]*In, config.Size),
@@ -35,7 +34,7 @@ func newChebyshev(name string, c Config) (*Unit, error) {
 		cheb.coeffs[i] = io.NewIn(string(alphaSeries[i]), dsp.Float64(0))
 	}
 
-	return NewUnit(io, name, cheb), nil
+	return NewUnit(io, cheb), nil
 }
 
 type chebyshev struct {

@@ -4,9 +4,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newFold(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &fold{
+func newFold(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &fold{
 		in:    io.NewIn("in", dsp.Float64(0)),
 		level: io.NewIn("level", dsp.Float64(0.8)),
 		gain:  io.NewIn("gain", dsp.Float64(1)),

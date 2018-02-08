@@ -8,8 +8,8 @@ import (
 	"buddin.us/shaden/unit"
 )
 
-func newClock(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
-	return func(c unit.Config) (*unit.Unit, error) {
+func newClock(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit.Config) (*unit.Unit, error) {
+	return func(io *unit.IO, c unit.Config) (*unit.Unit, error) {
 		var config struct {
 			Device    int
 			FrameRate int
@@ -27,8 +27,7 @@ func newClock(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
 			config.FrameRate = 24
 		}
 
-		io := unit.NewIO()
-		clk := &clock{
+		return unit.NewUnit(io, &clock{
 			stream:    stream,
 			eventChan: stream.Channel(sendInterval),
 			receiver:  receiver,
@@ -38,8 +37,7 @@ func newClock(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
 			start:     io.NewOut("start"),
 			stop:      io.NewOut("stop"),
 			spp:       io.NewOut("spp"),
-		}
-		return unit.NewUnit(io, "midi-clock", clk), nil
+		}), nil
 	}
 }
 

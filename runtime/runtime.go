@@ -19,7 +19,7 @@ import (
 // Engine represents the things we need from engine.Engine
 type Engine interface {
 	SendMessage(*engine.Message) error
-	UnitBuilders() map[string]unit.BuildFunc
+	UnitBuilders() map[string]unit.Builder
 }
 
 // Runtime represents the runtime execution environment

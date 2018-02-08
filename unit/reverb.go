@@ -9,8 +9,7 @@ var (
 	bTravelFreq = dsp.Frequency(0.3).Float64()
 )
 
-func newReverb(name string, _ Config) (*Unit, error) {
-	io := NewIO()
+func newReverb(io *IO, _ Config) (*Unit, error) {
 	r := &reverb{
 		a:              io.NewIn("a", dsp.Float64(0)),
 		b:              io.NewIn("b", dsp.Float64(0)),
@@ -52,7 +51,7 @@ func newReverb(name string, _ Config) (*Unit, error) {
 	r.bAP[1] = dsp.NewAllPass(26900)
 	r.bPostDL = dsp.NewDelayLine(4353)
 
-	return NewUnit(io, name, r), nil
+	return NewUnit(io, r), nil
 }
 
 type reverb struct {

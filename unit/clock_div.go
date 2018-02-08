@@ -2,7 +2,7 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newClockDiv(name string, c Config) (*Unit, error) {
+func newClockDiv(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Div int
 	}
@@ -14,14 +14,13 @@ func newClockDiv(name string, c Config) (*Unit, error) {
 		config.Div = 2
 	}
 
-	io := NewIO()
 	cd := &clockDiv{
 		in:   io.NewIn("in", dsp.Float64(0)),
 		div:  io.NewIn("div", dsp.Float64(config.Div)),
 		out:  io.NewOut("out"),
 		last: -1,
 	}
-	return NewUnit(io, name, cd), nil
+	return NewUnit(io, cd), nil
 }
 
 type clockDiv struct {

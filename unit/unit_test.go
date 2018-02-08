@@ -19,11 +19,11 @@ func TestRegisteredNames(t *testing.T) {
 }
 
 func TestUnit_GraphAttachment(t *testing.T) {
-	io := NewIO()
+	io := NewIO("example")
 	io.NewIn("in", dsp.Float64(0))
 	io.NewOut("out")
 
-	u := NewUnit(io, "example", nil)
+	u := NewUnit(io, nil)
 	g := graph.New()
 	require.Equal(t, 0, g.Size())
 
@@ -40,8 +40,8 @@ func TestUnit_GraphAttachment(t *testing.T) {
 
 func TestUnit_Processable(t *testing.T) {
 	var (
-		io = NewIO()
-		u  = NewUnit(io, "example", noopSampleProc{})
+		io = NewIO("example")
+		u  = NewUnit(io, noopSampleProc{})
 		g  = graph.New()
 	)
 	require.False(t, u.IsProcessable())
@@ -52,8 +52,8 @@ func TestUnit_Processable(t *testing.T) {
 
 func TestUnit_NotProcessable(t *testing.T) {
 	var (
-		io = NewIO()
-		u  = NewUnit(io, "example", nil)
+		io = NewIO("example")
+		u  = NewUnit(io, nil)
 		g  = graph.New()
 	)
 	require.False(t, u.IsProcessable())
@@ -66,9 +66,9 @@ func TestUnit_ProxyProcessFrame(t *testing.T) {
 	var (
 		recorded int
 
-		io        = NewIO()
+		io        = NewIO("example")
 		processor = frameProcessor{frame: func(n int) { recorded = n }}
-		u         = NewUnit(io, "example", processor)
+		u         = NewUnit(io, processor)
 		g         = graph.New()
 	)
 	err := u.Attach(g)
@@ -81,11 +81,11 @@ func TestUnit_ProcessFrameHonorRateSetting(t *testing.T) {
 	var (
 		sampleProcCalled bool
 
-		io        = NewIO()
+		io        = NewIO("example")
 		processor = sampleProcessor{fn: func(i int) {
 			require.Equal(t, 0, i)
 		}}
-		u = NewUnit(io, "example", processor)
+		u = NewUnit(io, processor)
 		g = graph.New()
 	)
 	u.rate = RateControl
@@ -98,16 +98,16 @@ func TestUnit_ProcessFrameHonorRateSetting(t *testing.T) {
 func TestUnit_ExternalNeighborCount(t *testing.T) {
 	g := graph.New()
 
-	io1 := NewIO()
+	io1 := NewIO("example1")
 	io1.NewIn("in", dsp.Float64(0))
 	io1.NewOut("out")
-	u1 := NewUnit(io1, "example1", nil)
+	u1 := NewUnit(io1, nil)
 	require.Equal(t, 0, u1.ExternalNeighborCount())
 
-	io2 := NewIO()
+	io2 := NewIO("example2")
 	io2.NewIn("in", dsp.Float64(0))
 	io2.NewOut("out")
-	u2 := NewUnit(io2, "example2", nil)
+	u2 := NewUnit(io2, nil)
 	require.Equal(t, 0, u2.ExternalNeighborCount())
 
 	require.NoError(t, u1.Attach(g))
@@ -126,16 +126,16 @@ func TestUnit_ExternalNeighborCount(t *testing.T) {
 func TestUnit_DetachInboundConnectionRemoval(t *testing.T) {
 	g := graph.New()
 
-	io1 := NewIO()
+	io1 := NewIO("example1")
 	io1.NewIn("in", dsp.Float64(0))
 	io1.NewOut("out")
-	u1 := NewUnit(io1, "example1", nil)
+	u1 := NewUnit(io1, nil)
 	require.Equal(t, 0, u1.ExternalNeighborCount())
 
-	io2 := NewIO()
+	io2 := NewIO("example2")
 	io2.NewIn("in", dsp.Float64(0))
 	io2.NewOut("out")
-	u2 := NewUnit(io2, "example2", nil)
+	u2 := NewUnit(io2, nil)
 	require.Equal(t, 0, u2.ExternalNeighborCount())
 
 	require.NoError(t, u1.Attach(g))
@@ -154,16 +154,16 @@ func TestUnit_DetachInboundConnectionRemoval(t *testing.T) {
 func TestUnit_DetachOutboundConnectionRemoval(t *testing.T) {
 	g := graph.New()
 
-	io1 := NewIO()
+	io1 := NewIO("example1")
 	io1.NewIn("in", dsp.Float64(0))
 	io1.NewOut("out")
-	u1 := NewUnit(io1, "example1", nil)
+	u1 := NewUnit(io1, nil)
 	require.Equal(t, 0, u1.ExternalNeighborCount())
 
-	io2 := NewIO()
+	io2 := NewIO("example2")
 	io2.NewIn("in", dsp.Float64(0))
 	io2.NewOut("out")
-	u2 := NewUnit(io2, "example2", nil)
+	u2 := NewUnit(io2, nil)
 	require.Equal(t, 0, u2.ExternalNeighborCount())
 
 	require.NoError(t, u1.Attach(g))
@@ -182,7 +182,7 @@ func TestUnit_DetachOutboundConnectionRemoval(t *testing.T) {
 func TestUnit_Close(t *testing.T) {
 	var closeCalled int
 
-	io := NewIO()
+	io := NewIO("example1")
 	io.NewIn("in", dsp.Float64(0))
 	out := NewOut("out", newFrame())
 	io.ExposeOutputProcessor(outProcessorCloser{
@@ -201,7 +201,7 @@ func TestUnit_Close(t *testing.T) {
 			return nil
 		}},
 	}
-	u := NewUnit(io, "example1", processor)
+	u := NewUnit(io, processor)
 
 	err := u.Close()
 	require.NoError(t, err)

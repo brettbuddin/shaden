@@ -4,7 +4,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newClockMult(name string, c Config) (*Unit, error) {
+func newClockMult(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Mult int
 	}
@@ -16,13 +16,12 @@ func newClockMult(name string, c Config) (*Unit, error) {
 		config.Mult = 2
 	}
 
-	io := NewIO()
 	cm := &clockMult{
 		in:   io.NewIn("in", dsp.Float64(0)),
 		mult: io.NewIn("mult", dsp.Float64(config.Mult)),
 		out:  io.NewOut("out"),
 	}
-	return NewUnit(io, name, cm), nil
+	return NewUnit(io, cm), nil
 }
 
 type clockMult struct {

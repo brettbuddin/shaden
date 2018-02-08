@@ -10,7 +10,7 @@ import (
 	"buddin.us/shaden/errors"
 )
 
-func newWAVSample(name string, c Config) (*Unit, error) {
+func newWAVSample(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		File string
 	}
@@ -46,8 +46,7 @@ func newWAVSample(name string, c Config) (*Unit, error) {
 		frame[i] = float64(s)
 	}
 
-	io := NewIO()
-	return NewUnit(io, name, &wavSample{
+	return NewUnit(io, &wavSample{
 		trigger:     io.NewIn("trigger", dsp.Float64(-1)),
 		direction:   io.NewIn("direction", dsp.Float64(1)),
 		begin:       io.NewIn("begin", dsp.Float64(0)),

@@ -68,18 +68,18 @@ func createBuilders(env *lisp.Environment, e Engine, logger *log.Logger) error {
 		return err
 	}
 	for name, builder := range builders {
-		defineBuildFunc(env, builder, e, logger, "unit/"+name)
+		defineBuilders(env, builder, e, logger, "unit/"+name)
 	}
 	return nil
 }
 
-func unitBuilders(e Engine) (map[string]unit.BuildFunc, error) {
-	groups := []map[string]unit.BuildFunc{
+func unitBuilders(e Engine) (map[string]unit.Builder, error) {
+	groups := []map[string]unit.Builder{
 		unit.Builders(),
 		e.UnitBuilders(),
 		midi.UnitBuilders(),
 	}
-	merged := map[string]unit.BuildFunc{}
+	merged := map[string]unit.Builder{}
 	for _, g := range groups {
 		for name, c := range g {
 			if _, ok := merged[name]; ok {
@@ -91,7 +91,7 @@ func unitBuilders(e Engine) (map[string]unit.BuildFunc, error) {
 	return merged, nil
 }
 
-func defineBuildFunc(env *lisp.Environment, builder unit.BuildFunc, e Engine, logger *log.Logger, name string) {
+func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logger *log.Logger, name string) {
 	env.DefineSymbol(name, func(args lisp.List) (interface{}, error) {
 		if len(args) > 1 {
 			return nil, exactArgCountError(name, 1)

@@ -6,9 +6,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newTranspose(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &transpose{
+func newTranspose(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &transpose{
 		in:        io.NewIn("in", dsp.Float64(0)),
 		semitones: io.NewIn("semitones", dsp.Float64(0)),
 		out:       io.NewOut("out"),

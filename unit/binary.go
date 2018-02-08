@@ -6,16 +6,13 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newBinary(name string, op binaryOp) BuildFunc {
-	return func(Config) (*Unit, error) {
-		io := NewIO()
-		return NewUnit(io, name, &binary{
-			x:   io.NewIn("x", dsp.Float64(0)),
-			y:   io.NewIn("y", dsp.Float64(0)),
-			op:  op,
-			out: io.NewOut("out"),
-		}), nil
-	}
+func newBinary(io *IO, op binaryOp) (*Unit, error) {
+	return NewUnit(io, &binary{
+		x:   io.NewIn("x", dsp.Float64(0)),
+		y:   io.NewIn("y", dsp.Float64(0)),
+		op:  op,
+		out: io.NewOut("out"),
+	}), nil
 }
 
 type binary struct {

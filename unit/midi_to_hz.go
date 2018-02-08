@@ -6,9 +6,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newMIDIToHz(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &midiToHz{
+func newMIDIToHz(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &midiToHz{
 		in:  io.NewIn("in", dsp.Float64(0)),
 		out: io.NewOut("out"),
 	}), nil

@@ -4,9 +4,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newLatch(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &latch{
+func newLatch(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &latch{
 		lastTrigger: -1,
 		in:          io.NewIn("in", dsp.Float64(0)),
 		trigger:     io.NewIn("trigger", dsp.Float64(0)),

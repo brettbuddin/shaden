@@ -4,9 +4,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newCount(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &count{
+func newCount(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &count{
 		trigger:   io.NewIn("trigger", dsp.Float64(-1)),
 		reset:     io.NewIn("reset", dsp.Float64(-1)),
 		limit:     io.NewIn("limit", dsp.Float64(32)),

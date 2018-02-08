@@ -21,11 +21,11 @@ var defaultStreamCreator = streamCreatorFunc(func(deviceID portmidi.DeviceID, fr
 })
 
 // UnitBuilders returns the list of units provided by this package.
-func UnitBuilders() map[string]unit.BuildFunc {
-	return map[string]unit.BuildFunc{
+func UnitBuilders() map[string]unit.Builder {
+	return unit.PrepareBuilders(map[string]unit.IOBuilder{
 		"midi-clock": newClock(defaultStreamCreator, nonBlockingReceiver),
 		"midi-input": newInput(defaultStreamCreator, nonBlockingReceiver),
-	}
+	})
 }
 
 // Initialize initializes portmidi and returns the list of devices on the system.

@@ -36,9 +36,7 @@ func intervalSetter(p *Prop, v interface{}) error {
 	return nil
 }
 
-func newQuantize(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-
+func newQuantize(io *IO, _ Config) (*Unit, error) {
 	tonic, err := dsp.ParsePitch("A4")
 	if err != nil {
 		return nil, err
@@ -53,7 +51,7 @@ func newQuantize(name string, _ Config) (*Unit, error) {
 	}
 	q.maybeUpdate()
 
-	return NewUnit(io, name, q), nil
+	return NewUnit(io, q), nil
 }
 
 type quantize struct {

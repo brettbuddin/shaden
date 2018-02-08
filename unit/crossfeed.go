@@ -2,9 +2,8 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newCrossfeed(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &crossfeed{
+func newCrossfeed(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &crossfeed{
 		a:      io.NewIn("a", dsp.Float64(0)),
 		b:      io.NewIn("b", dsp.Float64(0)),
 		amount: io.NewIn("amount", dsp.Float64(0)),

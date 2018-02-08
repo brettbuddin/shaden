@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newGateSeries(name string, c Config) (*Unit, error) {
+func newGateSeries(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -18,14 +18,12 @@ func newGateSeries(name string, c Config) (*Unit, error) {
 		config.Size = 4
 	}
 
-	io := NewIO()
-
 	outs := make([]*Out, config.Size)
 	for i := range outs {
 		outs[i] = io.NewOut(fmt.Sprintf("%d", i))
 	}
 
-	return NewUnit(io, name, &gateSeries{
+	return NewUnit(io, &gateSeries{
 		clock:   io.NewIn("clock", dsp.Float64(-1)),
 		advance: io.NewIn("advance", dsp.Float64(-1)),
 		reset:   io.NewIn("reset", dsp.Float64(-1)),

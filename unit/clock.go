@@ -4,8 +4,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newClock(name string, _ Config) (*Unit, error) {
-	io := NewIO()
+func newClock(io *IO, _ Config) (*Unit, error) {
 	c := &clock{
 		tempo:   io.NewIn("tempo", dsp.Frequency(1)),
 		pw:      io.NewIn("pulse-width", dsp.Float64(0.1)),
@@ -13,7 +12,7 @@ func newClock(name string, _ Config) (*Unit, error) {
 		run:     io.NewIn("run", dsp.Float64(1)),
 		out:     io.NewOut("out"),
 	}
-	return NewUnit(io, name, c), nil
+	return NewUnit(io, c), nil
 }
 
 type clock struct {

@@ -17,9 +17,8 @@ const (
 
 var perfectFirst = musictheory.Perfect(1)
 
-func newTransposeInterval(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &transposeInterval{
+func newTransposeInterval(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &transposeInterval{
 		in:       io.NewIn("in", dsp.Float64(0)),
 		quality:  io.NewIn("quality", dsp.Float64(0)),
 		step:     io.NewIn("step", dsp.Float64(0)),

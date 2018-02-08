@@ -37,7 +37,7 @@ func TestInput_Pitch(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127}
 	}()
 
-	u, err := newInput(creator, blockingReceiver)(nil)
+	u, err := newInput(creator, blockingReceiver)(unit.NewIO("midi-input"), nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -64,7 +64,7 @@ func TestInput_PitchRaw(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127}
 	}()
 
-	u, err := newInput(creator, blockingReceiver)(nil)
+	u, err := newInput(creator, blockingReceiver)(unit.NewIO("midi-input"), nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -93,7 +93,7 @@ func TestInput_Gate_NoteOff(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator, blockingReceiver)(nil)
+	u, err := newInput(creator, blockingReceiver)(unit.NewIO("midi-input"), nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -128,7 +128,7 @@ func TestInput_Gate_NoNoteOff(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127, Timestamp: 4}
 	}()
 
-	u, err := newInput(creator, blockingReceiver)(nil)
+	u, err := newInput(creator, blockingReceiver)(unit.NewIO("midi-input"), nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -162,7 +162,7 @@ func TestInput_Gate_Rolling(t *testing.T) {
 		ch <- portmidi.Event{Status: 144, Data1: 60, Data2: 127, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator, blockingReceiver)(nil)
+	u, err := newInput(creator, blockingReceiver)(unit.NewIO("midi-input"), nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -196,7 +196,7 @@ func TestInput_CC(t *testing.T) {
 		ch <- portmidi.Event{Status: 176, Data1: 1, Data2: 0, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator, blockingReceiver)(nil)
+	u, err := newInput(creator, blockingReceiver)(unit.NewIO("midi-input"), nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 
@@ -233,7 +233,7 @@ func TestInput_Bend(t *testing.T) {
 		ch <- portmidi.Event{Status: 224, Data1: 0, Data2: 0, Timestamp: 3}
 	}()
 
-	u, err := newInput(creator, blockingReceiver)(nil)
+	u, err := newInput(creator, blockingReceiver)(unit.NewIO("midi-input"), nil)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 

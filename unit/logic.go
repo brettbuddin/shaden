@@ -13,9 +13,8 @@ const (
 
 type logicMode int
 
-func newLogic(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &logic{
+func newLogic(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &logic{
 		x:    io.NewIn("x", dsp.Float64(0)),
 		y:    io.NewIn("y", dsp.Float64(0)),
 		mode: io.NewIn("mode", dsp.Float64(logicOR)),

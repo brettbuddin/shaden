@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newPanMix(name string, c Config) (*Unit, error) {
+func newPanMix(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -19,7 +19,6 @@ func newPanMix(name string, c Config) (*Unit, error) {
 	}
 
 	var (
-		io     = NewIO()
 		inputs = make([]*In, config.Size)
 		levels = make([]*In, config.Size)
 		pans   = make([]*In, config.Size)
@@ -30,7 +29,7 @@ func newPanMix(name string, c Config) (*Unit, error) {
 		pans[i] = io.NewIn(fmt.Sprintf("%d/pan", i), dsp.Float64(0))
 	}
 
-	return NewUnit(io, name, &panMix{
+	return NewUnit(io, &panMix{
 		master: io.NewIn("master", dsp.Float64(1)),
 		a:      io.NewOut("a"),
 		b:      io.NewOut("b"),

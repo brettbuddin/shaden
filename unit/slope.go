@@ -6,9 +6,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newSlope(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &slope{
+func newSlope(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &slope{
 		state: &slopeState{
 			lastTrigger: -1,
 		},

@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newGateMix(name string, c Config) (*Unit, error) {
+func newGateMix(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -18,15 +18,12 @@ func newGateMix(name string, c Config) (*Unit, error) {
 		config.Size = 4
 	}
 
-	var (
-		io     = NewIO()
-		inputs = make([]*In, config.Size)
-	)
+	inputs := make([]*In, config.Size)
 	for i := 0; i < len(inputs); i++ {
 		inputs[i] = io.NewIn(fmt.Sprintf("%d", i), dsp.Float64(-1))
 	}
 
-	return NewUnit(io, name, &gateMix{
+	return NewUnit(io, &gateMix{
 		out:    io.NewOut("out"),
 		inputs: inputs,
 	}), nil

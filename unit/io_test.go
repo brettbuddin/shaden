@@ -8,13 +8,13 @@ import (
 )
 
 func TestExposeIn(t *testing.T) {
-	io := NewIO()
+	io := NewIO("example")
 	in := io.NewIn("x", dsp.Float64(1))
 	require.Equal(t, in, io.In["x"])
 }
 
 func TestExposeOut(t *testing.T) {
-	io := NewIO()
+	io := NewIO("example")
 	out := io.NewOut("x")
 	require.Equal(t, out, io.Out["x"])
 }
@@ -39,7 +39,7 @@ func (o output) ProcessFrame(n int) {
 }
 
 func TestExposeOutProcessor(t *testing.T) {
-	io := NewIO()
+	io := NewIO("example")
 
 	var called bool
 	io.ExposeOutputProcessor(output{
@@ -56,7 +56,7 @@ func TestExposeOutProcessor(t *testing.T) {
 }
 
 func TestExposeProp(t *testing.T) {
-	io := NewIO()
+	io := NewIO("example")
 	p := io.NewProp("x", 1, nil)
 	require.Equal(t, p, io.Prop["x"])
 }

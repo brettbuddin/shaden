@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newSwitch(name string, c Config) (*Unit, error) {
+func newSwitch(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -17,7 +17,6 @@ func newSwitch(name string, c Config) (*Unit, error) {
 		config.Size = 4
 	}
 
-	io := NewIO()
 	inputs := make([]*In, config.Size)
 	for i := range inputs {
 		inputs[i] = io.NewIn(fmt.Sprintf("%d", i), dsp.Float64(0))
@@ -32,7 +31,7 @@ func newSwitch(name string, c Config) (*Unit, error) {
 		lastReset: -1,
 	}
 
-	return NewUnit(io, name, s), nil
+	return NewUnit(io, s), nil
 }
 
 type seqSwitch struct {

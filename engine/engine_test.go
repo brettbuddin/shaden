@@ -90,8 +90,8 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 	}()
 
 	// Unit with no inputs and outputs
-	io := unit.NewIO()
-	u := unit.NewUnit(io, "example-unit", nil)
+	io := unit.NewIO("example")
+	u := unit.NewUnit(io, nil)
 
 	// Send a MountUnit message to the engine
 	msg := NewMessage(MountUnit(u))
@@ -154,8 +154,8 @@ func TestEngine_MountAndReset(t *testing.T) {
 		}
 	}()
 
-	io := unit.NewIO()
-	u := unit.NewUnit(io, "example-unit", nil)
+	io := unit.NewIO("example")
+	u := unit.NewUnit(io, nil)
 
 	msg := NewMessage(MountUnit(u))
 	err = e.SendMessage(msg)

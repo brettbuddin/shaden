@@ -23,7 +23,7 @@ const (
 	patternModeRandom
 )
 
-func newStages(name string, c Config) (*Unit, error) {
+func newStages(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -35,10 +35,7 @@ func newStages(name string, c Config) (*Unit, error) {
 		config.Size = 5
 	}
 
-	var (
-		io          = NewIO()
-		stageInputs = make([]*pulseSequencerStage, config.Size)
-	)
+	stageInputs := make([]*pulseSequencerStage, config.Size)
 	for i := range stageInputs {
 		stageInputs[i] = &pulseSequencerStage{
 			freq:   io.NewIn(fmt.Sprintf("%d/freq", i), dsp.Float64(0)),
@@ -49,7 +46,7 @@ func newStages(name string, c Config) (*Unit, error) {
 		}
 	}
 
-	return NewUnit(io, name, &pulseSequencer{
+	return NewUnit(io, &pulseSequencer{
 		clock:       io.NewIn("clock", dsp.Float64(-1)),
 		mode:        io.NewIn("mode", dsp.Float64(patternModeForward)),
 		reset:       io.NewIn("reset", dsp.Float64(-1)),

@@ -47,16 +47,16 @@ func TestIn_Fill(t *testing.T) {
 func TestIn_CoupleOutput(t *testing.T) {
 	g := graph.New()
 
-	io1 := NewIO()
+	io1 := NewIO("example1")
 	io1.NewIn("in", dsp.Float64(0))
 	io1.NewOut("out")
-	u1 := NewUnit(io1, "example1", nil)
+	u1 := NewUnit(io1, nil)
 	require.Equal(t, 0, u1.ExternalNeighborCount())
 
-	io2 := NewIO()
+	io2 := NewIO("example2")
 	io2.NewIn("in", dsp.Float64(0))
 	io2.NewOut("out")
-	u2 := NewUnit(io2, "example2", nil)
+	u2 := NewUnit(io2, nil)
 	require.Equal(t, 0, u2.ExternalNeighborCount())
 
 	io2.In["in"].Fill(dsp.Float64(101))

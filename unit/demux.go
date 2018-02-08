@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newDemux(name string, c Config) (*Unit, error) {
+func newDemux(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -19,14 +19,13 @@ func newDemux(name string, c Config) (*Unit, error) {
 	}
 
 	var (
-		io   = NewIO()
 		outs = make([]*Out, config.Size)
 	)
 	for i := 0; i < config.Size; i++ {
 		outs[i] = io.NewOut(fmt.Sprintf("%d", i))
 	}
 
-	return NewUnit(io, name, &demux{
+	return NewUnit(io, &demux{
 		in:        io.NewIn("in", dsp.Float64(0)),
 		selection: io.NewIn("select", dsp.Float64(1)),
 		outs:      outs,

@@ -6,9 +6,8 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newDebug(name string, _ Config) (*Unit, error) {
-	io := NewIO()
-	return NewUnit(io, name, &debug{
+func newDebug(io *IO, _ Config) (*Unit, error) {
+	return NewUnit(io, &debug{
 		fmt: io.NewProp("fmt", "%.8f", func(p *Prop, v interface{}) error {
 			p.value = v
 			return nil

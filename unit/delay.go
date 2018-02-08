@@ -8,8 +8,7 @@ const maxDelayMS = 10000
 
 var maxDelayValue = dsp.Duration(maxDelayMS).Float64()
 
-func newDelay(name string, _ Config) (*Unit, error) {
-	io := NewIO()
+func newDelay(io *IO, _ Config) (*Unit, error) {
 	d := &delay{
 		dl:       dsp.NewDelayLine(int(maxDelayValue)),
 		in:       io.NewIn("in", dsp.Float64(0)),
@@ -21,7 +20,7 @@ func newDelay(name string, _ Config) (*Unit, error) {
 		fbsend:   io.NewOut("fb-send"),
 		block:    &dsp.DCBlock{},
 	}
-	return NewUnit(io, name, d), nil
+	return NewUnit(io, d), nil
 }
 
 type delay struct {

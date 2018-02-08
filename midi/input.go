@@ -21,8 +21,8 @@ func init() {
 	}
 }
 
-func newInput(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
-	return func(c unit.Config) (*unit.Unit, error) {
+func newInput(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit.Config) (*unit.Unit, error) {
+	return func(io *unit.IO, c unit.Config) (*unit.Unit, error) {
 		var config struct {
 			Device   int
 			Channels []int
@@ -47,7 +47,6 @@ func newInput(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
 			events:    make([]portmidi.Event, dsp.FrameSize),
 		}
 
-		io := unit.NewIO()
 		for _, ch := range config.Channels {
 			io.ExposeOutputProcessor(ctrl.newPitch(ch))
 			io.ExposeOutputProcessor(ctrl.newPitchRaw(ch))
@@ -58,7 +57,7 @@ func newInput(creator streamCreator, receiver eventReceiver) unit.BuildFunc {
 			}
 		}
 
-		return unit.NewUnit(io, "midi-input", ctrl), nil
+		return unit.NewUnit(io, ctrl), nil
 	}
 }
 

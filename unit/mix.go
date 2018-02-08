@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newMix(name string, c Config) (*Unit, error) {
+func newMix(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
 	}
@@ -19,7 +19,6 @@ func newMix(name string, c Config) (*Unit, error) {
 	}
 
 	var (
-		io     = NewIO()
 		inputs = make([]*In, config.Size)
 		levels = make([]*In, config.Size)
 	)
@@ -28,7 +27,7 @@ func newMix(name string, c Config) (*Unit, error) {
 		levels[i] = io.NewIn(fmt.Sprintf("%d/level", i), dsp.Float64(1))
 	}
 
-	return NewUnit(io, name, &mix{
+	return NewUnit(io, &mix{
 		master:      io.NewIn("master", dsp.Float64(1)),
 		out:         io.NewOut("out"),
 		inputs:      inputs,

@@ -2,8 +2,7 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newDecimate(name string, _ Config) (*Unit, error) {
-	io := NewIO()
+func newDecimate(io *IO, _ Config) (*Unit, error) {
 	d := &decimate{
 		decimate: &dsp.Decimate{},
 		in:       io.NewIn("in", dsp.Float64(0)),
@@ -11,7 +10,7 @@ func newDecimate(name string, _ Config) (*Unit, error) {
 		bits:     io.NewIn("bits", dsp.Float64(24)),
 		out:      io.NewOut("out"),
 	}
-	return NewUnit(io, name, d), nil
+	return NewUnit(io, d), nil
 }
 
 type decimate struct {
