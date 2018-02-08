@@ -78,7 +78,9 @@ func New(backend Backend, opts ...Option) (*Engine, error) {
 
 // UnitBuilders returns all unit.Builders for Units provided by the Engine.
 func (e *Engine) UnitBuilders() map[string]unit.Builder {
-	return unit.PrepareBuilders(unitBuilders(e))
+	return unit.PrepareBuilders(map[string]unit.IOBuilder{
+		"source": newSource(e),
+	})
 }
 
 func (e *Engine) closeProcessors() error {

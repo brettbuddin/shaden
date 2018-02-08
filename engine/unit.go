@@ -5,12 +5,6 @@ import (
 	"buddin.us/shaden/unit"
 )
 
-func unitBuilders(e *Engine) map[string]unit.IOBuilder {
-	return map[string]unit.IOBuilder{
-		"source": newSource(e),
-	}
-}
-
 func newSink(fadeIn bool) (*unit.Unit, *sink) {
 	io := unit.NewIO("sink")
 	s := &sink{
