@@ -102,7 +102,7 @@ func Builders() map[string]Builder {
 	return PrepareBuilders(builders)
 }
 
-// PrepareBuilders converts sets of IOBuilders to sets of Builders.
+// PrepareBuilders converts a set of IOBuilders to a set of Builders.
 func PrepareBuilders(builders map[string]IOBuilder) map[string]Builder {
 	m := map[string]Builder{}
 	for k, v := range builders {
