@@ -215,8 +215,6 @@ func isDefinedFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		return nil, err
 	}
 
-	fmt.Println(args)
-
 	v, ok := args[0].(string)
 	if !ok {
 		return nil, fmt.Errorf("defined? expects a string for argument 1")
