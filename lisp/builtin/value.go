@@ -136,6 +136,20 @@ func isSymbolFn(args lisp.List) (interface{}, error) {
 	return ok, nil
 }
 
+func symbolFn(args lisp.List) (interface{}, error) {
+	if err := checkArityEqual(args, "symbol", 1); err != nil {
+		return nil, err
+	}
+	switch v := args[0].(type) {
+	case string:
+		return lisp.Symbol(v), nil
+	case lisp.Keyword:
+		return lisp.Symbol(v), nil
+	default:
+		return lisp.Symbol(fmt.Sprintf("%v", v)), nil
+	}
+}
+
 func isListFn(args lisp.List) (interface{}, error) {
 	if err := checkArityEqual(args, "list?", 1); err != nil {
 		return nil, err
@@ -194,4 +208,23 @@ func floatFn(args lisp.List) (interface{}, error) {
 	default:
 		return nil, fmt.Errorf("float expects numeric type for argument 1")
 	}
+}
+
+func isDefinedFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+	if err := checkArityEqual(args, "defined?", 1); err != nil {
+		return nil, err
+	}
+
+	fmt.Println(args)
+
+	v, ok := args[0].(string)
+	if !ok {
+		return nil, fmt.Errorf("defined? expects a string for argument 1")
+	}
+
+	_, err := env.GetSymbol(v)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
 }
