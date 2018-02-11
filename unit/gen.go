@@ -38,18 +38,12 @@ func newGen(io *IO, _ Config) (*Unit, error) {
 
 type gen struct {
 	freq, amp, fm, pw, sync, pm, offset *In
-	phases                              []float64
-}
-
-func (g *gen) nextPhase() *float64 {
-	g.phases = append(g.phases, rand.Float64())
-	return &(g.phases[len(g.phases)-1])
 }
 
 func (g *gen) newSine(name string, mult float64) *genSine {
 	return &genSine{
 		gen:   g,
-		phase: g.nextPhase(),
+		phase: rand.Float64() * twoPi,
 		mult:  mult,
 		out:   NewOut(name, newFrame()),
 	}
@@ -58,7 +52,7 @@ func (g *gen) newSine(name string, mult float64) *genSine {
 func (g *gen) newSaw(name string, mult float64) *genSaw {
 	return &genSaw{
 		gen:   g,
-		phase: g.nextPhase(),
+		phase: rand.Float64() * twoPi,
 		mult:  mult,
 		out:   NewOut(name, newFrame()),
 	}
@@ -67,7 +61,7 @@ func (g *gen) newSaw(name string, mult float64) *genSaw {
 func (g *gen) newPulse(name string, mult float64) *genPulse {
 	return &genPulse{
 		gen:   g,
-		phase: g.nextPhase(),
+		phase: rand.Float64() * twoPi,
 		mult:  mult,
 		out:   NewOut(name, newFrame()),
 	}
@@ -76,7 +70,7 @@ func (g *gen) newPulse(name string, mult float64) *genPulse {
 func (g *gen) newTriangle() *genTriangle {
 	return &genTriangle{
 		gen:   g,
-		phase: g.nextPhase(),
+		phase: rand.Float64() * twoPi,
 		out:   NewOut("triangle", newFrame()),
 	}
 }
@@ -97,9 +91,8 @@ func (g *gen) newCluster() *genCluster {
 
 type genSine struct {
 	*gen
-	phase          *float64
-	lastSync, mult float64
-	out            *Out
+	phase, mult, lastSync float64
+	out                   *Out
 }
 
 func (o *genSine) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
@@ -121,21 +114,20 @@ func (o *genSine) ProcessSample(i int) {
 		sync   = o.sync.Read(i)
 	)
 
-	if o.lastSync < 0 && sync > 0 && *o.phase < math.Pi/2 {
-		*o.phase = 0
+	if o.lastSync < 0 && sync > 0 && o.phase < math.Pi/2 {
+		o.phase = 0
 	}
 
-	next := dsp.Sin(*o.phase + pm)
-	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
+	next := dsp.Sin(o.phase + pm)
+	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
 	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
 
 type genSaw struct {
 	*gen
-	phase          *float64
-	lastSync, mult float64
-	out            *Out
+	phase, mult, lastSync float64
+	out                   *Out
 }
 
 func (o *genSaw) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
@@ -159,23 +151,22 @@ func (o *genSaw) ProcessSample(i int) {
 		next float64
 	)
 
-	if o.lastSync < 0 && sync > 0 && *o.phase < math.Pi/2 {
-		*o.phase = 0
+	if o.lastSync < 0 && sync > 0 && o.phase < math.Pi/2 {
+		o.phase = 0
 	}
 
-	p := (*o.phase + pm) / twoPi
+	p := (o.phase + pm) / twoPi
 	next = (2*p - 1)
 	next -= blep(p, freq, fm)
-	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
+	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
 	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
 
 type genPulse struct {
 	*gen
-	phase          *float64
-	lastSync, mult float64
-	out            *Out
+	phase, mult, lastSync float64
+	out                   *Out
 }
 
 func (o *genPulse) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
@@ -200,29 +191,28 @@ func (o *genPulse) ProcessSample(i int) {
 		next float64
 	)
 
-	if o.lastSync < 0 && sync > 0 && *o.phase < math.Pi/2 {
-		*o.phase = 0
+	if o.lastSync < 0 && sync > 0 && o.phase < math.Pi/2 {
+		o.phase = 0
 	}
 
-	if *o.phase+pm < math.Pi*pw {
+	if o.phase+pm < math.Pi*pw {
 		next = 1
 	} else {
 		next = -1
 	}
-	p := (*o.phase + pm) / twoPi
+	p := (o.phase + pm) / twoPi
 	next += blep(p, freq, fm)
 	next -= blep(math.Mod(p+0.5, 1), freq, fm)
 
-	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
+	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
 	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
 
 type genTriangle struct {
 	*gen
-	phase          *float64
-	out            *Out
-	lastSync, last float64
+	phase, lastSync, last float64
+	out                   *Out
 }
 
 func (o *genTriangle) IsProcessable() bool { return o.out.ExternalNeighborCount() > 0 }
@@ -245,21 +235,21 @@ func (o *genTriangle) ProcessSample(i int) {
 		next   float64
 	)
 
-	if o.lastSync < 0 && sync > 0 && *o.phase < math.Pi/2 {
-		*o.phase = 0
+	if o.lastSync < 0 && sync > 0 && o.phase < math.Pi/2 {
+		o.phase = 0
 	}
 
-	if *o.phase+pm < math.Pi {
+	if o.phase+pm < math.Pi {
 		next = 1
 	} else {
 		next = -1
 	}
-	p := (*o.phase + pm) / twoPi
+	p := (o.phase + pm) / twoPi
 	next += blep(p, freq, fm)
 	next -= blep(math.Mod(p+0.5, 1), freq, fm)
 	next = freq*next + (1-freq)*o.last
 
-	*o.phase = stepPhase(freq, fm, *o.phase, dsp.FrameSize)
+	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
 	o.out.Write(i, (4*amp*next)+offset)
 	o.last = next
 	o.lastSync = sync
