@@ -21,13 +21,13 @@ const controlPeriod = 64
 
 // In is a unit input
 type In struct {
-	Name                      string
-	Mode                      InMode
-	constant, defaultConstant dsp.Valuer
-	frame, constantFrame      []float64
-	unit                      *Unit
-	source                    *Out
-	node                      *graph.Node
+	Name               string
+	Mode               InMode
+	normal             dsp.Valuer
+	frame, normalFrame []float64
+	unit               *Unit
+	source             *Out
+	node               *graph.Node
 
 	controlLastF float64
 	controlLastI int
@@ -37,9 +37,9 @@ type In struct {
 func NewIn(name string, v dsp.Valuer) *In {
 	f := newFrame()
 	in := &In{
-		Name:          name,
-		frame:         f,
-		constantFrame: f,
+		Name:        name,
+		frame:       f,
+		normalFrame: f,
 	}
 	in.setNormal(v)
 	return in
@@ -75,7 +75,6 @@ func (in *In) ReadSlowInt(i int, f func(int) int) int {
 
 // Fill fills the internal frame with a specific constant value
 func (in *In) Fill(v dsp.Valuer) {
-	in.constant = v
 	for i := range in.frame {
 		in.frame[i] = v.Float64()
 	}
@@ -103,8 +102,8 @@ func (in *In) HasSource() bool {
 // constant value
 func (in *In) Reset() {
 	in.source = nil
-	in.frame = in.constantFrame
-	in.Fill(in.defaultConstant)
+	in.frame = in.normalFrame
+	in.Fill(in.normal)
 }
 
 // ExternalNeighborCount returns the count of neighboring nodes outside of the parent Unit
@@ -113,7 +112,7 @@ func (in *In) ExternalNeighborCount() int {
 }
 
 func (in *In) setNormal(v dsp.Valuer) {
-	in.defaultConstant = v
+	in.normal = v
 	in.Fill(v)
 }
 
