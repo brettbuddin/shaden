@@ -1,9 +1,13 @@
 package runtime
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"strconv"
+	"text/tabwriter"
+
+	"github.com/fatih/color"
 
 	"buddin.us/shaden/engine"
 	"buddin.us/shaden/errors"
@@ -24,6 +28,8 @@ const (
 	nameUnitOutput    = "<-"
 	nameEmit          = "emit"
 )
+
+var bold = color.New(color.Bold).SprintFunc()
 
 type lazyUnit struct {
 	logger *log.Logger
@@ -53,7 +59,7 @@ func (r *lazyUnit) mounted() (*unit.Unit, error) {
 	if reply.Error != nil {
 		return nil, reply.Error
 	}
-	r.logger.Printf("add: id=%s duration=%s\n", r.created.ID, reply.Duration)
+	r.logger.Printf("%s\n└ Completed in %s\n", bold("Adding "+r.created.ID), reply.Duration)
 	r.mount = true
 	return r.created, nil
 }
@@ -195,7 +201,7 @@ func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, e
 		if reply.Error != nil {
 			return nil, reply.Error
 		}
-		logger.Printf("remove: id=%s duration=%s\n", u.ID, reply.Duration)
+		logger.Printf(bold("Removing %s\n└ Completed in %s\n"), u.ID, reply.Duration)
 		lazy.mount = false
 		return nil, nil
 	}
@@ -231,12 +237,22 @@ func patchFn(e Engine, logger *log.Logger, forceReset bool) func(lisp.List) (int
 		if reply.Error != nil {
 			return nil, reply.Error
 		}
-		patched := make([]string, 0, len(inputs))
-		for k, v := range inputs {
-			patched = append(patched, fmt.Sprintf("%s=%v", k, v))
+
+		names := make([]string, 0, len(inputs))
+		for k := range inputs {
+			names = append(names, k)
 		}
-		natsort(patched)
-		logger.Printf("patch: id=%s inputs=%v duration=%s\n", u.ID, patched, reply.Duration)
+		natsort(names)
+
+		var b bytes.Buffer
+		fmt.Fprintf(&b, bold("Patching %s\n"), u.ID)
+		tw := tabwriter.NewWriter(&b, 8, 8, 1, ' ', 0)
+		for _, name := range names {
+			fmt.Fprintf(tw, "│ %v\t-> %s\n", inputs[name], name)
+		}
+		tw.Flush()
+		fmt.Fprintf(&b, "└ Completed in %s\n", reply.Duration)
+		logger.Print(b.String())
 
 		return lazy, nil
 	}
@@ -311,6 +327,8 @@ func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 			if !ok {
 				return nil, typeError(nameEmit, "output reference", 2)
 			}
+		} else {
+			right = left
 		}
 
 		msg := engine.NewMessage(engine.EmitOutputs(left, right))
@@ -318,7 +336,16 @@ func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 			return nil, err
 		}
 		reply := <-msg.Reply
-		logger.Printf("%s: duration=%s\n", nameEmit, reply.Duration)
+
+		var b bytes.Buffer
+		fmt.Fprintln(&b, bold("Emitting"))
+		tw := tabwriter.NewWriter(&b, 8, 8, 1, ' ', 0)
+		fmt.Fprintf(tw, "│ %s\t-> left\n", left)
+		fmt.Fprintf(tw, "│ %s\t-> right\n", right)
+		tw.Flush()
+		fmt.Fprintf(&b, "└ Completed in %s", reply.Duration)
+		logger.Print(b.String())
+
 		return reply.Data, reply.Error
 	}
 }
