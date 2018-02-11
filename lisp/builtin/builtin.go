@@ -77,6 +77,7 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("reduce", reduceFn)
 	env.DefineSymbol("rest", restFn)
 	env.DefineSymbol("set", setFn)
+	env.DefineSymbol("sleep", sleepFn)
 	env.DefineSymbol("string-split", stringSplitFn)
 	env.DefineSymbol("string-join", stringJoinFn)
 	env.DefineSymbol("sprintf", sprintfFn)
