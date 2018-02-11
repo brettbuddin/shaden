@@ -248,5 +248,5 @@ func isAlphaNumeric(r rune) bool {
 		r == '+' || r == '*' || r == '&' || r == '_' ||
 		r == '@' || r == '^' || r == '~' || r == ':' ||
 		r == '.' || r == '%' || r == '/' || r == '!' ||
-		r == '?' || unicode.IsLetter(r) || unicode.IsDigit(r)
+		r == '?' || r == '#' || unicode.IsLetter(r) || unicode.IsDigit(r)
 }
