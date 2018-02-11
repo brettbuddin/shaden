@@ -64,10 +64,6 @@ func (r *lazyUnit) mounted() (*unit.Unit, error) {
 	return r.created, nil
 }
 
-func (r *lazyUnit) Func(args lisp.List) (interface{}, error) {
-	return patchFn(r.engine, r.logger, true)(append(lisp.List{r}, args...))
-}
-
 func createBuilders(env *lisp.Environment, e Engine, logger *log.Logger) error {
 	builders, err := unitBuilders(e)
 	if err != nil {
