@@ -13,8 +13,6 @@ import (
 	"buddin.us/shaden/unit"
 )
 
-const sendInterval = 10 * time.Millisecond
-
 var defaultStreamCreator = streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {
 	s, err := portmidi.NewInputStream(deviceID, frameSize)
 	return &stream{Stream: s, stop: make(chan struct{})}, err

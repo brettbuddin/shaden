@@ -1,6 +1,8 @@
 package midi
 
 import (
+	"time"
+
 	"github.com/mitchellh/mapstructure"
 	"github.com/rakyll/portmidi"
 
@@ -11,6 +13,7 @@ import (
 func newClock(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit.Config) (*unit.Unit, error) {
 	return func(io *unit.IO, c unit.Config) (*unit.Unit, error) {
 		var config struct {
+			Rate      int
 			Device    int
 			FrameRate int
 		}
@@ -27,9 +30,13 @@ func newClock(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit
 			config.FrameRate = 24
 		}
 
+		if config.Rate == 0 {
+			config.Rate = 10
+		}
+
 		return unit.NewUnit(io, &clock{
 			stream:    stream,
-			eventChan: stream.Channel(sendInterval),
+			eventChan: stream.Channel(time.Duration(config.Rate) * time.Millisecond),
 			receiver:  receiver,
 			frameRate: config.FrameRate,
 			out:       io.NewOut("out"),
