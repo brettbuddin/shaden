@@ -154,7 +154,7 @@ func (s *pulseSequencer) advance(totalStages, mode int) {
 			inc = -1
 		}
 
-		if s.stage == totalStages-1 {
+		if s.stage >= totalStages-1 {
 			inc = -1
 			s.pong = true
 		} else if s.stage == 0 {
