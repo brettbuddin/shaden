@@ -256,6 +256,18 @@ func patchFn(e Engine, logger *log.Logger, forceReset bool) func(lisp.List) (int
 
 func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 	inputs := map[string]interface{}{}
+
+	if len(args) == 2 {
+		switch first := args[0].(type) {
+		case string:
+			inputs[first] = args[1]
+			return inputs, nil
+		case lisp.Keyword:
+			inputs[string(first)] = args[1]
+			return inputs, nil
+		}
+	}
+
 	for _, arg := range args {
 		switch v := arg.(type) {
 		case lisp.List:

@@ -22,6 +22,9 @@ func TestParser(t *testing.T) {
 		{input: []byte(`"hello"`), result: `hello`},
 		{input: []byte(`(string-split "hello/world" "/")`), result: lisp.List{"hello", "world"}},
 		{input: []byte(`(string-join (list "hello" "world") "/")`), result: "hello/world"},
+		{input: []byte(`(string-has-prefix "hello-world" "hello-")`), result: true},
+		{input: []byte(`(string-replace "hi-world" "world" "mark" -1)`), result: "hi-mark"},
+		{input: []byte(`(string-replace "hi-world-world" "world" "mark" 1)`), result: "hi-mark-world"},
 		{input: []byte(`(string? (string :hello))`), result: true},
 		{input: []byte(`:hello`), result: lisp.Keyword(`hello`)},
 		{input: []byte(`(keyword "hello")`), result: lisp.Keyword(`hello`)},
@@ -92,6 +95,9 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(table-merge (table :hello "world") (table :world "hello"))`), result: lisp.Table{
 			lisp.Keyword("hello"): "world",
 			lisp.Keyword("world"): "hello",
+		}},
+		{input: []byte(`(table-select (table :hello "world" :world "hello") (fn (k _) (= k :hello)))`), result: lisp.Table{
+			lisp.Keyword("hello"): "world",
 		}},
 		{input: []byte(`(reduce (fn (r i v) (+ r v)) 0 (list 1 2 3))`), result: 6},
 		{input: []byte(`(reduce (fn (r k v) (+ r v)) 0 (table :a 2 :b 3))`), result: 5},

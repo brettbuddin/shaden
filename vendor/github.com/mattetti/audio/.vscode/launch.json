@@ -1,0 +1,51 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "aiff tests",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "remotePath": "",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "program": "${workspaceRoot}/aiff",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "wav tests",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "remotePath": "",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "program": "${workspaceRoot}/wav",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "mp3 tests",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "remotePath": "",
+            "program": "${workspaceRoot}/mp3",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "generator",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "remotePath": "",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "program": "${workspaceRoot}/generator/cmd",
+            "env": {},
+            "args": []
+        }
+    ]
+}

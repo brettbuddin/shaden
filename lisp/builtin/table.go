@@ -87,3 +87,36 @@ func mergeFn(args lisp.List) (interface{}, error) {
 	}
 	return m, nil
 }
+
+func tselectFn(args lisp.List) (interface{}, error) {
+	if err := checkArityAtLeast(args, "table-select", 2); err != nil {
+		return nil, err
+	}
+	filtered := lisp.Table{}
+
+	t, ok := args[0].(lisp.Table)
+	if !ok {
+		return nil, argExpectError("table-select", "table", 1)
+	}
+
+	fn, ok := args[1].(func(lisp.List) (interface{}, error))
+	if !ok {
+		return nil, argExpectError("table-select", "function", 2)
+	}
+
+	for k, v := range t {
+		result, err := fn(lisp.List{k, v})
+		if err != nil {
+			return nil, err
+		}
+		b, ok := result.(bool)
+		if !ok {
+			return nil, errors.New("table-select expects function to return boolean value")
+		}
+		if b {
+			filtered[k] = v
+		}
+	}
+
+	return filtered, nil
+}
