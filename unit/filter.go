@@ -12,9 +12,7 @@ func newFilter(io *IO, c Config) (*Unit, error) {
 		return nil, err
 	}
 
-	if config.Poles == 0 {
-		config.Poles = 4
-	} else if config.Poles > 4 {
+	if config.Poles == 0 || config.Poles > 4 {
 		config.Poles = 4
 	}
 
