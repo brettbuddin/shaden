@@ -35,9 +35,9 @@ func newStages(io *IO, c Config) (*Unit, error) {
 		config.Size = 5
 	}
 
-	stageInputs := make([]*pulseSequencerStage, config.Size)
+	stageInputs := make([]*stage, config.Size)
 	for i := range stageInputs {
-		stageInputs[i] = &pulseSequencerStage{
+		stageInputs[i] = &stage{
 			freq:   io.NewIn(fmt.Sprintf("%d/freq", i), dsp.Float64(0)),
 			pulses: io.NewIn(fmt.Sprintf("%d/pulses", i), dsp.Float64(1)),
 			mode:   io.NewIn(fmt.Sprintf("%d/mode", i), dsp.Float64(pulseModeFirst)),
@@ -46,76 +46,82 @@ func newStages(io *IO, c Config) (*Unit, error) {
 		}
 	}
 
-	return NewUnit(io, &pulseSequencer{
+	return NewUnit(io, &stages{
 		clock:       io.NewIn("clock", dsp.Float64(-1)),
 		mode:        io.NewIn("mode", dsp.Float64(patternModeForward)),
 		reset:       io.NewIn("reset", dsp.Float64(-1)),
 		totalStages: io.NewIn("stages", dsp.Float64(config.Size)),
-		glidetime:   io.NewIn("glide-time", dsp.Float64(0)),
+		glideTime:   io.NewIn("glide-time", dsp.Float64(0)),
 		out:         io.NewOut("freq"),
 		gate:        io.NewOut("gate"),
 		data:        io.NewOut("data"),
 		eos:         io.NewOut("eos"),
 		slew:        newSlew(),
 		stageInputs: stageInputs,
-		lastStage:   -1,
 		pulse:       -1,
+		lastStage:   -1,
 		lastClock:   -1,
 		lastReset:   -1,
 	}), nil
 }
 
-type pulseSequencerStage struct {
+type stage struct {
 	freq, pulses, mode, glide, data *In
-	values                          pulseSequencerValues
+	values                          stageValues
 }
 
-type pulseSequencerValues struct {
-	freq, pulses, mode, glide, data float64
+func (s *stage) read(i int) {
+	s.values.data = s.data.Read(i)
+	s.values.freq = s.freq.Read(i)
+	s.values.glide = s.glide.Read(i)
+	s.values.mode = int(s.mode.Read(i))
+	s.values.pulses = int(math.Max(s.pulses.Read(i), 0))
 }
 
-type pulseSequencer struct {
-	clock, reset, mode, glidetime, totalStages *In
-	stageInputs                                []*pulseSequencerStage
+type stageValues struct {
+	freq, glide, data float64
+	mode, pulses      int
+}
+
+type stages struct {
+	clock, reset, mode, glideTime, totalStages *In
+	stageInputs                                []*stage
 	out, gate, data, eos                       *Out
 
-	slew         *slew
-	pong         bool
-	stage, pulse int
-
-	stageOnset           bool
-	lastStage            int
-	lastClock, lastReset float64
+	slew                    *slew
+	pong, firstPulse        bool
+	stage, pulse, lastStage int
+	lastClock, lastReset    float64
 }
 
-func (s *pulseSequencer) ProcessSample(i int) {
-	for j, stg := range s.stageInputs {
-		s.stageInputs[j].values.freq = stg.freq.ReadSlow(i, ident)
-		s.stageInputs[j].values.pulses = stg.pulses.ReadSlow(i, minZero)
-		s.stageInputs[j].values.mode = stg.mode.ReadSlow(i, ident)
-		s.stageInputs[j].values.glide = stg.glide.ReadSlow(i, ident)
-		s.stageInputs[j].values.data = stg.data.Read(i)
-	}
-
+func (s *stages) ProcessSample(i int) {
 	var (
-		actualStageCount = float64(len(s.stageInputs))
-		totalStages      = int(math.Max(math.Min(actualStageCount, s.totalStages.Read(i)), 1))
-		glideTime        = s.glidetime.ReadSlow(i, minZero)
 		clock            = s.clock.Read(i)
 		reset            = s.reset.Read(i)
-		mode             = int(s.mode.Read(i))
+		glideTime        = s.glideTime.Read(i)
+		mode             = s.mode.ReadSlowInt(i, identInt)
+		actualStageCount = float64(len(s.stageInputs))
+		totalStages      = s.totalStages.ReadSlowInt(i, clampInt(1, actualStageCount))
 	)
 
+	stage := s.stageInputs[s.stage]
+	stage.read(i)
+
 	if isTrig(s.lastClock, clock) {
-		s.advance(totalStages, mode)
+		s.advance(stage, totalStages, mode)
 	} else if isTrig(s.lastReset, reset) {
 		s.stage = 0
 		s.pulse = 0
 	}
 
-	s.fillGate(i, clock)
-	s.fillFreq(i, glideTime)
-	s.fillData(i)
+	if s.lastStage != s.stage {
+		stage = s.stageInputs[s.stage]
+		stage.read(i)
+	}
+
+	s.fillGate(i, stage, clock)
+	s.fillFreq(i, stage, glideTime)
+	s.fillData(i, stage)
 	s.fillEOS(i)
 
 	s.lastClock = clock
@@ -123,19 +129,24 @@ func (s *pulseSequencer) ProcessSample(i int) {
 	s.lastStage = s.stage
 }
 
-func (s *pulseSequencer) advance(totalStages, mode int) {
-	pulses := int(s.stageInputs[s.stage].values.pulses)
+func (s *stages) advance(stage *stage, totalStages, mode int) {
+	pulses := stage.values.pulses
 
-	if s.pulse < 0 {
-		s.pulse++
-		return
+	if pulses != 0 {
+		if s.pulse < 0 {
+			s.pulse++
+			return // we just started the sequencer
+		}
+		s.pulse = (s.pulse + 1) % pulses
+		if s.lastStage < 0 || s.pulse != 0 {
+			return // keep counting pulses
+		}
 	}
 
-	s.pulse = (s.pulse + 1) % pulses
-	if s.lastStage < 0 || s.pulse != 0 {
-		return // Keep counting pulses
-	}
+	s.advanceStage(totalStages, mode)
+}
 
+func (s *stages) advanceStage(totalStages, mode int) {
 	s.pulse = 0
 
 	switch mode {
@@ -157,7 +168,7 @@ func (s *pulseSequencer) advance(totalStages, mode int) {
 		if s.stage >= totalStages-1 {
 			inc = -1
 			s.pong = true
-		} else if s.stage == 0 {
+		} else if s.stage <= 0 {
 			inc = 1
 			s.pong = false
 		}
@@ -172,33 +183,28 @@ func (s *pulseSequencer) advance(totalStages, mode int) {
 	}
 }
 
-func (s *pulseSequencer) fillGate(i int, clock float64) {
-	var (
-		stage     = s.stageInputs[s.stage]
-		mode      = int(stage.values.mode)
-		lastPulse = int(stage.values.pulses) - 1
-	)
-
+func (s *stages) fillGate(i int, stage *stage, clock float64) {
 	if s.lastStage != s.stage {
 		s.gate.Write(i, -1)
-		s.stageOnset = true
+		s.firstPulse = true
 	} else {
-		switch mode {
+		switch stage.values.mode {
 		case pulseModeHold:
 			s.gate.Write(i, 1)
 		case pulseModeAll:
-			if s.stageOnset || isHigh(clock) {
+			if s.firstPulse || isHigh(clock) {
 				s.gate.Write(i, 1)
 			} else {
 				s.gate.Write(i, -1)
 			}
 		case pulseModeFirst:
-			if s.stageOnset || (s.pulse == 0 && isHigh(clock)) {
+			if s.firstPulse || (s.pulse == 0 && isHigh(clock)) {
 				s.gate.Write(i, 1)
 			} else {
 				s.gate.Write(i, -1)
 			}
 		case pulseModeLast:
+			lastPulse := stage.values.pulses - 1
 			if s.pulse == lastPulse && isHigh(clock) {
 				s.gate.Write(i, 1)
 			} else {
@@ -208,13 +214,12 @@ func (s *pulseSequencer) fillGate(i int, clock float64) {
 			s.gate.Write(i, -1)
 		}
 
-		s.stageOnset = false
+		s.firstPulse = false
 	}
 }
 
-func (s *pulseSequencer) fillFreq(i int, glidetime float64) {
+func (s *stages) fillFreq(i int, stage *stage, glidetime float64) {
 	var (
-		stage = s.stageInputs[s.stage]
 		freq  = stage.values.freq
 		glide = stage.values.glide
 	)
@@ -224,11 +229,11 @@ func (s *pulseSequencer) fillFreq(i int, glidetime float64) {
 	s.out.Write(i, s.slew.Tick(freq, glidetime, glidetime))
 }
 
-func (s *pulseSequencer) fillData(i int) {
-	s.data.Write(i, s.stageInputs[s.stage].values.data)
+func (s *stages) fillData(i int, stage *stage) {
+	s.data.Write(i, stage.values.data)
 }
 
-func (s *pulseSequencer) fillEOS(i int) {
+func (s *stages) fillEOS(i int) {
 	if s.lastStage != s.stage {
 		s.eos.Write(i, 1)
 	} else {

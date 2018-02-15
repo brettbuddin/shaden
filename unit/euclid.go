@@ -1,8 +1,6 @@
 package unit
 
 import (
-	"math"
-
 	"buddin.us/shaden/dsp"
 )
 
@@ -34,15 +32,13 @@ type euclid struct {
 	idx, lastIdx       int
 }
 
-func spanMin(v float64) float64 { return math.Max(v, 1) }
-
 func (e *euclid) ProcessSample(i int) {
 	var (
-		span           = int(e.span.ReadSlow(i, spanMin))
-		fill           = int(e.fill.ReadSlow(i, ident))
-		offset         = e.offset.ReadSlowInt(i, func(v int) int { return (v + span) % span })
-		trig           = e.clock.Read(i)
-		out    float64 = -1
+		span   = e.span.ReadSlowInt(i, minInt(1))
+		fill   = e.fill.ReadSlowInt(i, identInt)
+		offset = e.offset.ReadSlowInt(i, modInt(span))
+		trig   = e.clock.Read(i)
+		out    = -1.0
 	)
 
 	if e.lastSpan != span || e.lastFill != fill {

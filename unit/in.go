@@ -66,9 +66,9 @@ func (in *In) ReadSlow(i int, f func(float64) float64) float64 {
 }
 
 // ReadSlowInt reads a specific sample from the input frame at a slow rate
-func (in *In) ReadSlowInt(i int, f func(int) int) int {
+func (in *In) ReadSlowInt(i int, f func(float64) int) int {
 	if i%controlPeriod == 0 {
-		in.controlLastI = f(int(in.Read(i)))
+		in.controlLastI = f(in.Read(i))
 	}
 	return in.controlLastI
 }
@@ -124,5 +124,21 @@ func isSourceControlRate(in *In) bool {
 	return in.HasSource() && in.source.Rate() == RateControl
 }
 
-func ident(v float64) float64   { return v }
-func minZero(v float64) float64 { return math.Max(v, 0) }
+func ident(v float64) float64 { return v }
+
+func identInt(v float64) int { return int(v) }
+func clampInt(min, max float64) func(float64) int {
+	return func(v float64) int {
+		return int(dsp.Clamp(v, min, max))
+	}
+}
+func minInt(min float64) func(float64) int {
+	return func(v float64) int {
+		return int(math.Max(v, min))
+	}
+}
+func modInt(mod int) func(float64) int {
+	return func(v float64) int {
+		return (int(v) + mod) % mod
+	}
+}
