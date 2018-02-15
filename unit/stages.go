@@ -174,9 +174,6 @@ func (s *stages) advanceStage(totalStages, mode int) {
 		}
 
 		s.stage += inc
-		if s.stage < 0 {
-			s.stage = 0
-		}
 	case patternModeRandom:
 		s.stage = rand.Intn(totalStages)
 		s.pong = false
