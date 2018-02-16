@@ -20,6 +20,13 @@ if (!exists("g:shaden_http_addr"))
     let g:shaden_http_addr = '127.0.0.1:5000'
 endif
 
+function! ShadenRepatch()
+    let content = s:escape("(clear)\n" . join(getline(1,'$'), "\n"))
+    for LINE in systemlist(s:command(content))
+        echo LINE
+    endfor
+endfunction
+
 function! ShadenPatchSelection()
     let content = s:escape(s:get_visual_selection())
     for LINE in systemlist(s:command(content))
@@ -56,3 +63,4 @@ endfunction
 
 command! ShadenPatchSelection call ShadenPatchSelection()
 command! ShadenPatchLine call ShadenPatchLine()
+command! ShadenRepatch call ShadenRepatch()
