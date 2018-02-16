@@ -12,8 +12,10 @@ func newFilter(io *IO, c Config) (*Unit, error) {
 		return nil, err
 	}
 
-	if config.Poles == 0 || config.Poles > 4 {
+	if config.Poles == 0 {
 		config.Poles = 4
+	} else if config.Poles > 8 {
+		config.Poles = 8
 	}
 
 	return NewUnit(io, &filter{
@@ -35,7 +37,7 @@ type filter struct {
 }
 
 func (f *filter) ProcessSample(i int) {
-	f.filter.Poles = f.poles.ReadSlowInt(i, clampInt(1, 4))
+	f.filter.Poles = f.poles.ReadSlowInt(i, clampInt(1, 8))
 	f.filter.Cutoff = f.cutoff.ReadSlow(i, ident)
 	f.filter.Resonance = f.res.ReadSlow(i, ident)
 	lp, bp, hp := f.filter.Tick(f.in.Read(i))
