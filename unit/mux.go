@@ -36,23 +36,8 @@ type mux struct {
 	out       *Out
 }
 
-func (m *mux) ProcessAudio(n int) {
-	for i := 0; i < n; i++ {
-		m.ProcessSample(i)
-	}
-}
-
 func (m *mux) ProcessSample(i int) {
 	max := float64(len(m.inputs) - 1)
 	s := int(dsp.Clamp(m.selection.Read(i), 0, max))
 	m.out.Write(i, m.inputs[s].Read(i))
-}
-
-func (m *mux) ProcessControl() {
-	var (
-		max = float64(len(m.inputs) - 1)
-		s   = int(dsp.Clamp(m.selection.Read(0), 0, max))
-		in  = m.inputs[s].Read(0)
-	)
-	m.out.Write(0, in)
 }
