@@ -69,7 +69,7 @@ func (g *gate) ProcessSample(i int) {
 }
 
 func (g *gate) applyFilter(in, ctrl, cutoffhigh, cutofflow, res float64) float64 {
-	g.filter.Cutoff = cutofflow + (cutoffhigh-cutofflow)*ctrl
+	g.filter.Cutoff = dsp.Lerp(cutofflow, cutoffhigh, ctrl)
 	g.filter.Resonance = res
 	lp, _, _ := g.filter.Tick(in)
 	return lp
