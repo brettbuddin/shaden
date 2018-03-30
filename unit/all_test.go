@@ -10,13 +10,13 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-var A4 = dsp.Frequency(440).Float64()
+var A4 = dsp.Frequency(440, 44100.0).Float64()
 
 func TestAllUnits(t *testing.T) {
 	var tests = []struct {
-		unit     string
-		config   Config
-		scenario []scenario
+		unit         string
+		configValues map[string]interface{}
+		scenario     []scenario
 	}{
 		{
 			unit: "adjust",
@@ -526,8 +526,8 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "mux",
-			config: Config{"size": 4},
+			unit:         "mux",
+			configValues: map[string]interface{}{"size": 4},
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -624,8 +624,8 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "demux",
-			config: Config{"size": 4},
+			unit:         "demux",
+			configValues: map[string]interface{}{"size": 4},
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -642,8 +642,8 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit:   "latch",
-			config: Config{"size": 4},
+			unit:         "latch",
+			configValues: map[string]interface{}{"size": 4},
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -906,10 +906,8 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit: "gate-series",
-			config: Config{
-				"size": 2,
-			},
+			unit:         "gate-series",
+			configValues: map[string]interface{}{"size": 2},
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
@@ -995,10 +993,8 @@ func TestAllUnits(t *testing.T) {
 			},
 		},
 		{
-			unit: "stages",
-			config: Config{
-				"size": 3,
-			},
+			unit:         "stages",
+			configValues: map[string]interface{}{"size": 3},
 			scenario: []scenario{
 				{
 					description: "first gate mode + data",
@@ -1134,7 +1130,11 @@ func TestAllUnits(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				rand.Seed(1)
 				builder := builders[test.unit]
-				u, err := builder(test.config)
+				u, err := builder(Config{
+					Values:     test.configValues,
+					SampleRate: sampleRate,
+					FrameSize:  frameSize,
+				})
 				require.NoError(t, err)
 				s.TestUnit(t, i, u)
 			})

@@ -3,13 +3,14 @@ package unit
 import (
 	"testing"
 
-	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 
 func TestADSR(t *testing.T) {
 	builder := Builders()["adsr"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		FrameSize: frameSize,
+	})
 	require.NoError(t, err)
 
 	var (
@@ -23,7 +24,7 @@ func TestADSR(t *testing.T) {
 	)
 
 	gate.Write(0, 1)
-	for i := 0; i < dsp.FrameSize; i++ {
+	for i := 0; i < frameSize; i++ {
 		attack.Write(i, 3)
 		decay.Write(i, 5)
 		release.Write(i, 10)

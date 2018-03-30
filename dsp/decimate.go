@@ -4,6 +4,7 @@ import "math"
 
 // Decimate reduces the resolution/bandwidth of a signal to produce bitcrushing effects
 type Decimate struct {
+	SampleRate  float64
 	count, last float64
 }
 
@@ -20,10 +21,10 @@ func (d *Decimate) Tick(in, rate, bits float64) float64 {
 		stepRatio = 1 / step
 	}
 
-	if rate >= SampleRate {
+	if rate >= d.SampleRate {
 		ratio = 1
 	} else {
-		ratio = rate / SampleRate
+		ratio = rate / d.SampleRate
 	}
 
 	d.count += ratio

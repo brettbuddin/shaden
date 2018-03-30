@@ -7,12 +7,6 @@ import (
 	"buddin.us/musictheory"
 )
 
-// SampleRate is the numebr of samples computed every second
-const SampleRate = 44100.0
-
-// FrameSize is the size of the audio buffer
-const FrameSize = 256
-
 // Valuer is the wrapper interface around the Value method; which is used in obtaining the constant value
 type Valuer interface {
 	Float64() float64
@@ -32,7 +26,9 @@ type Hz struct {
 }
 
 // Frequency returns a scalar value in Hz
-func Frequency(v float64) Hz { return Hz{Raw: v, Valuer: Float64(v / SampleRate)} }
+func Frequency(v float64, sampleRate int) Hz {
+	return Hz{Raw: v, Valuer: Float64(v / float64(sampleRate))}
+}
 
 // Float64 returns the constant value
 func (hz Hz) Float64() float64 {
@@ -44,13 +40,13 @@ func (hz Hz) Float64() float64 {
 func (hz Hz) String() string { return fmt.Sprintf("%.2fHz", hz.Raw) }
 
 // ParsePitch parses the scientific notation of a pitch
-func ParsePitch(v string) (Pitch, error) {
+func ParsePitch(v string, sampleRate int) (Pitch, error) {
 	p, err := musictheory.ParsePitch(v)
 	if err != nil {
 		return Pitch{}, err
 	}
 	return Pitch{
-		Valuer: Frequency(p.Freq()),
+		Valuer: Frequency(p.Freq(), sampleRate),
 		Raw:    v,
 	}, nil
 }
@@ -77,12 +73,12 @@ type MS struct {
 }
 
 // DurationInt returns a scalar value (int) in MS
-func DurationInt(v int) MS { return Duration(float64(v)) }
+func DurationInt(v, sampleRate int) MS { return Duration(float64(v), sampleRate) }
 
 // Duration returns a scalar value (float64) in MS
-func Duration(v float64) MS {
+func Duration(v float64, sampleRate int) MS {
 	return MS{
-		Valuer: Float64(v * SampleRate * 0.001),
+		Valuer: Float64(v * float64(sampleRate) * 0.001),
 		Raw:    v,
 	}
 }
@@ -103,9 +99,9 @@ type BeatsPerMin struct {
 }
 
 // BPM returns a scalar value in beats-per-minute
-func BPM(v float64) BeatsPerMin {
+func BPM(v float64, sampleRate int) BeatsPerMin {
 	return BeatsPerMin{
-		Valuer: Float64(v / 60 / SampleRate),
+		Valuer: Float64(v / 60 / float64(sampleRate)),
 		Raw:    v,
 	}
 }

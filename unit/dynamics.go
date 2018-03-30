@@ -6,24 +6,22 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-var (
-	slopeFactor = 1 / float64(dsp.FrameSize)
-	log1        = math.Log(0.1)
-)
+var log1 = math.Log(0.1)
 
-func newDynamics(io *IO, _ Config) (*Unit, error) {
+func newDynamics(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &dynamics{
 		in:        io.NewIn("in", dsp.Float64(0)),
 		control:   io.NewIn("control", dsp.Float64(0)),
 		threshold: io.NewIn("threshold", dsp.Float64(0.5)),
 		above:     io.NewIn("above", dsp.Float64(0.3)),
 		below:     io.NewIn("below", dsp.Float64(1)),
-		clamp:     io.NewIn("clamp", dsp.Duration(10)),
-		relax:     io.NewIn("relax", dsp.Duration(10)),
+		clamp:     io.NewIn("clamp", dsp.Duration(10, c.SampleRate)),
+		relax:     io.NewIn("relax", dsp.Duration(10, c.SampleRate)),
 		out:       io.NewOut("out"),
 		dcBlock:   &dsp.DCBlock{},
 		lastClamp: -1,
 		lastRelax: -1,
+		slope:     1 / float64(c.FrameSize),
 	}), nil
 }
 
@@ -34,6 +32,7 @@ type dynamics struct {
 	clampCoef, relaxCoef float64
 	lastClamp, lastRelax float64
 	lastGain, lastMax    float64
+	slope                float64
 
 	dcBlock *dsp.DCBlock
 }
@@ -80,7 +79,7 @@ func (d *dynamics) ProcessSample(i int) {
 		}
 	}
 
-	slope := (nextGain - d.lastGain) * slopeFactor
+	slope := (nextGain - d.lastGain) * d.slope
 	d.out.Write(i, d.dcBlock.Tick(in.Read(i)*d.lastGain))
 	d.lastGain += slope
 }

@@ -24,7 +24,7 @@ func TestClock(t *testing.T) {
 		ch <- portmidi.Event{Status: 250, Timestamp: 5}
 	}()
 
-	u, err := newClock(creator, blockingReceiver)(unit.NewIO("midi-clock"), nil)
+	u, err := newClock(creator, blockingReceiver)(unit.NewIO("midi-clock", frameSize), newUnitConfig(nil))
 	require.NoError(t, err)
 	require.NotNil(t, u)
 

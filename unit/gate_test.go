@@ -8,7 +8,10 @@ import (
 
 func TestGate(t *testing.T) {
 	builder := Builders()["gate"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	var (

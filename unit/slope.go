@@ -6,7 +6,7 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newSlope(io *IO, _ Config) (*Unit, error) {
+func newSlope(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &slope{
 		state: &slopeState{
 			lastTrigger: -1,
@@ -14,8 +14,8 @@ func newSlope(io *IO, _ Config) (*Unit, error) {
 		stateFunc: slopeIdle,
 		trigger:   io.NewIn("trigger", dsp.Float64(0)),
 		gate:      io.NewIn("gate", dsp.Float64(0)),
-		rise:      io.NewIn("rise", dsp.Duration(100)),
-		fall:      io.NewIn("fall", dsp.Duration(100)),
+		rise:      io.NewIn("rise", dsp.Duration(100, c.SampleRate)),
+		fall:      io.NewIn("fall", dsp.Duration(100, c.SampleRate)),
 		retrigger: io.NewIn("retrigger", dsp.Float64(1)),
 		cycle:     io.NewIn("cycle", dsp.Float64(0)),
 		ratio:     io.NewIn("ratio", dsp.Float64(0.01)),

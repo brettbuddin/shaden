@@ -21,7 +21,7 @@ func newFilter(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &filter{
 		filter: &dsp.SVFilter{Poles: config.Poles},
 		in:     io.NewIn("in", dsp.Float64(0)),
-		cutoff: io.NewIn("cutoff", dsp.Frequency(1000)),
+		cutoff: io.NewIn("cutoff", dsp.Frequency(1000, c.SampleRate)),
 		res:    io.NewIn("res", dsp.Float64(1)),
 		poles:  io.NewIn("poles", dsp.Float64(config.Poles)),
 		lp:     io.NewOut("lp"),

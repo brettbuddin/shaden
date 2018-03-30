@@ -17,9 +17,9 @@ import (
 
 func TestUnitOutputs(t *testing.T) {
 	var (
-		be       = &backend{}
+		be       = newBackend(0)
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -36,9 +36,9 @@ func TestUnitOutputs(t *testing.T) {
 
 func TestUnitInputs(t *testing.T) {
 	var (
-		be       = &backend{}
+		be       = newBackend(0)
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -55,9 +55,9 @@ func TestUnitInputs(t *testing.T) {
 
 func TestUnitID(t *testing.T) {
 	var (
-		be       = &backend{}
+		be       = newBackend(0)
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -74,9 +74,9 @@ func TestUnitID(t *testing.T) {
 
 func TestUnitType(t *testing.T) {
 	var (
-		be       = &backend{}
+		be       = newBackend(0)
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -93,9 +93,9 @@ func TestUnitType(t *testing.T) {
 
 func TestUnitOutput(t *testing.T) {
 	var (
-		be       = &backend{calls: 1} // execute callback once
+		be       = newBackend(1) // execute callback once
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -130,9 +130,9 @@ func TestUnitOutput(t *testing.T) {
 
 func TestUnitPatch(t *testing.T) {
 	var (
-		be       = &backend{calls: 2} // execute callback twice
+		be       = newBackend(2) // execute callback twice
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -164,9 +164,9 @@ func TestUnitPatch(t *testing.T) {
 
 func TestUnitUnmount(t *testing.T) {
 	var (
-		be       = &backend{calls: 3}
+		be       = newBackend(3)
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -201,9 +201,9 @@ func TestUnitUnmount(t *testing.T) {
 
 func TestUnitRemove(t *testing.T) {
 	var (
-		be       = &backend{calls: 3}
+		be       = newBackend(3)
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(be, engine.WithMessageChannel(messages))
+		eng, err = engine.New(be, frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 

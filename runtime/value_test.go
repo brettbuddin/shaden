@@ -13,8 +13,11 @@ import (
 func TestHz(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
-		logger   = log.New(os.Stdout, "", -1)
+		eng, err = engine.New(&backend{
+			sampleRate: sampleRate,
+			frameSize:  frameSize,
+		}, frameSize, engine.WithMessageChannel(messages))
+		logger = log.New(os.Stdout, "", -1)
 	)
 
 	require.NoError(t, err)
@@ -51,8 +54,11 @@ func TestHz(t *testing.T) {
 func TestMS(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
-		logger   = log.New(os.Stdout, "", -1)
+		eng, err = engine.New(&backend{
+			sampleRate: sampleRate,
+			frameSize:  frameSize,
+		}, frameSize, engine.WithMessageChannel(messages))
+		logger = log.New(os.Stdout, "", -1)
 	)
 
 	require.NoError(t, err)
@@ -77,8 +83,11 @@ func TestMS(t *testing.T) {
 func TestBPM(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
-		logger   = log.New(os.Stdout, "", -1)
+		eng, err = engine.New(&backend{
+			sampleRate: sampleRate,
+			frameSize:  frameSize,
+		}, frameSize, engine.WithMessageChannel(messages))
+		logger = log.New(os.Stdout, "", -1)
 	)
 
 	require.NoError(t, err)
@@ -103,8 +112,11 @@ func TestBPM(t *testing.T) {
 func TestDB(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(&backend{}, engine.WithMessageChannel(messages))
-		logger   = log.New(os.Stdout, "", -1)
+		eng, err = engine.New(&backend{
+			sampleRate: sampleRate,
+			frameSize:  frameSize,
+		}, frameSize, engine.WithMessageChannel(messages))
+		logger = log.New(os.Stdout, "", -1)
 	)
 
 	require.NoError(t, err)

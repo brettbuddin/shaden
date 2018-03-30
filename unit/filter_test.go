@@ -9,7 +9,10 @@ import (
 
 func TestFilter(t *testing.T) {
 	builder := Builders()["filter"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	var (
@@ -20,7 +23,7 @@ func TestFilter(t *testing.T) {
 		hp     = u.Out["hp"].Out()
 	)
 
-	cutoff.Write(0, dsp.Frequency(100).Float64())
+	cutoff.Write(0, dsp.Frequency(100, sampleRate).Float64())
 	in.Write(0, 1)
 	u.ProcessSample(0)
 	require.Equal(t, 0.00012781289351266066, lp.Read(0))

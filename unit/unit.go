@@ -4,7 +4,6 @@ package unit
 import (
 	"io"
 
-	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/errors"
 	"buddin.us/shaden/graph"
 )
@@ -160,8 +159,4 @@ func isTrig(last, current float64) bool {
 
 func isHigh(v float64) bool {
 	return v > 0
-}
-
-func newFrame() []float64 {
-	return make([]float64, dsp.FrameSize)
 }

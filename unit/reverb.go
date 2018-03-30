@@ -4,37 +4,39 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-var (
-	aTravelFreq = dsp.Frequency(0.5).Float64()
-	bTravelFreq = dsp.Frequency(0.3).Float64()
-)
+func newReverb(io *IO, c Config) (*Unit, error) {
+	var (
+		aTravelFreq = dsp.Frequency(0.5, c.SampleRate).Float64()
+		bTravelFreq = dsp.Frequency(0.3, c.SampleRate).Float64()
+		r           = &reverb{
+			a:              io.NewIn("a", dsp.Float64(0)),
+			b:              io.NewIn("b", dsp.Float64(0)),
+			defuse:         io.NewIn("defuse", dsp.Float64(0.625)),
+			mix:            io.NewIn("mix", dsp.Float64(0)),
+			precutoff:      io.NewIn("cutoff-pre", dsp.Frequency(300, c.SampleRate)),
+			postcutoff:     io.NewIn("cutoff-post", dsp.Frequency(500, c.SampleRate)),
+			decay:          io.NewIn("decay", dsp.Float64(0.7)),
+			size:           io.NewIn("size", dsp.Float64(0.1)),
+			shiftSemitones: io.NewIn("shift-semitones", dsp.Float64(0)),
+			aOut:           io.NewOut("a"),
+			bOut:           io.NewOut("b"),
 
-func newReverb(io *IO, _ Config) (*Unit, error) {
-	r := &reverb{
-		a:              io.NewIn("a", dsp.Float64(0)),
-		b:              io.NewIn("b", dsp.Float64(0)),
-		defuse:         io.NewIn("defuse", dsp.Float64(0.625)),
-		mix:            io.NewIn("mix", dsp.Float64(0)),
-		precutoff:      io.NewIn("cutoff-pre", dsp.Frequency(300)),
-		postcutoff:     io.NewIn("cutoff-post", dsp.Frequency(500)),
-		decay:          io.NewIn("decay", dsp.Float64(0.7)),
-		size:           io.NewIn("size", dsp.Float64(0.1)),
-		shiftSemitones: io.NewIn("shift-semitones", dsp.Float64(0)),
-		aOut:           io.NewOut("a"),
-		bOut:           io.NewOut("b"),
+			ap:          make([]*dsp.AllPass, 4),
+			aAP:         make([]*dsp.AllPass, 2),
+			bAP:         make([]*dsp.AllPass, 2),
+			aFilter:     &dsp.SVFilter{Poles: 1},
+			aPostFilter: &dsp.SVFilter{Poles: 2},
+			bFilter:     &dsp.SVFilter{Poles: 1},
+			bPostFilter: &dsp.SVFilter{Poles: 2},
+			blockA:      &dsp.DCBlock{},
+			blockB:      &dsp.DCBlock{},
+			shiftA:      dsp.NewPitchShift(),
+			shiftB:      dsp.NewPitchShift(),
 
-		ap:          make([]*dsp.AllPass, 4),
-		aAP:         make([]*dsp.AllPass, 2),
-		bAP:         make([]*dsp.AllPass, 2),
-		aFilter:     &dsp.SVFilter{Poles: 1},
-		aPostFilter: &dsp.SVFilter{Poles: 2},
-		bFilter:     &dsp.SVFilter{Poles: 1},
-		bPostFilter: &dsp.SVFilter{Poles: 2},
-		blockA:      &dsp.DCBlock{},
-		blockB:      &dsp.DCBlock{},
-		shiftA:      dsp.NewPitchShift(),
-		shiftB:      dsp.NewPitchShift(),
-	}
+			aTravelFreq: aTravelFreq,
+			bTravelFreq: bTravelFreq,
+		}
+	)
 
 	r.ap[0] = dsp.NewAllPass(1170)
 	r.ap[1] = dsp.NewAllPass(1510)
@@ -67,6 +69,8 @@ type reverb struct {
 	aLast, bLast         float64
 	blockA, blockB       *dsp.DCBlock
 	shiftA, shiftB       *dsp.PitchShift
+
+	aTravelFreq, bTravelFreq float64
 }
 
 func decayClamp(v float64) float64      { return dsp.Clamp(v, 0, 0.99) }
@@ -100,7 +104,7 @@ func (r *reverb) ProcessSample(i int) {
 	aSig := d + (r.shiftA.TickSemitones(r.bLast, shiftSemitones) * decay)
 
 	aTravel := dsp.Sin(r.aPhase)*0.01 + 0.9
-	advanceLFO(&r.aPhase, aTravelFreq)
+	advanceLFO(&r.aPhase, r.aTravelFreq)
 	aSig = r.aPreDL.TickRelative(aSig, aTravel*size)
 	_, aSig, _ = r.aFilter.Tick(aSig)
 
@@ -114,7 +118,7 @@ func (r *reverb) ProcessSample(i int) {
 	bSig := d + (r.shiftB.TickSemitones(r.aLast, shiftSemitones) * decay)
 
 	bTravel := dsp.Sin(r.bPhase)*0.01 + 0.9
-	advanceLFO(&r.bPhase, bTravelFreq)
+	advanceLFO(&r.bPhase, r.bTravelFreq)
 	bSig = r.bPreDL.TickRelative(bSig, bTravel*size)
 	_, bSig, _ = r.bFilter.Tick(bSig)
 

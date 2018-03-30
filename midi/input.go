@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/rakyll/portmidi"
 
 	"buddin.us/musictheory"
@@ -12,28 +11,28 @@ import (
 	"buddin.us/shaden/unit"
 )
 
-var pitches = map[int]float64{}
-
-func init() {
-	p := musictheory.NewPitch(musictheory.C, musictheory.Natural, 0)
-	for i := 12; i < 127; i++ {
-		pitches[i] = dsp.Frequency(p.Freq()).Float64()
-		p = p.Transpose(musictheory.Minor(2))
-	}
-}
-
 func newInput(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit.Config) (*unit.Unit, error) {
 	return func(io *unit.IO, c unit.Config) (*unit.Unit, error) {
-		var config struct {
-			Rate     int
-			Device   int
-			Channels []int
+		var (
+			config struct {
+				Rate     int
+				Device   int
+				Channels []int
+			}
+			pitches = map[int]float64{}
+			p       = musictheory.NewPitch(musictheory.C, musictheory.Natural, 0)
+		)
+
+		for i := 12; i < 127; i++ {
+			pitches[i] = dsp.Frequency(p.Freq(), c.SampleRate).Float64()
+			p = p.Transpose(musictheory.Minor(2))
 		}
-		if err := mapstructure.Decode(c, &config); err != nil {
+
+		if err := c.Decode(&config); err != nil {
 			return nil, err
 		}
 
-		stream, err := creator.NewStream(portmidi.DeviceID(config.Device), int64(dsp.FrameSize))
+		stream, err := creator.NewStream(portmidi.DeviceID(config.Device), int64(c.FrameSize))
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +49,9 @@ func newInput(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit
 			stream:    stream,
 			eventChan: stream.Channel(time.Duration(config.Rate) * time.Millisecond),
 			receiver:  receiver,
-			events:    make([]portmidi.Event, dsp.FrameSize),
+			events:    make([]portmidi.Event, c.FrameSize),
+			pitches:   pitches,
+			frameSize: c.FrameSize,
 		}
 
 		for _, ch := range config.Channels {
@@ -72,13 +73,15 @@ type input struct {
 	eventChan <-chan portmidi.Event
 	receiver  eventReceiver
 	events    []portmidi.Event
+	pitches   map[int]float64
+	frameSize int
 }
 
 func (in *input) newPitch(ch int) *pitch {
 	return &pitch{
 		input: in,
 		ch:    ch,
-		out:   unit.NewOut(fmt.Sprintf("%d/pitch", ch), make([]float64, dsp.FrameSize)),
+		out:   unit.NewOut(fmt.Sprintf("%d/pitch", ch), make([]float64, in.frameSize)),
 	}
 }
 
@@ -86,7 +89,7 @@ func (in *input) newPitchRaw(ch int) *pitchRaw {
 	return &pitchRaw{
 		input: in,
 		ch:    ch,
-		out:   unit.NewOut(fmt.Sprintf("%d/pitchraw", ch), make([]float64, dsp.FrameSize)),
+		out:   unit.NewOut(fmt.Sprintf("%d/pitchraw", ch), make([]float64, in.frameSize)),
 	}
 }
 
@@ -95,7 +98,7 @@ func (in *input) newGate(ch int) *gate {
 		input:   in,
 		stateFn: gateUp,
 		state:   &gateState{which: -1, chOffset: int64(ch) - 1},
-		out:     unit.NewOut(fmt.Sprintf("%d/gate", ch), make([]float64, dsp.FrameSize)),
+		out:     unit.NewOut(fmt.Sprintf("%d/gate", ch), make([]float64, in.frameSize)),
 	}
 }
 
@@ -104,7 +107,7 @@ func (in *input) newCC(ch, num int) *cc {
 		input: in,
 		ch:    int64(ch),
 		num:   int64(num),
-		out:   unit.NewOut(fmt.Sprintf("%d/cc/%d", ch, num), make([]float64, dsp.FrameSize)),
+		out:   unit.NewOut(fmt.Sprintf("%d/cc/%d", ch, num), make([]float64, in.frameSize)),
 	}
 }
 
@@ -112,7 +115,7 @@ func (in *input) newBend(ch int) *bend {
 	return &bend{
 		input: in,
 		ch:    int64(ch),
-		out:   unit.NewOut(fmt.Sprintf("%d/bend", ch), make([]float64, dsp.FrameSize)),
+		out:   unit.NewOut(fmt.Sprintf("%d/bend", ch), make([]float64, in.frameSize)),
 	}
 }
 
@@ -158,7 +161,7 @@ func (o *pitch) ProcessFrame(n int) {
 
 func (o *pitch) ProcessSample(i int) {
 	if e := o.input.events[i]; e.Status == int64(statusNoteOn+o.ch-1) {
-		if v, ok := pitches[int(e.Data1)]; ok && e.Data2 > 0 {
+		if v, ok := o.input.pitches[int(e.Data1)]; ok && e.Data2 > 0 {
 			o.freq = v
 		}
 	}

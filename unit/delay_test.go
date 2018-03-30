@@ -3,13 +3,15 @@ package unit
 import (
 	"testing"
 
-	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDelay(t *testing.T) {
 	builder := Builders()["delay"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	var (
@@ -33,7 +35,7 @@ func TestDelay(t *testing.T) {
 
 	// Feedback from initial pulse
 	in.Write(0, 1)
-	for i := 0; i < dsp.FrameSize; i++ {
+	for i := 0; i < frameSize; i++ {
 		time.Write(i, 10)
 		fbgain.Write(i, 0.9)
 		mix.Write(i, 1)

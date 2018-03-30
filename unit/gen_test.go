@@ -26,17 +26,20 @@ func TestGen_Sine(t *testing.T) {
 	rand.Seed(1)
 
 	builder := Builders()["gen"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	freq := u.In["freq"]
 	out := u.Out["sine"].(*genSine)
 
-	freq.Write(0, dsp.Frequency(100).Float64())
+	freq.Write(0, dsp.Frequency(100, sampleRate).Float64())
 	out.ProcessSample(0)
 	require.NotEqual(t, 0.0, out.Out().Read(0))
 
-	freq.Write(1, dsp.Frequency(100).Float64())
+	freq.Write(1, dsp.Frequency(100, sampleRate).Float64())
 	out.ProcessSample(1)
 	require.NotEqual(t, 0.0, out.Out().Read(1))
 }
@@ -45,17 +48,20 @@ func TestGen_Saw(t *testing.T) {
 	rand.Seed(1)
 
 	builder := Builders()["gen"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	freq := u.In["freq"]
 	out := u.Out["saw"].(*genSaw)
 
-	freq.Write(0, dsp.Frequency(100).Float64())
+	freq.Write(0, dsp.Frequency(100, sampleRate).Float64())
 	out.ProcessSample(0)
 	require.NotEqual(t, 0.0, out.Out().Read(0))
 
-	freq.Write(1, dsp.Frequency(100).Float64())
+	freq.Write(1, dsp.Frequency(100, sampleRate).Float64())
 	out.ProcessSample(1)
 	require.NotEqual(t, 0.0, out.Out().Read(1))
 }
@@ -64,7 +70,10 @@ func TestGen_Pulse(t *testing.T) {
 	rand.Seed(1)
 
 	builder := Builders()["gen"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	freq := u.In["freq"]
@@ -72,9 +81,9 @@ func TestGen_Pulse(t *testing.T) {
 	out := u.Out["pulse"].(*genPulse)
 
 	for i := 0; i < 2; i++ {
-		for j := 0; j < dsp.FrameSize; j++ {
+		for j := 0; j < frameSize; j++ {
 			pw.Write(j, 0.5)
-			freq.Write(j, dsp.Frequency(100).Float64())
+			freq.Write(j, dsp.Frequency(100, sampleRate).Float64())
 			out.ProcessSample(j)
 		}
 	}
@@ -87,15 +96,18 @@ func TestGen_Triangle(t *testing.T) {
 	rand.Seed(1)
 
 	builder := Builders()["gen"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	freq := u.In["freq"]
 	out := u.Out["triangle"].(*genTriangle)
 
 	for i := 0; i < 2; i++ {
-		for j := 0; j < dsp.FrameSize; j++ {
-			freq.Write(j, dsp.Frequency(100).Float64())
+		for j := 0; j < frameSize; j++ {
+			freq.Write(j, dsp.Frequency(100, sampleRate).Float64())
 			out.ProcessSample(j)
 		}
 	}

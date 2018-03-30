@@ -36,8 +36,8 @@ func intervalSetter(p *Prop, v interface{}) error {
 	return nil
 }
 
-func newQuantize(io *IO, _ Config) (*Unit, error) {
-	tonic, err := dsp.ParsePitch("A4")
+func newQuantize(io *IO, c Config) (*Unit, error) {
+	tonic, err := dsp.ParsePitch("A4", c.SampleRate)
 	if err != nil {
 		return nil, err
 	}

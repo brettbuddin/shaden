@@ -7,13 +7,14 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newLowGen(io *IO, _ Config) (*Unit, error) {
+func newLowGen(io *IO, c Config) (*Unit, error) {
 	g := &lowGen{
-		freq:   io.NewIn("freq", dsp.Frequency(1)),
-		amp:    io.NewIn("amp", dsp.Float64(1)),
-		pw:     io.NewIn("pulse-width", dsp.Float64(1)),
-		offset: io.NewIn("offset", dsp.Float64(0)),
-		sync:   io.NewIn("sync", dsp.Float64(-1)),
+		freq:      io.NewIn("freq", dsp.Frequency(1, c.SampleRate)),
+		amp:       io.NewIn("amp", dsp.Float64(1)),
+		pw:        io.NewIn("pulse-width", dsp.Float64(1)),
+		offset:    io.NewIn("offset", dsp.Float64(0)),
+		sync:      io.NewIn("sync", dsp.Float64(-1)),
+		frameSize: c.FrameSize,
 	}
 
 	io.ExposeOutputProcessor(g.newSine())
@@ -28,13 +29,18 @@ func newLowGen(io *IO, _ Config) (*Unit, error) {
 
 type lowGen struct {
 	freq, amp, pw, offset, sync *In
+	frameSize                   int
+}
+
+func (g *lowGen) newFrame() []float64 {
+	return make([]float64, g.frameSize)
 }
 
 func (g *lowGen) newSine() *lowGenSine {
 	return &lowGenSine{
 		lowGen: g,
 		phase:  rand.Float64() * twoPi,
-		out:    NewOut("sine", newFrame()),
+		out:    NewOut("sine", g.newFrame()),
 	}
 }
 
@@ -42,7 +48,7 @@ func (g *lowGen) newSaw() *lowGenSaw {
 	return &lowGenSaw{
 		lowGen: g,
 		phase:  rand.Float64() * twoPi,
-		out:    NewOut("saw", newFrame()),
+		out:    NewOut("saw", g.newFrame()),
 	}
 }
 
@@ -50,7 +56,7 @@ func (g *lowGen) newPulse() *lowGenPulse {
 	return &lowGenPulse{
 		lowGen: g,
 		phase:  rand.Float64() * twoPi,
-		out:    NewOut("pulse", newFrame()),
+		out:    NewOut("pulse", g.newFrame()),
 	}
 }
 
@@ -58,7 +64,7 @@ func (g *lowGen) newTriangle() *lowGenTriangle {
 	return &lowGenTriangle{
 		lowGen: g,
 		phase:  rand.Float64() * twoPi,
-		out:    NewOut("triangle", newFrame()),
+		out:    NewOut("triangle", g.newFrame()),
 	}
 }
 
@@ -83,7 +89,7 @@ func (o *lowGenSine) ProcessSample(i int) {
 		o.phase = 0
 	}
 	next := dsp.Sin(o.phase)
-	o.phase = stepPhase(freq, 0, o.phase, 1)
+	o.phase = stepPhase(freq, 0, o.phase, o.frameSize, 1)
 	o.out.Write(i, (amp*next)+offset)
 }
 
@@ -108,7 +114,7 @@ func (o *lowGenSaw) ProcessSample(i int) {
 		o.phase = 0
 	}
 	next := (2.0*(o.phase)/twoPi - 1.0)
-	o.phase = stepPhase(freq, 0, o.phase, 1)
+	o.phase = stepPhase(freq, 0, o.phase, o.frameSize, 1)
 	o.out.Write(i, (amp*next)+offset)
 }
 
@@ -141,7 +147,7 @@ func (o *lowGenPulse) ProcessSample(i int) {
 		next = -1
 	}
 
-	o.phase = stepPhase(freq, 0, o.phase, 1)
+	o.phase = stepPhase(freq, 0, o.phase, o.frameSize, 1)
 	o.out.Write(i, (amp*next)+offset)
 }
 
@@ -172,6 +178,6 @@ func (o *lowGenTriangle) ProcessSample(i int) {
 	} else {
 		next = (3 - twoDivPi*p)
 	}
-	o.phase = stepPhase(freq, 0, o.phase, 1)
+	o.phase = stepPhase(freq, 0, o.phase, o.frameSize, 1)
 	o.out.Write(i, (amp*next)+offset)
 }

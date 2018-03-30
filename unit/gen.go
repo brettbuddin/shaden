@@ -12,15 +12,16 @@ const (
 	twoDivPi = 2 / math.Pi
 )
 
-func newGen(io *IO, _ Config) (*Unit, error) {
+func newGen(io *IO, c Config) (*Unit, error) {
 	g := &gen{
-		freq:   io.NewIn("freq", dsp.Frequency(440)),
-		amp:    io.NewIn("amp", dsp.Float64(1)),
-		fm:     io.NewIn("freq-mod", dsp.Float64(0)),
-		pw:     io.NewIn("pulse-width", dsp.Float64(1)),
-		pm:     io.NewIn("phase-mod", dsp.Float64(0)),
-		sync:   io.NewIn("sync", dsp.Float64(-1)),
-		offset: io.NewIn("offset", dsp.Float64(0)),
+		freq:      io.NewIn("freq", dsp.Frequency(440, c.SampleRate)),
+		amp:       io.NewIn("amp", dsp.Float64(1)),
+		fm:        io.NewIn("freq-mod", dsp.Float64(0)),
+		pw:        io.NewIn("pulse-width", dsp.Float64(1)),
+		pm:        io.NewIn("phase-mod", dsp.Float64(0)),
+		sync:      io.NewIn("sync", dsp.Float64(-1)),
+		offset:    io.NewIn("offset", dsp.Float64(0)),
+		frameSize: c.FrameSize,
 	}
 
 	io.ExposeOutputProcessor(g.newSine("sine", 1))
@@ -38,6 +39,11 @@ func newGen(io *IO, _ Config) (*Unit, error) {
 
 type gen struct {
 	freq, amp, fm, pw, sync, pm, offset *In
+	frameSize                           int
+}
+
+func (g *gen) newFrame() []float64 {
+	return make([]float64, g.frameSize)
 }
 
 func (g *gen) newSine(name string, mult float64) *genSine {
@@ -45,7 +51,7 @@ func (g *gen) newSine(name string, mult float64) *genSine {
 		gen:   g,
 		phase: rand.Float64() * twoPi,
 		mult:  mult,
-		out:   NewOut(name, newFrame()),
+		out:   NewOut(name, g.newFrame()),
 	}
 }
 
@@ -54,7 +60,7 @@ func (g *gen) newSaw(name string, mult float64) *genSaw {
 		gen:   g,
 		phase: rand.Float64() * twoPi,
 		mult:  mult,
-		out:   NewOut(name, newFrame()),
+		out:   NewOut(name, g.newFrame()),
 	}
 }
 
@@ -63,7 +69,7 @@ func (g *gen) newPulse(name string, mult float64) *genPulse {
 		gen:   g,
 		phase: rand.Float64() * twoPi,
 		mult:  mult,
-		out:   NewOut(name, newFrame()),
+		out:   NewOut(name, g.newFrame()),
 	}
 }
 
@@ -71,21 +77,21 @@ func (g *gen) newTriangle() *genTriangle {
 	return &genTriangle{
 		gen:   g,
 		phase: rand.Float64() * twoPi,
-		out:   NewOut("triangle", newFrame()),
+		out:   NewOut("triangle", g.newFrame()),
 	}
 }
 
 func (g *gen) newNoise() *genNoise {
 	return &genNoise{
 		gen: g,
-		out: NewOut("noise", newFrame()),
+		out: NewOut("noise", g.newFrame()),
 	}
 }
 
 func (g *gen) newCluster() *genCluster {
 	return &genCluster{
 		gen: g,
-		out: NewOut("cluster", newFrame()),
+		out: NewOut("cluster", g.newFrame()),
 	}
 }
 
@@ -119,7 +125,7 @@ func (o *genSine) ProcessSample(i int) {
 	}
 
 	next := dsp.Sin(o.phase + pm)
-	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
+	o.phase = stepPhase(freq, fm, o.phase, o.frameSize, o.frameSize)
 	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
@@ -158,7 +164,7 @@ func (o *genSaw) ProcessSample(i int) {
 	p := (o.phase + pm) / twoPi
 	next = (2*p - 1)
 	next -= blep(p, freq, fm)
-	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
+	o.phase = stepPhase(freq, fm, o.phase, o.frameSize, o.frameSize)
 	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
@@ -204,7 +210,7 @@ func (o *genPulse) ProcessSample(i int) {
 	next += blep(p, freq, fm)
 	next -= blep(math.Mod(p+0.5, 1), freq, fm)
 
-	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
+	o.phase = stepPhase(freq, fm, o.phase, o.frameSize, o.frameSize)
 	o.out.Write(i, (amp*next)+offset)
 	o.lastSync = sync
 }
@@ -249,7 +255,7 @@ func (o *genTriangle) ProcessSample(i int) {
 	next -= blep(math.Mod(p+0.5, 1), freq, fm)
 	next = freq*next + (1-freq)*o.last
 
-	o.phase = stepPhase(freq, fm, o.phase, dsp.FrameSize)
+	o.phase = stepPhase(freq, fm, o.phase, o.frameSize, o.frameSize)
 	o.out.Write(i, (4*amp*next)+offset)
 	o.last = next
 	o.lastSync = sync
@@ -304,8 +310,8 @@ func (o *genCluster) ProcessSample(i int) {
 	}
 }
 
-func stepPhase(freq, fm, phase float64, n int) float64 {
-	phase += (math.Abs(freq+fm) * twoPi) * (dsp.FrameSize / float64(n))
+func stepPhase(freq, fm, phase float64, frameSize, n int) float64 {
+	phase += (math.Abs(freq+fm) * twoPi) * (float64(frameSize) / float64(n))
 	if phase >= twoPi {
 		phase -= twoPi
 	}

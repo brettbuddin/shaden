@@ -18,9 +18,9 @@ func TestFillConstant(t *testing.T) {
 		}{
 			{"float", 1.0, 1.0},
 			{"int", 1, 1.0},
-			{"hz", dsp.Frequency(440), 0.009977324263038548},
-			{"ms", dsp.Duration(100), 4410.0},
-			{"bpm", dsp.BPM(60), 2.2675736961451248e-05},
+			{"hz", dsp.Frequency(440, sampleRate), 0.009977324263038548},
+			{"ms", dsp.Duration(100, sampleRate), 4410.0},
+			{"bpm", dsp.BPM(60, sampleRate), 2.2675736961451248e-05},
 		}
 	)
 
@@ -28,7 +28,7 @@ func TestFillConstant(t *testing.T) {
 		t.Run(test.typ, func(t *testing.T) {
 			var (
 				g  = graph.New()
-				io = unit.NewIO("dummy")
+				io = unit.NewIO("dummy", frameSize)
 				u  = unit.NewUnit(io, nil)
 			)
 
@@ -50,14 +50,14 @@ func TestFillConstant(t *testing.T) {
 func TestPatch(t *testing.T) {
 	g := graph.New()
 
-	io1 := unit.NewIO("dummy1")
+	io1 := unit.NewIO("dummy1", frameSize)
 	io1.NewIn("in", dsp.Float64(0))
 	io1.NewOut("out")
 	u1 := unit.NewUnit(io1, nil)
 	err := u1.Attach(g)
 	require.Nil(t, err)
 
-	io2 := unit.NewIO("dummy2")
+	io2 := unit.NewIO("dummy2", frameSize)
 	io2.NewIn("in", dsp.Float64(0))
 	io2.NewOut("out")
 	u2 := unit.NewUnit(io2, nil)

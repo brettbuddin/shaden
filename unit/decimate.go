@@ -2,15 +2,16 @@ package unit
 
 import "buddin.us/shaden/dsp"
 
-func newDecimate(io *IO, _ Config) (*Unit, error) {
-	d := &decimate{
-		decimate: &dsp.Decimate{},
-		in:       io.NewIn("in", dsp.Float64(0)),
-		rate:     io.NewIn("rate", dsp.Float64(dsp.SampleRate)),
-		bits:     io.NewIn("bits", dsp.Float64(24)),
-		out:      io.NewOut("out"),
-	}
-	return NewUnit(io, d), nil
+func newDecimate(io *IO, c Config) (*Unit, error) {
+	return NewUnit(io, &decimate{
+		decimate: &dsp.Decimate{
+			SampleRate: float64(c.SampleRate),
+		},
+		in:   io.NewIn("in", dsp.Float64(0)),
+		rate: io.NewIn("rate", dsp.Float64(c.SampleRate)),
+		bits: io.NewIn("bits", dsp.Float64(24)),
+		out:  io.NewOut("out"),
+	}), nil
 }
 
 type decimate struct {

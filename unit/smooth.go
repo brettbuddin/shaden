@@ -4,10 +4,10 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newSmooth(io *IO, _ Config) (*Unit, error) {
+func newSmooth(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &smooth{
 		in:      io.NewIn("in", dsp.Float64(0)),
-		time:    io.NewIn("time", dsp.Duration(100)),
+		time:    io.NewIn("time", dsp.Duration(100, c.SampleRate)),
 		out:     io.NewOut("out"),
 		average: dsp.RollingAverage{},
 	}), nil

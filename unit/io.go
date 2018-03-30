@@ -11,20 +11,22 @@ var idCount uint32
 
 // IO is the registry of inputs, outputs and properties for a Module
 type IO struct {
-	ID, Type string
-	Prop     map[string]*Prop
-	In       map[string]*In
-	Out      map[string]Output
+	ID, Type  string
+	Prop      map[string]*Prop
+	In        map[string]*In
+	Out       map[string]Output
+	frameSize int
 }
 
 // NewIO returns a new IO
-func NewIO(typ string) *IO {
+func NewIO(typ string, frameSize int) *IO {
 	io := &IO{
-		ID:   fmt.Sprintf("%s-%d", typ, idCount),
-		Type: typ,
-		Prop: map[string]*Prop{},
-		In:   map[string]*In{},
-		Out:  map[string]Output{},
+		ID:        fmt.Sprintf("%s-%d", typ, idCount),
+		Type:      typ,
+		Prop:      map[string]*Prop{},
+		In:        map[string]*In{},
+		Out:       map[string]Output{},
+		frameSize: frameSize,
 	}
 	atomic.AddUint32(&idCount, 1)
 	return io
@@ -47,14 +49,14 @@ func (io *IO) NewProp(name string, v interface{}, setter func(*Prop, interface{}
 
 // NewIn registers a new input
 func (io *IO) NewIn(name string, v dsp.Valuer) *In {
-	in := NewIn(name, v)
+	in := NewIn(name, v, io.frameSize)
 	io.In[in.Name] = in
 	return in
 }
 
 // NewOut registers a new output
 func (io *IO) NewOut(name string) *Out {
-	return io.newOut(name, newFrame())
+	return io.newOut(name, make([]float64, io.frameSize))
 }
 
 // NewOutWithFrame registers a new output that has a specific frame

@@ -9,11 +9,14 @@ import (
 
 func TestClock(t *testing.T) {
 	builder := Builders()["clock"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	// High frequency to close the range we have to iterate over
-	freq := dsp.Frequency(1000).Float64()
+	freq := dsp.Frequency(1000, sampleRate).Float64()
 
 	tempo := u.In["tempo"]
 	run := u.In["run"]

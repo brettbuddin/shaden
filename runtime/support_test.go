@@ -5,25 +5,27 @@ import (
 	"sync"
 	"time"
 
-	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/engine"
 )
 
 func newBackend(calls int) *backend {
 	written := make([][]float32, 2)
 	for i := range written {
-		written[i] = make([]float32, dsp.FrameSize)
+		written[i] = make([]float32, frameSize)
 	}
 	return &backend{
-		calls:   calls,
-		written: written,
+		calls:      calls,
+		written:    written,
+		sampleRate: sampleRate,
+		frameSize:  frameSize,
 	}
 }
 
 type backend struct {
 	sync.Mutex
-	calls   int
-	written [][]float32
+	calls                 int
+	written               [][]float32
+	sampleRate, frameSize int
 }
 
 func (b *backend) read(i, j int) float32 {
@@ -36,10 +38,10 @@ func (b *backend) Start(cb func([]float32, [][]float32)) error {
 	b.Lock()
 	defer b.Unlock()
 	var (
-		in  = make([]float32, dsp.FrameSize)
+		in  = make([]float32, frameSize)
 		out = [][]float32{
-			make([]float32, dsp.FrameSize),
-			make([]float32, dsp.FrameSize),
+			make([]float32, frameSize),
+			make([]float32, frameSize),
 		}
 	)
 	for i := 0; i < b.calls; i++ {
@@ -48,8 +50,9 @@ func (b *backend) Start(cb func([]float32, [][]float32)) error {
 	copy(b.written, out)
 	return nil
 }
-func (*backend) Stop() error    { return nil }
-func (*backend) FrameSize() int { return dsp.FrameSize }
+func (*backend) Stop() error       { return nil }
+func (b *backend) FrameSize() int  { return b.frameSize }
+func (b *backend) SampleRate() int { return b.sampleRate }
 
 type messageChannel struct {
 	messages chan *engine.Message

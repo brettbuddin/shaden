@@ -5,18 +5,22 @@ import (
 	"testing"
 	"time"
 
-	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/unit"
 	"github.com/stretchr/testify/require"
+)
+
+const (
+	sampleRate = 44100
+	frameSize  = 256
 )
 
 func TestEngine_Stop(t *testing.T) {
 	be := backend{
 		start:     func(func([]float32, [][]float32)) error { return nil },
 		stop:      func() error { return nil },
-		frameSize: dsp.FrameSize * 2,
+		frameSize: frameSize * 2,
 	}
-	e, err := New(be)
+	e, err := New(be, frameSize)
 	require.NoError(t, err)
 	go e.Run()
 	go func() {
@@ -30,9 +34,9 @@ func TestEngine_StopProxyBackendError(t *testing.T) {
 	be := backend{
 		start:     func(func([]float32, [][]float32)) error { return nil },
 		stop:      func() error { return fmt.Errorf("exploded") },
-		frameSize: dsp.FrameSize * 2,
+		frameSize: frameSize * 2,
 	}
-	e, err := New(be)
+	e, err := New(be, frameSize)
 	require.NoError(t, err)
 	go e.Run()
 	go func() {
@@ -46,9 +50,9 @@ func TestEngine_StartError(t *testing.T) {
 	be := backend{
 		start:     func(func([]float32, [][]float32)) error { return fmt.Errorf("exploded") },
 		stop:      func() error { return nil },
-		frameSize: dsp.FrameSize * 2,
+		frameSize: frameSize * 2,
 	}
-	e, err := New(be)
+	e, err := New(be, frameSize)
 	require.NoError(t, err)
 	go e.Run()
 
@@ -63,7 +67,7 @@ func TestEngine_StartError(t *testing.T) {
 }
 
 func TestEngine_MountAndUnmount(t *testing.T) {
-	size := dsp.FrameSize * 2
+	size := frameSize * 2
 
 	be := backend{
 		start: func(cb func([]float32, [][]float32)) error {
@@ -79,7 +83,7 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 		stop:      func() error { return nil },
 		frameSize: size,
 	}
-	e, err := New(be)
+	e, err := New(be, frameSize)
 	require.NoError(t, err)
 	require.Equal(t, 3, e.graph.Size())
 
@@ -90,7 +94,7 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 	}()
 
 	// Unit with no inputs and outputs
-	io := unit.NewIO("example")
+	io := unit.NewIO("example", frameSize)
 	u := unit.NewUnit(io, nil)
 
 	// Send a MountUnit message to the engine
@@ -128,7 +132,7 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 }
 
 func TestEngine_MountAndReset(t *testing.T) {
-	size := dsp.FrameSize * 2
+	size := frameSize * 2
 
 	be := backend{
 		start: func(cb func([]float32, [][]float32)) error {
@@ -144,7 +148,7 @@ func TestEngine_MountAndReset(t *testing.T) {
 		stop:      func() error { return nil },
 		frameSize: size,
 	}
-	e, err := New(be)
+	e, err := New(be, frameSize)
 	require.NoError(t, err)
 	require.Equal(t, 3, e.graph.Size())
 
@@ -154,7 +158,7 @@ func TestEngine_MountAndReset(t *testing.T) {
 		}
 	}()
 
-	io := unit.NewIO("example")
+	io := unit.NewIO("example", frameSize)
 	u := unit.NewUnit(io, nil)
 
 	msg := NewMessage(MountUnit(u))
@@ -188,11 +192,12 @@ func TestEngine_MountAndReset(t *testing.T) {
 }
 
 type backend struct {
-	start     func(func([]float32, [][]float32)) error
-	stop      func() error
-	frameSize int
+	start                 func(func([]float32, [][]float32)) error
+	stop                  func() error
+	sampleRate, frameSize int
 }
 
 func (b backend) Start(cb func([]float32, [][]float32)) error { return b.start(cb) }
 func (b backend) Stop() error                                 { return b.stop() }
 func (b backend) FrameSize() int                              { return b.frameSize }
+func (b backend) SampleRate() int                             { return b.sampleRate }

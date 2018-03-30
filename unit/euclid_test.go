@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"testing"
 
-	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEuclidUnit(t *testing.T) {
 	builder := Builders()["euclid"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	clock := u.In["clock"]
@@ -23,7 +25,7 @@ func TestEuclidUnit(t *testing.T) {
 		clockv = -1.0
 		gates  []float64
 	)
-	for i := 0; i < dsp.FrameSize; i++ {
+	for i := 0; i < frameSize; i++ {
 		clock.Write(i, clockv)
 		fill.Write(i, 2)
 		span.Write(i, 4)

@@ -34,8 +34,8 @@ type In struct {
 }
 
 // NewIn returns a new input
-func NewIn(name string, v dsp.Valuer) *In {
-	f := newFrame()
+func NewIn(name string, v dsp.Valuer, frameSize int) *In {
+	f := make([]float64, frameSize)
 	in := &In{
 		Name:        name,
 		frame:       f,

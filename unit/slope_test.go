@@ -3,13 +3,15 @@ package unit
 import (
 	"testing"
 
-	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSlope(t *testing.T) {
 	builder := Builders()["slope"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
 	require.NoError(t, err)
 
 	var (
@@ -22,7 +24,7 @@ func TestSlope(t *testing.T) {
 	)
 
 	trigger.Write(0, 1)
-	for i := 0; i < dsp.FrameSize; i++ {
+	for i := 0; i < frameSize; i++ {
 		rise.Write(i, 3)
 		fall.Write(i, 5)
 		u.ProcessSample(i)

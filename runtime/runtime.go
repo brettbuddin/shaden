@@ -20,6 +20,8 @@ import (
 type Engine interface {
 	SendMessage(*engine.Message) error
 	UnitBuilders() map[string]unit.Builder
+	FrameSize() int
+	SampleRate() int
 }
 
 // Runtime represents the runtime execution environment
@@ -39,7 +41,7 @@ func New(e Engine, logger *log.Logger) (*Runtime, error) {
 		engine: e,
 		logger: logger,
 	}
-	if err := loadShaden(r); err != nil {
+	if err := r.loadShaden(); err != nil {
 		return nil, err
 	}
 	return r, nil
@@ -107,18 +109,19 @@ func (r *Runtime) Load(path string) error {
 	return nil
 }
 
-func loadShaden(r *Runtime) error {
-	env := r.base
+func (r *Runtime) loadShaden() error {
+	var (
+		engine = r.engine
+		logger = r.logger
+		env    = r.base
+	)
 
-	loadConstants(env)
-	loadValues(env)
-
-	engine := r.engine
-	logger := r.logger
+	r.loadConstants(env)
+	r.loadValues(env, engine.SampleRate())
 
 	// Engine
 	env.DefineSymbol("emit", emitFn(engine, logger))
-	env.DefineSymbol("clear", engineClear(r))
+	env.DefineSymbol("clear", r.engineClear)
 
 	// Units
 	if err := createBuilders(env, engine, logger); err != nil {
@@ -137,11 +140,11 @@ func loadShaden(r *Runtime) error {
 	return nil
 }
 
-func loadValues(env *lisp.Environment) {
+func (r *Runtime) loadValues(env *lisp.Environment, sampleRate int) {
 	// Values
-	env.DefineSymbol("hz", hzFn)
-	env.DefineSymbol("ms", msFn)
-	env.DefineSymbol("bpm", bpmFn)
+	env.DefineSymbol("hz", hzFn(sampleRate))
+	env.DefineSymbol("ms", msFn(sampleRate))
+	env.DefineSymbol("bpm", bpmFn(sampleRate))
 	env.DefineSymbol("db", dbFn)
 
 	// Music Theory
@@ -150,7 +153,7 @@ func loadValues(env *lisp.Environment) {
 	env.DefineSymbol("theory/transpose", transposeFn)
 }
 
-func loadConstants(env *lisp.Environment) {
+func (r *Runtime) loadConstants(env *lisp.Environment) {
 	// Basic Modes
 	env.DefineSymbol("mode/on", 1)
 	env.DefineSymbol("mode/off", 0)
@@ -191,17 +194,15 @@ func loadConstants(env *lisp.Environment) {
 	env.DefineSymbol("logic/xnor", 5)
 }
 
-func engineClear(r *Runtime) func(*lisp.Environment, lisp.List) (interface{}, error) {
-	return func(*lisp.Environment, lisp.List) (interface{}, error) {
-		msg := engine.NewMessage(engine.Clear)
-		if err := r.engine.SendMessage(msg); err != nil {
-			return nil, err
-		}
-		reply := <-msg.Reply
-		if reply.Error != nil {
-			return nil, reply.Error
-		}
-		r.ClearUserspace()
-		return nil, nil
+func (r *Runtime) engineClear(*lisp.Environment, lisp.List) (interface{}, error) {
+	msg := engine.NewMessage(engine.Clear)
+	if err := r.engine.SendMessage(msg); err != nil {
+		return nil, err
 	}
+	reply := <-msg.Reply
+	if reply.Error != nil {
+		return nil, reply.Error
+	}
+	r.ClearUserspace()
+	return nil, nil
 }

@@ -19,6 +19,7 @@ type PortAudio struct {
 	inDevice, outDevice *portaudio.DeviceInfo
 	stream              *portaudio.Stream
 	params              portaudio.StreamParameters
+	sampleRate          int
 }
 
 // Initialize initializes portaudio and returns the list of devices on the machine.
@@ -82,9 +83,10 @@ func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize, sampleRat
 	params.FramesPerBuffer = frameSize
 
 	return &PortAudio{
-		params:    params,
-		inDevice:  in,
-		outDevice: out,
+		params:     params,
+		inDevice:   in,
+		outDevice:  out,
+		sampleRate: sampleRate,
 	}, nil
 }
 
@@ -96,6 +98,11 @@ func (pa *PortAudio) Devices() (in *portaudio.DeviceInfo, out *portaudio.DeviceI
 // FrameSize returns the low-level frame size used by PortAudio.
 func (pa *PortAudio) FrameSize() int {
 	return pa.params.FramesPerBuffer
+}
+
+// SampleRate returns the sample rate
+func (pa *PortAudio) SampleRate() int {
+	return pa.sampleRate
 }
 
 // Start starts the portaudio stream.

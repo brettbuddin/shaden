@@ -6,16 +6,16 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newAdsr(io *IO, _ Config) (*Unit, error) {
+func newAdsr(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &adsr{
 		state:       &adsrState{},
 		stateFunc:   adsrIdle,
 		gate:        io.NewIn("gate", dsp.Float64(0)),
-		attack:      io.NewIn("attack", dsp.Duration(50)),
-		decay:       io.NewIn("decay", dsp.Duration(50)),
+		attack:      io.NewIn("attack", dsp.Duration(50, c.SampleRate)),
+		decay:       io.NewIn("decay", dsp.Duration(50, c.SampleRate)),
 		sustain:     io.NewIn("sustain", dsp.Float64(0.5)),
-		sustainHold: io.NewIn("sustain-hold", dsp.Duration(0)),
-		release:     io.NewIn("release", dsp.Duration(50)),
+		sustainHold: io.NewIn("sustain-hold", dsp.Duration(0, c.SampleRate)),
+		release:     io.NewIn("release", dsp.Duration(50, c.SampleRate)),
 		cycle:       io.NewIn("cycle", dsp.Float64(0)),
 		ratio:       io.NewIn("ratio", dsp.Float64(0.01)),
 		out:         io.NewOut("out"),

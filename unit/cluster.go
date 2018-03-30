@@ -4,9 +4,9 @@ import "buddin.us/shaden/dsp"
 
 const clusterSize = 12
 
-func newCluster(io *IO, _ Config) (*Unit, error) {
+func newCluster(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &cluster{
-		freq:     io.NewIn("freq", dsp.Frequency(440)),
+		freq:     io.NewIn("freq", dsp.Frequency(440, c.SampleRate)),
 		interval: io.NewIn("interval", dsp.Float64(1.1)),
 		phases:   make([]float64, clusterSize),
 		out:      io.NewOut("out"),

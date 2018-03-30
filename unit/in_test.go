@@ -10,7 +10,7 @@ import (
 )
 
 func TestIn_BlockRead(t *testing.T) {
-	in := NewIn("in", dsp.Float64(0))
+	in := NewIn("in", dsp.Float64(0), frameSize)
 	in.frame[0] = 10
 	in.frame[5] = 20
 	require.Equal(t, 10.0, in.Read(0))
@@ -18,7 +18,7 @@ func TestIn_BlockRead(t *testing.T) {
 }
 
 func TestIn_SampleRead(t *testing.T) {
-	in := NewIn("in", dsp.Float64(0))
+	in := NewIn("in", dsp.Float64(0), frameSize)
 	in.Mode = Sample
 	in.frame[0] = 10
 	in.frame[5] = 20
@@ -27,7 +27,7 @@ func TestIn_SampleRead(t *testing.T) {
 }
 
 func TestIn_ReadSlow(t *testing.T) {
-	in := NewIn("in", dsp.Float64(0))
+	in := NewIn("in", dsp.Float64(0), frameSize)
 	in.frame[0] = 20
 	in.frame[64] = 30
 
@@ -39,7 +39,7 @@ func TestIn_ReadSlow(t *testing.T) {
 }
 
 func TestIn_Fill(t *testing.T) {
-	in := NewIn("in", dsp.Float64(0))
+	in := NewIn("in", dsp.Float64(0), frameSize)
 	in.Fill(dsp.Float64(101))
 	require.Equal(t, 101.0, in.Read(10))
 }
@@ -47,13 +47,13 @@ func TestIn_Fill(t *testing.T) {
 func TestIn_CoupleOutput(t *testing.T) {
 	g := graph.New()
 
-	io1 := NewIO("example1")
+	io1 := NewIO("example1", frameSize)
 	io1.NewIn("in", dsp.Float64(0))
 	io1.NewOut("out")
 	u1 := NewUnit(io1, nil)
 	require.Equal(t, 0, u1.ExternalNeighborCount())
 
-	io2 := NewIO("example2")
+	io2 := NewIO("example2", frameSize)
 	io2.NewIn("in", dsp.Float64(0))
 	io2.NewOut("out")
 	u2 := NewUnit(io2, nil)
@@ -74,11 +74,11 @@ func TestIn_CoupleOutput(t *testing.T) {
 }
 
 func TestIn_ReadControlRate(t *testing.T) {
-	in := NewIn("in", dsp.Float64(0))
+	in := NewIn("in", dsp.Float64(0), frameSize)
 	in.Mode = Sample
 	in.Couple(&Out{
 		unit:  &Unit{rate: RateControl},
-		frame: newFrame(),
+		frame: make([]float64, frameSize),
 	})
 	in.frame[0] = 10
 	in.frame[5] = 20

@@ -117,7 +117,11 @@ func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logge
 			}
 		}
 
-		unit, err := builder(config)
+		unit, err := builder(unit.Config{
+			Values:     config,
+			SampleRate: e.SampleRate(),
+			FrameSize:  e.FrameSize(),
+		})
 		if err != nil {
 			return nil, err
 		}

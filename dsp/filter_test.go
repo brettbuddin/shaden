@@ -9,7 +9,7 @@ import (
 func TestSVFilter(t *testing.T) {
 	filter := &SVFilter{
 		Poles:     4,
-		Cutoff:    Frequency(100).Float64(),
+		Cutoff:    Frequency(100, sampleRate).Float64(),
 		Resonance: 1,
 	}
 
@@ -23,9 +23,9 @@ func TestSVFilter(t *testing.T) {
 
 func TestSimpleLowPass(t *testing.T) {
 	filter := NewFilter(LowPass, 4)
-	filter.Cutoff = Frequency(50).Float64()
+	filter.Cutoff = Frequency(50, sampleRate).Float64()
 	var v float64
-	for i := 0; i < FrameSize*10; i++ {
+	for i := 0; i < frameSize*10; i++ {
 		v = filter.Tick(1.0)
 	}
 	require.Equal(t, 0.9999865165554183, v)
@@ -33,9 +33,9 @@ func TestSimpleLowPass(t *testing.T) {
 
 func TestSimpleHighPass(t *testing.T) {
 	filter := NewFilter(HighPass, 4)
-	filter.Cutoff = Frequency(50).Float64()
+	filter.Cutoff = Frequency(50, sampleRate).Float64()
 	var v float64
-	for i := 0; i < FrameSize*10; i++ {
+	for i := 0; i < frameSize*10; i++ {
 		v = filter.Tick(1.0)
 	}
 	require.Equal(t, 1.348344458174111e-05, v)

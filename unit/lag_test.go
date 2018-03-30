@@ -3,13 +3,15 @@ package unit
 import (
 	"testing"
 
-	"buddin.us/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 
 func TestLag(t *testing.T) {
 	builder := Builders()["lag"]
-	u, err := builder(nil)
+	u, err := builder(Config{
+		FrameSize:  frameSize,
+		SampleRate: sampleRate,
+	})
 	require.NoError(t, err)
 
 	var (
@@ -23,7 +25,7 @@ func TestLag(t *testing.T) {
 
 	// Impulse that should fade out over 2 samples
 	in.Write(0, 1)
-	for i := 0; i < dsp.FrameSize; i++ {
+	for i := 0; i < frameSize; i++ {
 		rise.Write(i, 2)
 		fall.Write(i, 2)
 		u.ProcessSample(i)

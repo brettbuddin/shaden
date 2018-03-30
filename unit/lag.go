@@ -6,11 +6,11 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
-func newLag(io *IO, _ Config) (*Unit, error) {
+func newLag(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &lag{
 		in:   io.NewIn("in", dsp.Float64(0)),
-		rise: io.NewIn("rise", dsp.Duration(5)),
-		fall: io.NewIn("fall", dsp.Duration(5)),
+		rise: io.NewIn("rise", dsp.Duration(5, c.SampleRate)),
+		fall: io.NewIn("fall", dsp.Duration(5, c.SampleRate)),
 		out:  io.NewOut("out"),
 		slew: newSlew(),
 	}), nil

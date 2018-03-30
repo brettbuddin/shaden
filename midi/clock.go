@@ -3,10 +3,8 @@ package midi
 import (
 	"time"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/rakyll/portmidi"
 
-	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/unit"
 )
 
@@ -17,11 +15,11 @@ func newClock(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit
 			Device    int
 			FrameRate int
 		}
-		if err := mapstructure.Decode(c, &config); err != nil {
+		if err := c.Decode(&config); err != nil {
 			return nil, err
 		}
 
-		stream, err := creator.NewStream(portmidi.DeviceID(config.Device), int64(dsp.FrameSize))
+		stream, err := creator.NewStream(portmidi.DeviceID(config.Device), int64(c.FrameSize))
 		if err != nil {
 			return nil, err
 		}

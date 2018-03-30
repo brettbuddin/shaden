@@ -9,12 +9,16 @@ import (
 
 func TestDecimate_Reduction(t *testing.T) {
 	// Bit reduction
-	decimate := &Decimate{}
+	decimate := &Decimate{
+		SampleRate: sampleRate,
+	}
 	require.Equal(t, 0.49999990734232586, decimate.Tick(0.5, 44100, 24))
 	require.Equal(t, 0.24982677324761315, decimate.Tick(0.5, 44100, 2))
 
 	// Rate reduction
-	decimate = &Decimate{}
+	decimate = &Decimate{
+		SampleRate: sampleRate,
+	}
 	rate := 2000.0
 	times := 1 / (rate / 44100.0)
 
@@ -26,7 +30,9 @@ func TestDecimate_Reduction(t *testing.T) {
 }
 
 func TestDecimate_OutOfRange(t *testing.T) {
-	decimate := &Decimate{}
+	decimate := &Decimate{
+		SampleRate: sampleRate,
+	}
 	require.Equal(t, 0.49999990734232586, decimate.Tick(0.5, 80000, 24))
 	require.Equal(t, 0.24982677324761315, decimate.Tick(0.5, 80000, 2))
 	require.Equal(t, 0.5, decimate.Tick(0.5, 80000, -5))

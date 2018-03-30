@@ -6,30 +6,15 @@ import (
 	"io"
 	"time"
 
-	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/graph"
 	"buddin.us/shaden/unit"
 )
-
-// Engine is the connection of the synthesizer to PortAudio
-type Engine struct {
-	messages             MessageChannel
-	backend              Backend
-	graph                *graph.Graph
-	unit                 *unit.Unit
-	processors           []unit.FrameProcessor
-	errors, stop         chan error
-	input                []float64
-	lout, rout           []float64
-	chunks               int
-	singleSampleDisabled bool
-	fadeIn               bool
-}
 
 // Backend is a low-level callback-based engine
 type Backend interface {
 	Start(func([]float32, [][]float32)) error
 	Stop() error
+	SampleRate() int
 	FrameSize() int
 }
 
@@ -51,22 +36,39 @@ func WithSingleSampleDisabled() Option {
 }
 
 // WithFadeIn fades the engine output in to prevent pops
-func WithFadeIn() Option {
+func WithFadeIn(d time.Duration) Option {
 	return func(e *Engine) {
-		e.fadeIn = true
+		e.fadeIn = d
 	}
 }
 
+// Engine is the connection of the synthesizer to PortAudio
+type Engine struct {
+	messages             MessageChannel
+	backend              Backend
+	graph                *graph.Graph
+	unit                 *unit.Unit
+	processors           []unit.FrameProcessor
+	errors, stop         chan error
+	input                []float64
+	lout, rout           []float64
+	chunks               int
+	singleSampleDisabled bool
+	fadeIn               time.Duration
+	frameSize            int
+}
+
 // New returns a new Sink
-func New(backend Backend, opts ...Option) (*Engine, error) {
+func New(backend Backend, frameSize int, opts ...Option) (*Engine, error) {
 	e := &Engine{
-		backend:  backend,
-		messages: newMessageChannel(),
-		graph:    graph.New(),
-		errors:   make(chan error),
-		stop:     make(chan error),
-		input:    make([]float64, dsp.FrameSize),
-		chunks:   int(dsp.Float64(backend.FrameSize()) / dsp.FrameSize),
+		backend:   backend,
+		messages:  newMessageChannel(),
+		graph:     graph.New(),
+		errors:    make(chan error),
+		stop:      make(chan error),
+		input:     make([]float64, frameSize),
+		chunks:    int(backend.FrameSize() / frameSize),
+		frameSize: frameSize,
 	}
 
 	for _, opt := range opts {
@@ -74,6 +76,16 @@ func New(backend Backend, opts ...Option) (*Engine, error) {
 	}
 
 	return e, e.createSink()
+}
+
+// SampleRate returns the sample rate
+func (e *Engine) SampleRate() int {
+	return e.backend.SampleRate()
+}
+
+// FrameSize returns the frame size
+func (e *Engine) FrameSize() int {
+	return e.frameSize
 }
 
 // UnitBuilders returns all unit.Builders for Units provided by the Engine.
@@ -110,7 +122,11 @@ func (e *Engine) Reset() error {
 }
 
 func (e *Engine) createSink() error {
-	sinkUnit, sink := newSink(e.fadeIn)
+	var (
+		io       = unit.NewIO("sink", e.frameSize)
+		sink     = newSink(io, e.fadeIn, e.backend.SampleRate(), e.frameSize)
+		sinkUnit = unit.NewUnit(io, sink)
+	)
 	if err := sinkUnit.Attach(e.graph); err != nil {
 		return err
 	}
@@ -198,15 +214,18 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 			e.handle(msg)
 		}
 
-		offset := dsp.FrameSize * k
-		for i := 0; i < int(dsp.FrameSize); i++ {
+		var (
+			frameSize = e.frameSize
+			offset    = frameSize * k
+		)
+		for i := 0; i < int(frameSize); i++ {
 			e.input[i] = float64(in[offset+i])
 		}
 		for _, p := range e.processors {
-			p.ProcessFrame(dsp.FrameSize)
+			p.ProcessFrame(frameSize)
 		}
 		for i := range out {
-			for j := 0; j < dsp.FrameSize; j++ {
+			for j := 0; j < frameSize; j++ {
 				if i%2 == 0 {
 					out[i][offset+j] = float32(e.lout[j])
 				} else {
