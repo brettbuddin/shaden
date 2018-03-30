@@ -31,19 +31,22 @@ func main() {
 
 func run(args []string) error {
 	var (
-		set                  = flag.NewFlagSet("shaden", flag.ContinueOnError)
+		set = flag.NewFlagSet("shaden", flag.ContinueOnError)
+
 		seed                 = set.Int64("seed", 0, "random seed")
-		deviceList           = set.Bool("device-list", false, "list all devices")
-		deviceIn             = set.Int("device-in", 0, "input device")
-		deviceOut            = set.Int("device-out", 1, "output device")
-		deviceLatency        = set.String("device-latency", "low", "latency setting for audio device")
 		frameSize            = set.Int("frame", 256, "frame size used within the synthesis engine")
-		deviceFrameSize      = set.Int("device-frame", 1024, "frame size used when writing to audio device")
 		httpAddr             = set.String("addr", ":5000", "http address to serve")
 		repl                 = set.Bool("repl", false, "REPL")
 		sampleRateShort      = set.Float64("samplerate", 44.1, "sample rate (8, 22.05, 44.1, 48.0)")
 		singleSampleDisabled = set.Bool("disable-single-sample", false, "disables single-sample mode for feedback loops")
-		logger               = log.New(os.Stdout, "", 0)
+
+		deviceList      = set.Bool("device-list", false, "list all devices")
+		deviceIn        = set.Int("device-in", 0, "input device")
+		deviceOut       = set.Int("device-out", 1, "output device")
+		deviceLatency   = set.String("device-latency", "low", "latency setting for audio device")
+		deviceFrameSize = set.Int("device-frame", 1024, "frame size used when writing to audio device")
+
+		logger = log.New(os.Stdout, "", 0)
 	)
 
 	if err := set.Parse(args); err != nil {
