@@ -6,6 +6,11 @@ import (
 	"buddin.us/shaden/dsp"
 )
 
+const (
+	modeSum = iota
+	modeAverage
+)
+
 func newMix(io *IO, c Config) (*Unit, error) {
 	var config struct {
 		Size int
@@ -29,6 +34,7 @@ func newMix(io *IO, c Config) (*Unit, error) {
 
 	return NewUnit(io, &mix{
 		master:      io.NewIn("master", dsp.Float64(1)),
+		mode:        io.NewIn("mode", dsp.Float64(0)),
 		out:         io.NewOut("out"),
 		inputs:      inputs,
 		levels:      levels,
@@ -39,15 +45,37 @@ func newMix(io *IO, c Config) (*Unit, error) {
 type mix struct {
 	inputs, levels []*In
 	levelValues    []float64
-	master         *In
+	master, mode   *In
 	out            *Out
 }
 
 func (m *mix) ProcessSample(i int) {
-	var sum float64
-	for j := 0; j < len(m.inputs); j++ {
-		sum += m.inputs[j].Read(i) * m.levels[j].ReadSlow(i, ident)
+	var (
+		master = m.master.ReadSlow(i, clamp(0, 1))
+		mode   = m.mode.ReadSlowInt(i, identInt)
+		final  float64
+	)
+
+	switch mode {
+	case modeSum:
+		final = m.sum(i)
+	case modeAverage:
+		var inUse float64
+		for _, in := range m.inputs {
+			if in.HasSource() {
+				inUse++
+			}
+		}
+		final = m.sum(i) / inUse
 	}
-	master := dsp.Clamp(m.master.Read(i), 0, 1)
-	m.out.Write(i, sum*master)
+
+	m.out.Write(i, final*master)
+}
+
+func (m *mix) sum(i int) float64 {
+	var final float64
+	for j := range m.inputs {
+		final += m.inputs[j].Read(i) * m.levels[j].ReadSlow(i, ident)
+	}
+	return final
 }

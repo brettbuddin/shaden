@@ -125,6 +125,11 @@ func isSourceControlRate(in *In) bool {
 }
 
 func ident(v float64) float64 { return v }
+func clamp(min, max float64) func(float64) float64 {
+	return func(v float64) float64 {
+		return dsp.Clamp(v, min, max)
+	}
+}
 
 func identInt(v float64) int { return int(v) }
 func clampInt(min, max float64) func(float64) int {

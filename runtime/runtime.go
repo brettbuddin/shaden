@@ -192,6 +192,10 @@ func (r *Runtime) loadConstants(env *lisp.Environment) {
 	env.DefineSymbol("logic/nor", 3)
 	env.DefineSymbol("logic/nand", 4)
 	env.DefineSymbol("logic/xnor", 5)
+
+	// Mix Modes
+	env.DefineSymbol("mode/sum", 0)
+	env.DefineSymbol("mode/average", 1)
 }
 
 func (r *Runtime) engineClear(*lisp.Environment, lisp.List) (interface{}, error) {
