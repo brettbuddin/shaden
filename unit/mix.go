@@ -33,18 +33,16 @@ func newMix(io *IO, c Config) (*Unit, error) {
 	}
 
 	return NewUnit(io, &mix{
-		master:      io.NewIn("master", dsp.Float64(1)),
-		mode:        io.NewIn("mode", dsp.Float64(0)),
-		out:         io.NewOut("out"),
-		inputs:      inputs,
-		levels:      levels,
-		levelValues: make([]float64, len(levels)),
+		master: io.NewIn("master", dsp.Float64(1)),
+		mode:   io.NewIn("mode", dsp.Float64(0)),
+		out:    io.NewOut("out"),
+		inputs: inputs,
+		levels: levels,
 	}), nil
 }
 
 type mix struct {
 	inputs, levels []*In
-	levelValues    []float64
 	master, mode   *In
 	out            *Out
 }
