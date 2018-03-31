@@ -36,9 +36,9 @@ func WithSingleSampleDisabled() Option {
 }
 
 // WithFadeIn fades the engine output in to prevent pops
-func WithFadeIn(d time.Duration) Option {
+func WithFadeIn(ms int) Option {
 	return func(e *Engine) {
-		e.fadeIn = d
+		e.fadeIn = ms
 	}
 }
 
@@ -54,7 +54,7 @@ type Engine struct {
 	lout, rout           []float64
 	chunks               int
 	singleSampleDisabled bool
-	fadeIn               time.Duration
+	fadeIn               int
 	frameSize            int
 }
 

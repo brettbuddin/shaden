@@ -1,16 +1,13 @@
 package engine
 
 import (
-	"time"
-
 	"buddin.us/shaden/dsp"
 	"buddin.us/shaden/unit"
 )
 
-func newSink(io *unit.IO, fadeIn time.Duration, sampleRate, frameSize int) *sink {
+func newSink(io *unit.IO, fadeIn, sampleRate, frameSize int) *sink {
 	var (
-		fadeInMS      = float64(fadeIn) / 1000.0
-		fadeInSamples = dsp.Duration(fadeInMS, sampleRate).Float64()
+		fadeInSamples = dsp.DurationInt(fadeIn, sampleRate).Float64()
 	)
 	return &sink{
 		left: &channel{
