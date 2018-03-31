@@ -15,8 +15,8 @@ func (f *SVFilter) Tick(in float64) (lp, bp, hp float64) {
 	cutoff := math.Abs(f.Cutoff)
 	if cutoff != f.lastCutoff {
 		f.g = Tan(cutoff)
+		f.lastCutoff = cutoff
 	}
-	f.lastCutoff = cutoff
 
 	r := 1 / math.Max(f.Resonance, 1)
 	h := 1 / (1 + r*f.g + f.g*f.g)
