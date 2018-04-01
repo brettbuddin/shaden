@@ -46,7 +46,7 @@ func (g *gate) ProcessSample(i int) {
 		cutoffhigh = g.cutoffhigh.Read(i)
 		cutofflow  = g.cutofflow.Read(i)
 		in         = g.in.Read(i)
-		mode       = g.mode.Read(i)
+		mode       = g.mode.ReadSlow(i, ident)
 		resonance  = g.resonance.Read(i)
 		aux        = g.aux.Read(i)
 
