@@ -218,7 +218,7 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 			frameSize = e.frameSize
 			offset    = frameSize * k
 		)
-		for i := 0; i < int(frameSize); i++ {
+		for i := 0; i < frameSize; i++ {
 			e.input[i] = float64(in[offset+i])
 		}
 		for _, p := range e.processors {
