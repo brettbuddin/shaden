@@ -39,7 +39,7 @@ func (s *slope) ProcessSample(i int) {
 	s.state.gate = s.gate.Read(i)
 	s.state.rise = math.Abs(s.rise.Read(i))
 	s.state.fall = math.Abs(s.fall.Read(i))
-	s.state.cycle = s.cycle.ReadSlow(i, ident)
+	s.state.cycle = s.cycle.Read(i)
 	s.state.ratio = s.ratio.Read(i)
 	s.stateFunc = s.stateFunc(s.state)
 	s.state.lastTrigger = s.state.trigger
