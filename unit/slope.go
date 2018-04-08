@@ -110,11 +110,19 @@ func slopeFall(s *slopeState) slopeStateFunc {
 }
 
 func prepSlopeRise(s *slopeState) slopeStateFunc {
+	if s.rise <= 0 {
+		s.out = 1
+		return slopeHold
+	}
 	s.base, s.multiplier = slopeCoeffs(s.ratio, s.rise, 1, logCurve)
 	return slopeRise
 }
 
 func prepSlopeFall(s *slopeState) slopeStateFunc {
+	if s.fall <= 0 {
+		s.out = 0
+		return slopeIdle
+	}
 	s.base, s.multiplier = slopeCoeffs(s.ratio, s.fall, 0, expCurve)
 	return slopeFall
 }

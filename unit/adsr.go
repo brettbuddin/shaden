@@ -123,11 +123,19 @@ func adsrRelease(s *adsrState) adsrStateFunc {
 }
 
 func prepAdsrAttack(s *adsrState) adsrStateFunc {
+	if s.attack <= 0 {
+		s.out = 1
+		return adsrDecay
+	}
 	s.base, s.multiplier = slopeCoeffs(s.ratio, s.attack, 1, logCurve)
 	return adsrAttack
 }
 
 func prepAdsrDecay(s *adsrState) adsrStateFunc {
+	if s.decay <= 0 {
+		s.out = s.sustain
+		return adsrHold
+	}
 	s.base, s.multiplier = slopeCoeffs(s.ratio, s.decay, s.sustain, expCurve)
 	return adsrDecay
 }
@@ -138,6 +146,10 @@ func prepAdsrSustain(s *adsrState) adsrStateFunc {
 }
 
 func prepAdsrRelease(s *adsrState) adsrStateFunc {
+	if s.release <= 0 {
+		s.out = 0
+		return adsrIdle
+	}
 	s.base, s.multiplier = slopeCoeffs(s.ratio, s.release, 0, expCurve)
 	return adsrRelease
 }
