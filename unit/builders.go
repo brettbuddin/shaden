@@ -61,6 +61,7 @@ var (
 		"low-gen":            newLowGen,
 		"midi-hz":            newMIDIToHz,
 		"mix":                newMix,
+		"morph":              newMorph,
 		"mux":                newMux,
 		"overload":           newOverload,
 		"pan":                newPan,
