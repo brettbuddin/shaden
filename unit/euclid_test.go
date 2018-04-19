@@ -83,3 +83,17 @@ func TestEuclidPatternCreation(t *testing.T) {
 		})
 	}
 }
+
+func TestEuclidZeroFill(t *testing.T) {
+	builder := Builders()["euclid"]
+	u, err := builder(Config{
+		SampleRate: sampleRate,
+		FrameSize:  frameSize,
+	})
+	require.NoError(t, err)
+
+	u.In["fill"].Write(0, 0)
+	u.ProcessSample(0)
+	out := u.Out["out"].Out().Read(0)
+	require.Equal(t, -1.0, out)
+}

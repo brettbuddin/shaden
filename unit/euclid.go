@@ -41,26 +41,28 @@ func (e *euclid) ProcessSample(i int) {
 		out    = -1.0
 	)
 
-	if e.lastSpan != span || e.lastFill != fill {
-		for i := range e.pattern {
-			e.counts[i] = 0
-			e.remainders[i] = 0
-			e.pattern[i] = false
+	if fill > 0 {
+		if e.lastSpan != span || e.lastFill != fill {
+			for i := range e.pattern {
+				e.counts[i] = 0
+				e.remainders[i] = 0
+				e.pattern[i] = false
+			}
+			euclidean(e.pattern, e.counts, e.remainders, span, fill)
 		}
-		euclidean(e.pattern, e.counts, e.remainders, span, fill)
-	}
-	e.lastSpan = span
-	e.lastFill = fill
+		e.lastSpan = span
+		e.lastFill = fill
 
-	if isTrig(e.lastTrigger, trig) {
-		e.idx = (e.idx + 1) % span
+		if isTrig(e.lastTrigger, trig) {
+			e.idx = (e.idx + 1) % span
+		}
+		idx := (e.idx + offset + span) % span
+		if e.pattern[idx] && e.idx == e.lastIdx {
+			out = 1
+		}
+		e.lastIdx = e.idx
+		e.lastTrigger = trig
 	}
-	idx := (e.idx + offset + span) % span
-	if e.pattern[idx] && e.idx == e.lastIdx {
-		out = 1
-	}
-	e.lastIdx = e.idx
-	e.lastTrigger = trig
 
 	e.out.Write(i, out)
 }
