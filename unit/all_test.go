@@ -23,9 +23,9 @@ func TestAllUnits(t *testing.T) {
 			scenario: []scenario{
 				{
 					inputs: map[string][]float64{
-						"in":     []float64{1, 1, 1, 1},
-						"gain":   []float64{1, 3, 2, 4},
-						"offset": []float64{1, -1, 1, 1},
+						"in":   []float64{1, 1, 1, 1},
+						"mult": []float64{1, 3, 2, 4},
+						"add":  []float64{1, -1, 1, 1},
 					},
 					outputs: map[string][]float64{
 						"out": []float64{2, 2, 3, 5},
