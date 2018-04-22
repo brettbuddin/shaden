@@ -19,7 +19,7 @@ go_import_path: buddin.us/shaden
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install portmidi portaudio; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew unlink python && brew install portmidi portaudio; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CGO_LDFLAGS="-lportmidi -lporttime -L/usr/lib -L/usr/local/lib"; fi
   - go get github.com/mattn/goveralls
 
