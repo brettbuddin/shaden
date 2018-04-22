@@ -50,8 +50,6 @@ func (e *euclid) ProcessSample(i int) {
 			}
 			euclidean(e.pattern, e.counts, e.remainders, span, fill)
 		}
-		e.lastSpan = span
-		e.lastFill = fill
 
 		if isTrig(e.lastTrigger, trig) {
 			e.idx = (e.idx + 1) % span
@@ -60,9 +58,12 @@ func (e *euclid) ProcessSample(i int) {
 		if e.pattern[idx] && e.idx == e.lastIdx {
 			out = 1
 		}
-		e.lastIdx = e.idx
-		e.lastTrigger = trig
 	}
+
+	e.lastSpan = span
+	e.lastFill = fill
+	e.lastIdx = e.idx
+	e.lastTrigger = trig
 
 	e.out.Write(i, out)
 }
