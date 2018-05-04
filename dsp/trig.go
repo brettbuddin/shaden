@@ -8,8 +8,8 @@ const (
 )
 
 var (
-	sineTable = make([]float64, sineLength)
-	sineDiff  = make([]float64, sineLength)
+	sineTable = [sineLength]float64{}
+	sineDiff  = [sineLength]float64{}
 )
 
 func init() {
