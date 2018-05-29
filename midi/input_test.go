@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/unit"
 	"github.com/rakyll/portmidi"
 	"github.com/stretchr/testify/require"
 )

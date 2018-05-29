@@ -3,7 +3,7 @@ package unit
 import (
 	"math"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 func newMIDIToHz(io *IO, c Config) (*Unit, error) {

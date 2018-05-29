@@ -3,8 +3,8 @@ package unit
 import (
 	"testing"
 
-	"buddin.us/musictheory"
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 

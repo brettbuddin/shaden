@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	mt "buddin.us/musictheory"
+	mt "github.com/brettbuddin/musictheory"
 )
 
 const help = `transpose: tool for music pitch transposition

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/unit"
 	"github.com/stretchr/testify/require"
 )
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/graph"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/graph"
 )
 
 // InMode is a mode of processing of an In.

@@ -2,10 +2,10 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "buddin.us/musictheory"
+  name = "github.com/brettbuddin/musictheory"
   packages = ["."]
-  revision = "6afbb57780ddef267e7cb7671e928170a089b8a8"
+  revision = "831e34f21e7997bf497c5e234413c1e841e5e73f"
+  version = "v0.0.9"
 
 [[projects]]
   branch = "master"
@@ -109,6 +109,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6a5f16e6b9bc71692f158233afa9b400e4097fd9cc2b39c4d107b2f1c2f710ea"
+  inputs-digest = "73ad5ee67119f4bd4d4efa7c8f17ca32e807845108aa90efce2c2cd70c6e0612"
   solver-name = "gps-cdcl"
   solver-version = 1

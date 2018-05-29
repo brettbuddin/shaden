@@ -1,6 +1,6 @@
 package intervals
 
-import mt "buddin.us/musictheory"
+import mt "github.com/brettbuddin/musictheory"
 
 var (
 	AugmentedMajorSeventh,

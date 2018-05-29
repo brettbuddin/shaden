@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/lisp"
 	"github.com/stretchr/testify/require"
 )
 

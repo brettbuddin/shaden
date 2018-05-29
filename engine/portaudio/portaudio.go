@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"buddin.us/shaden/errors"
+	"github.com/brettbuddin/shaden/errors"
 	portaudio "github.com/gordonklaus/portaudio"
 )
 

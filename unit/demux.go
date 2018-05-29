@@ -3,7 +3,7 @@ package unit
 import (
 	"fmt"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 func newDemux(io *IO, c Config) (*Unit, error) {

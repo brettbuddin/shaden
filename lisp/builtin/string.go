@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func stringSplitFn(args lisp.List) (interface{}, error) {

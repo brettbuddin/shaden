@@ -1,6 +1,6 @@
 package unit
 
-import "buddin.us/shaden/dsp"
+import "github.com/brettbuddin/shaden/dsp"
 
 const (
 	logicOR logicMode = iota

@@ -1,9 +1,9 @@
 package runtime
 
 import (
-	"buddin.us/musictheory"
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func pitchFn(args lisp.List) (interface{}, error) {

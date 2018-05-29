@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"buddin.us/shaden/engine"
+	"github.com/brettbuddin/shaden/engine"
 )
 
 func newBackend(calls int) *backend {

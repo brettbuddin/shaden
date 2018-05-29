@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync/atomic"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 var idCount uint32

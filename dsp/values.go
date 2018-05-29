@@ -4,7 +4,7 @@ package dsp
 import (
 	"fmt"
 
-	"buddin.us/musictheory"
+	"github.com/brettbuddin/musictheory"
 )
 
 // Valuer is the wrapper interface around the Value method; which is used in obtaining the constant value

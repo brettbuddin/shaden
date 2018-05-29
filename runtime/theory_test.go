@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"buddin.us/musictheory"
-	"buddin.us/shaden/engine"
+	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/shaden/engine"
 	"github.com/stretchr/testify/require"
 )
 

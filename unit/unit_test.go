@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/graph"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/graph"
 )
 
 const sampleRate = 44100.0

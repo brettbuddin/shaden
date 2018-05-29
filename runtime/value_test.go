@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/engine"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/engine"
 	"github.com/stretchr/testify/require"
 )
 

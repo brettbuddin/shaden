@@ -3,7 +3,7 @@ package unit
 import (
 	"math/rand"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 func newChance(io *IO, _ Config) (*Unit, error) {

@@ -1,6 +1,6 @@
 package unit
 
-import "buddin.us/shaden/dsp"
+import "github.com/brettbuddin/shaden/dsp"
 
 func newCenter(io *IO, _ Config) (*Unit, error) {
 	return NewUnit(io, &center{

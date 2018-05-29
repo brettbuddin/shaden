@@ -1,8 +1,8 @@
 package unit
 
 import (
-	"buddin.us/musictheory"
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 type quality int

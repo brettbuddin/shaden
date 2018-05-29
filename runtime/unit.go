@@ -9,11 +9,11 @@ import (
 
 	"github.com/fatih/color"
 
-	"buddin.us/shaden/engine"
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/lisp"
-	"buddin.us/shaden/midi"
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/engine"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/lisp"
+	"github.com/brettbuddin/shaden/midi"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 const (

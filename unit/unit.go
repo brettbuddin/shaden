@@ -4,8 +4,8 @@ package unit
 import (
 	"io"
 
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/graph"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/graph"
 )
 
 // FrameProcessor processes a block of samples of a given size.

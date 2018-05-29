@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 func newClockMult(io *IO, c Config) (*Unit, error) {

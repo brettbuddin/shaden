@@ -3,7 +3,7 @@ package midi
 import (
 	"testing"
 
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/unit"
 	"github.com/rakyll/portmidi"
 	"github.com/stretchr/testify/require"
 )

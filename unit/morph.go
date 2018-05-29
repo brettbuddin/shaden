@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 func newMorph(io *IO, c Config) (*Unit, error) {

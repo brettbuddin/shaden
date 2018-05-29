@@ -3,10 +3,10 @@ package engine
 import (
 	"fmt"
 
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/graph"
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/graph"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 // Clear is an action that resets the Engine's state.

@@ -5,7 +5,7 @@ import (
 
 	"github.com/rakyll/portmidi"
 
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 func newClock(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit.Config) (*unit.Unit, error) {

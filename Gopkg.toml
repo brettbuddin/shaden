@@ -1,6 +1,6 @@
 [[constraint]]
-  name = "buddin.us/musictheory"
-  branch = "master"
+  name = "github.com/brettbuddin/musictheory"
+  version = "0.0.9"
 
 [[constraint]]
   branch = "master"
