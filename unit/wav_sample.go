@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-audio/wav"
 
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/errors"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/errors"
 )
 
 func newWAVSample(io *IO, c Config) (*Unit, error) {

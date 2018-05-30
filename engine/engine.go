@@ -6,8 +6,8 @@ import (
 	"io"
 	"time"
 
-	"buddin.us/shaden/graph"
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/graph"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 // Backend is a low-level callback-based engine

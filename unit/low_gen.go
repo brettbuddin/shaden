@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/rand"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 func newLowGen(io *IO, c Config) (*Unit, error) {

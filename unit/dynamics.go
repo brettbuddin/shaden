@@ -3,7 +3,7 @@ package unit
 import (
 	"math"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 var log1 = math.Log(0.1)

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"buddin.us/musictheory"
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"buddin.us/shaden/engine"
+	"github.com/brettbuddin/shaden/engine"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

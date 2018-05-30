@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"buddin.us/shaden/engine"
-	"buddin.us/shaden/lisp"
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/engine"
+	"github.com/brettbuddin/shaden/lisp"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 func TestUnitOutputs(t *testing.T) {

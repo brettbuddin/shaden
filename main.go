@@ -15,11 +15,11 @@ import (
 
 	_ "net/http/pprof"
 
-	"buddin.us/shaden/engine"
-	"buddin.us/shaden/engine/portaudio"
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/midi"
-	"buddin.us/shaden/runtime"
+	"github.com/brettbuddin/shaden/engine"
+	"github.com/brettbuddin/shaden/engine/portaudio"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/midi"
+	"github.com/brettbuddin/shaden/runtime"
 )
 
 func main() {

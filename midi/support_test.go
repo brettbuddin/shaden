@@ -1,6 +1,6 @@
 package midi
 
-import "buddin.us/shaden/unit"
+import "github.com/brettbuddin/shaden/unit"
 
 const (
 	sampleRate = 44100

@@ -6,9 +6,9 @@ import (
 
 	"github.com/rakyll/portmidi"
 
-	"buddin.us/musictheory"
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 func newInput(creator streamCreator, receiver eventReceiver) func(*unit.IO, unit.Config) (*unit.Unit, error) {

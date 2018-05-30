@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/rand"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 func newRandomSeries(io *IO, _ Config) (*Unit, error) {

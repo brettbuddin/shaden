@@ -15,8 +15,6 @@ matrix:
   allow_failures:
     - go: tip
 
-go_import_path: buddin.us/shaden
-
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew unlink python && brew install portmidi portaudio; fi

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func tableFn(args lisp.List) (interface{}, error) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"buddin.us/shaden/errors"
+	"github.com/brettbuddin/shaden/errors"
 )
 
 const unquote = Symbol("unquote")

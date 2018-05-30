@@ -1,8 +1,8 @@
 package engine
 
 import (
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 func newSink(io *unit.IO, fadeIn, sampleRate, frameSize int) *sink {

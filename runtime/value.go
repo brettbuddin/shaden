@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 
-	"buddin.us/musictheory"
-	"buddin.us/shaden/dsp"
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func hzFn(sampleRate int) func(lisp.List) (interface{}, error) {

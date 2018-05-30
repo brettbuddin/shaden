@@ -3,7 +3,7 @@ package unit
 import (
 	"fmt"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 )
 
 // PropSetterFunc is a function that will be used when setting the value of a Prop. It provides Modules a point a

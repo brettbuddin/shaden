@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {

@@ -6,7 +6,7 @@ import (
 	"math"
 	"math/rand"
 
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func multFn(args lisp.List) (interface{}, error) {

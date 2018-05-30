@@ -1,8 +1,8 @@
 package builtin
 
 import (
-	"buddin.us/shaden/errors"
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/errors"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func errorfFn(args lisp.List) (interface{}, error) {

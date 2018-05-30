@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"buddin.us/shaden/dsp"
+	"github.com/brettbuddin/shaden/dsp"
 	"github.com/stretchr/testify/require"
 )
 

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"buddin.us/shaden/errors"
+	"github.com/brettbuddin/shaden/errors"
 )
 
 // Parse parses lisp expressions in the content from an io.Reader.

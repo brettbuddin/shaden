@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 // Load populates a lisp.Environment with builtin symbols.

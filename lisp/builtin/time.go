@@ -3,7 +3,7 @@ package builtin
 import (
 	"time"
 
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func sleepFn(args lisp.List) (interface{}, error) {

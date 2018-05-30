@@ -1,7 +1,7 @@
 # Music Theory
 
 [![Build Status](https://travis-ci.org/brettbuddin/musictheory.svg?branch=master)](https://travis-ci.org/brettbuddin/musictheory)
-[![GoDoc](https://godoc.org/buddin.us/musictheory?status.svg)](https://godoc.org/buddin.us/musictheory)
+[![GoDoc](https://godoc.org/github.com/brettbuddin/musictheory?status.svg)](https://godoc.org/github.com/brettbuddin/musictheory)
 
 Explorations in music theory.
 
@@ -11,8 +11,8 @@ Explorations in music theory.
 package main
 
 import (
-    mt "buddin.us/musictheory"
-    "buddin.us/musictheory/intervals"
+    mt "github.com/brettbuddin/musictheory"
+    "github.com/brettbuddin/musictheory/intervals"
 )
 
 func main() {

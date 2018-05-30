@@ -1,6 +1,6 @@
 package unit
 
-import "buddin.us/shaden/dsp"
+import "github.com/brettbuddin/shaden/dsp"
 
 func newGate(io *IO, c Config) (*Unit, error) {
 	var config struct {

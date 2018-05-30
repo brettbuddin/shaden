@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func listFn(args lisp.List) (interface{}, error) {

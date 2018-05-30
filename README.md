@@ -1,7 +1,7 @@
 ## Shaden
 
 [![Build Status](https://travis-ci.org/brettbuddin/shaden.svg?branch=ci)](https://travis-ci.org/brettbuddin/shaden)
-[![GoDoc](https://godoc.org/buddin.us/shaden?status.svg)](https://godoc.org/buddin.us/shaden)
+[![GoDoc](https://godoc.org/github.com/brettbuddin/shaden?status.svg)](https://godoc.org/github.com/brettbuddin/shaden)
 [![Go Report Card](https://goreportcard.com/badge/github.com/brettbuddin/shaden)](https://goreportcard.com/report/github.com/brettbuddin/shaden)
 [![Coverage Status](https://coveralls.io/repos/github/brettbuddin/shaden/badge.svg?branch=master)](https://coveralls.io/github/brettbuddin/shaden?branch=master)
 
@@ -34,7 +34,7 @@ On macOS you can install these dependencies with: `brew install go portaudio por
 
 ### Install
 
-    $ go get -u buddin.us/shaden
+    $ go get -u github.com/brettbuddin/shaden
 	$ shaden -h
 	Usage of shaden:
   	-addr string

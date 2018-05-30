@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"buddin.us/shaden/lisp"
+	"github.com/brettbuddin/shaden/lisp"
 )
 
 func quoteFn(env *lisp.Environment, args lisp.List) (interface{}, error) {

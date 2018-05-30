@@ -10,7 +10,7 @@ import (
 
 	"github.com/rakyll/portmidi"
 
-	"buddin.us/shaden/unit"
+	"github.com/brettbuddin/shaden/unit"
 )
 
 var defaultStreamCreator = streamCreatorFunc(func(deviceID portmidi.DeviceID, frameSize int64) (eventStream, error) {

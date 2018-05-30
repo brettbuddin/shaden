@@ -3,7 +3,7 @@ package engine
 import (
 	"time"
 
-	"buddin.us/shaden/errors"
+	"github.com/brettbuddin/shaden/errors"
 )
 
 // NewMessage creates a new Message to be sent to the Engine for evaluation.

@@ -3,7 +3,7 @@ package unit
 import (
 	"fmt"
 
-	"buddin.us/shaden/graph"
+	"github.com/brettbuddin/shaden/graph"
 )
 
 // Output is an abstract Out provider. Allows us to wrap an Out in some other behavior if we choose to. Out itself
