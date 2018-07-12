@@ -14,8 +14,8 @@
 
 (-> lfo-unipolar-sine
     (table :in (<- lfo-bipolar :sine)
-           :gain 0.5
-           :offset 1))
+           :mult 0.5
+           :add 1))
 
 ; Voice
 
@@ -36,7 +36,7 @@
 
 (-> pulse-width
     (table :in (<- lfo-unipolar-sine)
-           :gain 0.5))
+           :mult 0.5))
 
 (-> oscillator
     (table :freq (<- sequence :freq)
