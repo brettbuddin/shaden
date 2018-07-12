@@ -31,9 +31,10 @@ func (d *debug) ProcessSample(i int) {
 	var (
 		in   = d.in.Read(i)
 		rate = dsp.Clamp(d.rate.Read(i), 0.01, 1)
+		trig = int(float64(d.sampleRate) * rate)
 	)
 
-	if d.tick%d.sampleRate*int(rate) == 0 {
+	if d.tick%trig == 0 {
 		if d.lastIn != in {
 			fmt.Printf(d.fmt.Value().(string)+"\n", in)
 			d.lastIn = in
