@@ -22,12 +22,16 @@
 ; Value ranges for parameters
 (define rise (unit/mult))
 (define fall (unit/mult))
+(define rise-max (unit/max))
+(define fall-max (unit/max))
 (define cutoff (unit/mult))
 (define left-compress (unit/dynamics))
 (define right-compress (unit/dynamics))
 
-(-> rise (table :x (ms 500) :y (<- latch)))
+(-> rise (table :x (ms 300) :y (<- latch)))
+(-> rise-max (table :x (<- rise) :y (ms 10)))
 (-> fall (table :x (ms 3000) :y (<- latch2)))
+(-> fall-max (table :x (<- fall) :y (ms 1000)))
 (-> cutoff (table :x (hz 1000) :y (<- latch3)))
 
 (define quantize (unit/quantize))
@@ -38,17 +42,17 @@
     (table :in (<- latch4)
            :tonic (hz "C2")
            :intervals (list (theory/interval :perfect 1)
-                            (theory/interval :minor 2)
                             (theory/interval :minor 3)
                             (theory/interval :perfect 5)
-                            (theory/interval :minor 7))))
+                            (theory/interval :minor 7)
+                            (theory/interval :perfect 8))))
 
 (-> source (table :freq (<- quantize)))
 
 ; Slope will cycle and keep emitting "eoc" triggers which are triggering the latches.
 (-> slope
-    (table :rise (<- rise)
-           :fall (<- fall)
+    (table :rise (<- rise-max)
+           :fall (<- fall-max)
            :cycle mode/on
            :trigger 1))
 
@@ -61,13 +65,17 @@
 (-> gate
     (table :in (<- mix)
            :control (<- slope)
+           :res 3
            :cutoff-high (<- cutoff)))
 
 (-> reverb (table :a (<- gate) 
                   :b (<- gate) 
+                  :mix 0.9
                   :decay 0.8
-                  :cutoff-pre (hz 300)
-                  :cutoff-post (hz 600)))
+                  :size 0.8
+                  :shift-semitones 5
+                  :cutoff-pre (hz 500)
+                  :cutoff-post (hz 400)))
 
 (let
   ((compression (table :above 0.1 :threshold (db -6) :relax (ms 300)))
