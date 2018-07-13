@@ -48,6 +48,8 @@ func intervalFn(args lisp.List) (interface{}, error) {
 		return musictheory.Augmented(step), nil
 	case "diminished", "dim":
 		return musictheory.Diminished(step), nil
+	case "octave":
+		return musictheory.Octave(step), nil
 	default:
 		return nil, errors.Errorf("unknown interval quality %s", quality)
 	}
