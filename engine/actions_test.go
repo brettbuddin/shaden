@@ -72,3 +72,33 @@ func TestPatch(t *testing.T) {
 	require.True(t, u1.In["in"].HasSource())
 	require.Equal(t, 1, u2.Out["out"].Out().DestinationCount())
 }
+
+func TestEmitOutputs(t *testing.T) {
+	g := NewGraph(frameSize)
+	err := g.createSink(100, frameSize, sampleRate)
+	require.NoError(t, err)
+
+	io1 := unit.NewIO("dummy1", frameSize)
+	io1.NewIn("in", dsp.Float64(0))
+	io1.NewOut("out")
+	unit1 := unit.NewUnit(io1, nil)
+	err = g.Mount(unit1)
+	require.NoError(t, err)
+
+	io2 := unit.NewIO("dummy2", frameSize)
+	io2.NewIn("in", dsp.Float64(0))
+	io2.NewOut("out")
+	unit2 := unit.NewUnit(io2, nil)
+	err = g.Mount(unit2)
+	require.NoError(t, err)
+
+	left := unit.OutRef{Unit: unit1, Output: "out"}
+	right := unit.OutRef{Unit: unit2, Output: "out"}
+
+	_, err = EmitOutputs(left, right)(g)
+	require.NoError(t, err)
+	require.True(t, g.sink.In["l"].HasSource())
+	require.True(t, g.sink.In["r"].HasSource())
+	require.Equal(t, 1, unit1.Out["out"].Out().DestinationCount())
+	require.Equal(t, 1, unit2.Out["out"].Out().DestinationCount())
+}

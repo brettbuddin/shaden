@@ -20,8 +20,7 @@ func MountUnit(u *unit.Unit) func(*Graph) (interface{}, error) {
 // UnmountUnit removes a Unit from the audio graph.
 func UnmountUnit(u *unit.Unit) func(*Graph) (interface{}, error) {
 	return func(g *Graph) (interface{}, error) {
-		err := g.Unmount(u)
-		return nil, err
+		return nil, g.Unmount(u)
 	}
 }
 
