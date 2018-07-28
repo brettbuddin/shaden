@@ -3,7 +3,6 @@ package engine
 
 import (
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/brettbuddin/shaden/graph"
@@ -46,12 +45,9 @@ func WithFadeIn(ms int) Option {
 type Engine struct {
 	messages             MessageChannel
 	backend              Backend
-	graph                *graph.Graph
-	unit                 *unit.Unit
+	graph                *Graph
 	processors           []unit.FrameProcessor
 	errors, stop         chan error
-	input                []float64
-	lout, rout           []float64
 	chunks               int
 	singleSampleDisabled bool
 	fadeIn               int
@@ -61,12 +57,16 @@ type Engine struct {
 // New returns a new Sink
 func New(backend Backend, frameSize int, opts ...Option) (*Engine, error) {
 	e := &Engine{
-		backend:   backend,
-		messages:  newMessageChannel(),
-		graph:     graph.New(),
+		backend:  backend,
+		messages: newMessageChannel(),
+		graph: &Graph{
+			graph:    graph.New(),
+			in:       make([]float64, frameSize),
+			leftOut:  make([]float64, frameSize),
+			rightOut: make([]float64, frameSize),
+		},
 		errors:    make(chan error),
 		stop:      make(chan error),
-		input:     make([]float64, frameSize),
 		chunks:    int(backend.FrameSize() / frameSize),
 		frameSize: frameSize,
 	}
@@ -75,7 +75,7 @@ func New(backend Backend, frameSize int, opts ...Option) (*Engine, error) {
 		opt(e)
 	}
 
-	return e, e.createSink()
+	return e, e.graph.createSink(e.fadeIn, e.frameSize, backend.SampleRate())
 }
 
 // SampleRate returns the sample rate
@@ -91,49 +91,13 @@ func (e *Engine) FrameSize() int {
 // UnitBuilders returns all unit.Builders for Units provided by the Engine.
 func (e *Engine) UnitBuilders() map[string]unit.Builder {
 	return unit.PrepareBuilders(map[string]unit.IOBuilder{
-		"source": newSource(e),
+		"source": newSource(&e.graph.in),
 	})
-}
-
-func (e *Engine) closeProcessors() error {
-	for _, p := range e.processors {
-		if closer, ok := p.(io.Closer); ok {
-			if err := closer.Close(); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 // Reset clears the state of the Engine. This includes clearing the audio graph.
 func (e *Engine) Reset() error {
-	if err := e.closeProcessors(); err != nil {
-		return err
-	}
-	e.graph = graph.New()
-
-	if err := e.createSink(); err != nil {
-		return err
-	}
-	e.sort()
-
-	return nil
-}
-
-func (e *Engine) createSink() error {
-	var (
-		io       = unit.NewIO("sink", e.frameSize)
-		sink     = newSink(io, e.fadeIn, e.backend.SampleRate(), e.frameSize)
-		sinkUnit = unit.NewUnit(io, sink)
-	)
-	if err := sinkUnit.Attach(e.graph); err != nil {
-		return err
-	}
-	e.unit = sinkUnit
-	e.lout = sink.left.out
-	e.rout = sink.right.out
-	return nil
+	return e.graph.reset(e.fadeIn, e.frameSize, e.backend.SampleRate(), e.singleSampleDisabled)
 }
 
 // SendMessage sends a message to to the engine for it to handle within its goroutine
@@ -153,7 +117,7 @@ func (e *Engine) Run() {
 	}
 	<-e.stop
 
-	err := e.closeProcessors()
+	err := e.graph.closeProcessors()
 	if err != nil {
 		e.stop <- err
 		return
@@ -174,20 +138,11 @@ func (e *Engine) call(action interface{}) (interface{}, error) {
 	switch fn := action.(type) {
 	case func(e *Engine) (interface{}, error):
 		return fn(e)
-	case func(g *graph.Graph) (interface{}, error):
+	case func(g *Graph) (interface{}, error):
 		return fn(e.graph)
 	default:
 		return nil, fmt.Errorf("unhandled function type %T", action)
 	}
-}
-
-func (e *Engine) sort() {
-	processors := e.processors[:0]
-	for _, v := range e.graph.Sorted() {
-		collectProcessor(&processors, v, e.singleSampleDisabled)
-	}
-	e.processors = processors
-	e.graph.AckChange()
 }
 
 func (e *Engine) handle(msg *Message) {
@@ -195,7 +150,7 @@ func (e *Engine) handle(msg *Message) {
 	data, err := e.call(msg.Action)
 
 	if err == nil && e.graph.HasChanged() {
-		e.sort()
+		e.graph.sort(e.singleSampleDisabled)
 	}
 
 	if msg.Reply != nil {
@@ -217,9 +172,12 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 		var (
 			frameSize = e.frameSize
 			offset    = frameSize * k
+			input     = e.graph.in
+			leftOut   = e.graph.leftOut
+			rightOut  = e.graph.rightOut
 		)
 		for i := 0; i < frameSize; i++ {
-			e.input[i] = float64(in[offset+i])
+			input[i] = float64(in[offset+i])
 		}
 		for _, p := range e.processors {
 			p.ProcessFrame(frameSize)
@@ -227,74 +185,11 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 		for i := range out {
 			for j := 0; j < frameSize; j++ {
 				if i%2 == 0 {
-					out[i][offset+j] = float32(e.lout[j])
+					out[i][offset+j] = float32(leftOut[j])
 				} else {
-					out[i][offset+j] = float32(e.rout[j])
+					out[i][offset+j] = float32(rightOut[j])
 				}
 			}
 		}
 	}
-}
-
-func collectProcessor(processors *[]unit.FrameProcessor, nodes []*graph.Node, singleSampleDisabled bool) {
-	if len(nodes) > 1 {
-		collectGroup(processors, nodes, singleSampleDisabled)
-		return
-	}
-
-	first := nodes[0]
-	if in, ok := first.Value.(*unit.In); ok && !singleSampleDisabled {
-		in.Mode = unit.Block
-	}
-	if p, ok := first.Value.(unit.FrameProcessor); ok {
-		if isp, ok := p.(unit.CondProcessor); ok {
-			if isp.IsProcessable() {
-				*processors = append(*processors, p)
-			}
-		} else {
-			*processors = append(*processors, p)
-		}
-	}
-}
-
-func collectGroup(processors *[]unit.FrameProcessor, nodes []*graph.Node, singleSampleDisabled bool) {
-	var g group
-	for _, w := range nodes {
-		if in, ok := w.Value.(*unit.In); ok && !singleSampleDisabled {
-			in.Mode = unit.Sample
-		}
-		if p, ok := w.Value.(unit.SampleProcessor); ok {
-			if isp, ok := p.(unit.CondProcessor); ok {
-				if isp.IsProcessable() {
-					g.processors = append(g.processors, p)
-				}
-			} else {
-				g.processors = append(g.processors, p)
-			}
-		}
-	}
-	*processors = append(*processors, g)
-}
-
-type group struct {
-	processors []unit.SampleProcessor
-}
-
-func (g group) ProcessFrame(n int) {
-	for i := 0; i < n; i++ {
-		for _, p := range g.processors {
-			p.ProcessSample(i)
-		}
-	}
-}
-
-func (g group) Close() error {
-	for _, p := range g.processors {
-		if closer, ok := p.(io.Closer); ok {
-			if err := closer.Close(); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }

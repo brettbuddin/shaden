@@ -54,9 +54,9 @@ func (c *channel) tick(i int) {
 	}
 }
 
-func newSource(e *Engine) unit.IOBuilder {
+func newSource(in *[]float64) unit.IOBuilder {
 	return func(io *unit.IO, _ unit.Config) (*unit.Unit, error) {
-		io.NewOutWithFrame("output", e.input)
+		io.NewOutWithFrame("output", *in)
 		return unit.NewUnit(io, nil), nil
 	}
 }
