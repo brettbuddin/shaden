@@ -31,8 +31,8 @@
 (-> rise (table :x (ms 300) :y (<- latch)))
 (-> rise-max (table :x (<- rise) :y (ms 10)))
 (-> fall (table :x (ms 3000) :y (<- latch2)))
-(-> fall-max (table :x (<- fall) :y (ms 1000)))
-(-> cutoff (table :x (hz 1000) :y (<- latch3)))
+(-> fall-max (table :x (<- fall) :y (ms 3000)))
+(-> cutoff (table :x (hz 3000) :y (<- latch3)))
 
 (define quantize (unit/quantize))
 (define gate (unit/gate))
