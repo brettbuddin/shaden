@@ -45,7 +45,6 @@ type Engine struct {
 	messages     MessageChannel
 	backend      Backend
 	graph        *Graph
-	processors   []unit.FrameProcessor
 	errors, stop chan error
 	chunks       int
 	fadeIn       int
@@ -166,7 +165,7 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 		for i := 0; i < frameSize; i++ {
 			input[i] = float64(in[offset+i])
 		}
-		for _, p := range e.processors {
+		for _, p := range e.graph.Processors() {
 			p.ProcessFrame(frameSize)
 		}
 		for i := range out {
