@@ -22,4 +22,4 @@ before_install:
   - go get github.com/mattn/goveralls
 
 script:
-  - $GOPATH/bin/goveralls -race -service=travis-ci
+  - $GOPATH/bin/goveralls -v -race -service=travis-ci
