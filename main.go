@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -93,7 +92,9 @@ func run(cfg Config, logger *log.Logger) error {
 
 	// Start the HTTP server
 	go func() {
-		if err := serve(cfg.HTTPAddr, run); err != nil {
+		mux := http.NewServeMux()
+		runtime.AddHandler(mux, run)
+		if err := http.ListenAndServe(cfg.HTTPAddr, mux); err != nil {
 			logger.Fatal(err)
 		}
 	}()
@@ -153,24 +154,4 @@ func printPreamble(pa *portaudio.PortAudio, seed int64) {
 		outDevice.DefaultLowOutputLatency,
 		outDevice.DefaultHighOutputLatency,
 	)
-}
-
-func serve(addr string, run *runtime.Runtime) error {
-	http.HandleFunc("/eval", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			w.WriteHeader(http.StatusNotImplemented)
-			return
-		}
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		if _, err := run.Eval(body); err != nil {
-			fmt.Fprintf(w, "%s", err)
-			return
-		}
-		fmt.Fprintf(w, "OK")
-	})
-	return http.ListenAndServe(addr, nil)
 }
