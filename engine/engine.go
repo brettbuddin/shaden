@@ -80,7 +80,7 @@ func (e *Engine) FrameSize() int { return e.frameSize }
 // UnitBuilders returns all unit.Builders for Units provided by the Engine.
 func (e *Engine) UnitBuilders() map[string]unit.Builder {
 	return unit.PrepareBuilders(map[string]unit.IOBuilder{
-		"source": newSource(&e.graph.in),
+		"source": e.graph.sourceIOBuilder(),
 	})
 }
 

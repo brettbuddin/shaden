@@ -76,6 +76,13 @@ func (g *Graph) createSink(fadeIn, frameSize, sampleRate int) error {
 	return nil
 }
 
+func (g *Graph) sourceIOBuilder() unit.IOBuilder {
+	return func(io *unit.IO, _ unit.Config) (*unit.Unit, error) {
+		io.NewOutWithFrame("output", g.in)
+		return unit.NewUnit(io, nil), nil
+	}
+}
+
 // Close closes all processors in the graph.
 func (g *Graph) Close() error {
 	for _, p := range g.processors {
