@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/brettbuddin/shaden/graph"
 	"github.com/brettbuddin/shaden/unit"
 )
 
@@ -56,14 +55,9 @@ type Engine struct {
 // New returns a new Sink
 func New(backend Backend, frameSize int, opts ...Option) (*Engine, error) {
 	e := &Engine{
-		backend:  backend,
-		messages: newMessageChannel(),
-		graph: &Graph{
-			graph:    graph.New(),
-			in:       make([]float64, frameSize),
-			leftOut:  make([]float64, frameSize),
-			rightOut: make([]float64, frameSize),
-		},
+		backend:   backend,
+		messages:  newMessageChannel(),
+		graph:     NewGraph(frameSize),
 		errors:    make(chan error),
 		stop:      make(chan error),
 		chunks:    int(backend.FrameSize() / frameSize),
@@ -74,18 +68,14 @@ func New(backend Backend, frameSize int, opts ...Option) (*Engine, error) {
 		opt(e)
 	}
 
-	return e, e.graph.createSink(e.fadeIn, e.frameSize, backend.SampleRate())
+	return e, e.graph.Reset(e.fadeIn, e.frameSize, backend.SampleRate())
 }
 
 // SampleRate returns the sample rate
-func (e *Engine) SampleRate() int {
-	return e.backend.SampleRate()
-}
+func (e *Engine) SampleRate() int { return e.backend.SampleRate() }
 
 // FrameSize returns the frame size
-func (e *Engine) FrameSize() int {
-	return e.frameSize
-}
+func (e *Engine) FrameSize() int { return e.frameSize }
 
 // UnitBuilders returns all unit.Builders for Units provided by the Engine.
 func (e *Engine) UnitBuilders() map[string]unit.Builder {
@@ -96,7 +86,7 @@ func (e *Engine) UnitBuilders() map[string]unit.Builder {
 
 // Reset clears the state of the Engine. This includes clearing the audio graph.
 func (e *Engine) Reset() error {
-	return e.graph.reset(e.fadeIn, e.frameSize, e.backend.SampleRate())
+	return e.graph.Reset(e.fadeIn, e.frameSize, e.backend.SampleRate())
 }
 
 // SendMessage sends a message to to the engine for it to handle within its goroutine
@@ -105,9 +95,7 @@ func (e *Engine) SendMessage(msg *Message) error {
 }
 
 // Errors returns a channel that expresses any errors during operation of the Engine
-func (e *Engine) Errors() <-chan error {
-	return e.errors
-}
+func (e *Engine) Errors() <-chan error { return e.errors }
 
 // Run starts the Engine; running the audio stream
 func (e *Engine) Run() {
@@ -116,7 +104,7 @@ func (e *Engine) Run() {
 	}
 	<-e.stop
 
-	err := e.graph.closeProcessors()
+	err := e.graph.Close()
 	if err != nil {
 		e.stop <- err
 		return

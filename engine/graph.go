@@ -10,12 +10,48 @@ import (
 	"github.com/brettbuddin/shaden/unit"
 )
 
+func NewGraph(frameSize int) *Graph {
+	return &Graph{
+		graph:      graph.New(),
+		processors: make([]unit.FrameProcessor, 100),
+		in:         make([]float64, frameSize),
+		leftOut:    make([]float64, frameSize),
+		rightOut:   make([]float64, frameSize),
+	}
+}
+
 type Graph struct {
 	singleSampleDisabled  bool
 	graph                 *graph.Graph
 	processors            []unit.FrameProcessor
 	sink                  *unit.Unit
 	in, leftOut, rightOut []float64
+}
+
+func (g *Graph) Sort() {
+	if !g.graph.HasChanged() {
+		return
+	}
+	processors := g.processors[:0]
+	for _, v := range g.graph.Sorted() {
+		collectProcessor(&processors, v, g.singleSampleDisabled)
+	}
+	g.processors = processors
+	g.graph.AckChange()
+}
+
+func (g *Graph) Reset(fadeIn, frameSize, sampleRate int) error {
+	if err := g.Close(); err != nil {
+		return err
+	}
+	g.graph = graph.New()
+
+	if err := g.createSink(fadeIn, frameSize, sampleRate); err != nil {
+		return err
+	}
+	g.Sort()
+
+	return nil
 }
 
 func (g *Graph) createSink(fadeIn, frameSize, sampleRate int) error {
@@ -33,33 +69,7 @@ func (g *Graph) createSink(fadeIn, frameSize, sampleRate int) error {
 	return nil
 }
 
-func (g *Graph) Sort() {
-	if !g.graph.HasChanged() {
-		return
-	}
-	processors := g.processors[:0]
-	for _, v := range g.graph.Sorted() {
-		collectProcessor(&processors, v, g.singleSampleDisabled)
-	}
-	g.processors = processors
-	g.graph.AckChange()
-}
-
-func (g *Graph) reset(fadeIn, frameSize, sampleRate int) error {
-	if err := g.closeProcessors(); err != nil {
-		return err
-	}
-	g.graph = graph.New()
-
-	if err := g.createSink(fadeIn, frameSize, sampleRate); err != nil {
-		return err
-	}
-	g.Sort()
-
-	return nil
-}
-
-func (g *Graph) closeProcessors() error {
+func (g *Graph) Close() error {
 	for _, p := range g.processors {
 		if closer, ok := p.(io.Closer); ok {
 			if err := closer.Close(); err != nil {
@@ -99,11 +109,9 @@ func (g *Graph) Patch(v interface{}, in *unit.In) error {
 	return nil
 }
 
-func (g *Graph) Add(u *unit.Unit) error {
-	return u.Attach(g.graph)
-}
+func (g *Graph) Mount(u *unit.Unit) error { return u.Attach(g.graph) }
 
-func (g *Graph) Remove(u *unit.Unit) error {
+func (g *Graph) Unmount(u *unit.Unit) error {
 	if err := u.Close(); err != nil {
 		return err
 	}
@@ -118,9 +126,8 @@ func (g *Graph) Remove(u *unit.Unit) error {
 	return nil
 }
 
-func (g *Graph) HasChanged() bool {
-	return g.graph.HasChanged()
-}
+func (g *Graph) HasChanged() bool { return g.graph.HasChanged() }
+func (g *Graph) Size() int        { return g.graph.Size() }
 
 func collectProcessor(processors *[]unit.FrameProcessor, nodes []*graph.Node, singleSampleDisabled bool) {
 	if len(nodes) > 1 {

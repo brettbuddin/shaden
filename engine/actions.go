@@ -13,14 +13,14 @@ func Clear(e *Engine) (interface{}, error) {
 // MountUnit mounts a Unit into the audio graph.
 func MountUnit(u *unit.Unit) func(*Graph) (interface{}, error) {
 	return func(g *Graph) (interface{}, error) {
-		return nil, g.Add(u)
+		return nil, g.Mount(u)
 	}
 }
 
 // UnmountUnit removes a Unit from the audio graph.
 func UnmountUnit(u *unit.Unit) func(*Graph) (interface{}, error) {
 	return func(g *Graph) (interface{}, error) {
-		err := g.Remove(u)
+		err := g.Unmount(u)
 		return nil, err
 	}
 }

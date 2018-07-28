@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/brettbuddin/shaden/dsp"
-	"github.com/brettbuddin/shaden/graph"
 	"github.com/brettbuddin/shaden/unit"
 	"github.com/stretchr/testify/require"
 )
@@ -27,12 +26,12 @@ func TestFillConstant(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.typ, func(t *testing.T) {
 			var (
-				g  = graph.New()
+				g  = NewGraph(frameSize)
 				io = unit.NewIO("dummy", frameSize)
 				u  = unit.NewUnit(io, nil)
 			)
 
-			err := u.Attach(g)
+			err := g.Mount(u)
 			require.Nil(t, err)
 			io.NewIn("in", dsp.Float64(0))
 			fn := PatchInput(u, map[string]interface{}{
@@ -48,20 +47,20 @@ func TestFillConstant(t *testing.T) {
 }
 
 func TestPatch(t *testing.T) {
-	g := graph.New()
+	g := NewGraph(frameSize)
 
 	io1 := unit.NewIO("dummy1", frameSize)
 	io1.NewIn("in", dsp.Float64(0))
 	io1.NewOut("out")
 	u1 := unit.NewUnit(io1, nil)
-	err := u1.Attach(g)
+	err := g.Mount(u1)
 	require.Nil(t, err)
 
 	io2 := unit.NewIO("dummy2", frameSize)
 	io2.NewIn("in", dsp.Float64(0))
 	io2.NewOut("out")
 	u2 := unit.NewUnit(io2, nil)
-	err = u2.Attach(g)
+	err = g.Mount(u2)
 	require.Nil(t, err)
 
 	fn := PatchInput(u1, map[string]interface{}{
