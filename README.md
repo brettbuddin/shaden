@@ -35,25 +35,6 @@ On macOS you can install these dependencies with: `brew install go portaudio por
 ### Install
 
     $ go get -u github.com/brettbuddin/shaden
-	$ shaden -h
-	Usage of shaden:
-  	-addr string
-        	http address to serve (default ":5000")
-  	-device-frame int
-        	frame size used when writing to audio device (default 1024)
-  	-device-in int
-        	input device
-  	-device-latency string
-        	latency setting for audio device (default "low")
-  	-device-list
-        	list all devices
-  	-device-out int
-        	output device (default 1)
-  	-repl
-        	REPL
-  	-seed int
-        	random seed
-	flag: help requested
 
 ### CLI Usage
 
