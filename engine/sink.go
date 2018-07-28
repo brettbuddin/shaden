@@ -53,10 +53,3 @@ func (c *channel) tick(i int) {
 		}
 	}
 }
-
-func newSource(e *Engine) unit.IOBuilder {
-	return func(io *unit.IO, _ unit.Config) (*unit.Unit, error) {
-		io.NewOutWithFrame("output", e.input)
-		return unit.NewUnit(io, nil), nil
-	}
-}
