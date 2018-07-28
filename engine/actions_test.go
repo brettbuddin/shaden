@@ -39,7 +39,7 @@ func TestFillConstant(t *testing.T) {
 			}, false)
 			_, err = fn(g)
 			require.Nil(t, err)
-			require.False(t, g.HasChanged())
+			require.False(t, g.graph.HasChanged())
 			require.Equal(t, test.output, io.In["in"].Read(0))
 			require.Equal(t, test.output, io.In["in"].Read(1))
 		})
@@ -68,7 +68,7 @@ func TestPatch(t *testing.T) {
 	}, false)
 	_, err = fn(g)
 	require.Nil(t, err)
-	require.True(t, g.HasChanged())
+	require.True(t, g.graph.HasChanged())
 	require.True(t, u1.In["in"].HasSource())
 	require.Equal(t, 1, u2.Out["out"].Out().DestinationCount())
 }

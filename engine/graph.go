@@ -10,6 +10,7 @@ import (
 	"github.com/brettbuddin/shaden/unit"
 )
 
+// NewGraph returns a new Graph.
 func NewGraph(frameSize int) *Graph {
 	return &Graph{
 		graph:      graph.New(),
@@ -20,6 +21,7 @@ func NewGraph(frameSize int) *Graph {
 	}
 }
 
+// Graph is a graph of units.
 type Graph struct {
 	singleSampleDisabled  bool
 	graph                 *graph.Graph
@@ -28,6 +30,10 @@ type Graph struct {
 	in, leftOut, rightOut []float64
 }
 
+// Processors returns the sorted slice of unit.FrameProcessors.
+func (g *Graph) Processors() []unit.FrameProcessor { return g.processors }
+
+// Sort sorts the graph; caching a slice of unit.FrameProcessors.
 func (g *Graph) Sort() {
 	if !g.graph.HasChanged() {
 		return
@@ -40,6 +46,7 @@ func (g *Graph) Sort() {
 	g.graph.AckChange()
 }
 
+// Reset empties the graph.
 func (g *Graph) Reset(fadeIn, frameSize, sampleRate int) error {
 	if err := g.Close(); err != nil {
 		return err
@@ -69,6 +76,7 @@ func (g *Graph) createSink(fadeIn, frameSize, sampleRate int) error {
 	return nil
 }
 
+// Close closes all processors in the graph.
 func (g *Graph) Close() error {
 	for _, p := range g.processors {
 		if closer, ok := p.(io.Closer); ok {
@@ -80,6 +88,7 @@ func (g *Graph) Close() error {
 	return nil
 }
 
+// Patch patches a value into an input.
 func (g *Graph) Patch(v interface{}, in *unit.In) error {
 	switch v := v.(type) {
 	case float64:
@@ -109,8 +118,10 @@ func (g *Graph) Patch(v interface{}, in *unit.In) error {
 	return nil
 }
 
+// Mount adds a unit to the graph.
 func (g *Graph) Mount(u *unit.Unit) error { return u.Attach(g.graph) }
 
+// Unmount removes a unit from the graph.
 func (g *Graph) Unmount(u *unit.Unit) error {
 	if err := u.Close(); err != nil {
 		return err
@@ -126,8 +137,8 @@ func (g *Graph) Unmount(u *unit.Unit) error {
 	return nil
 }
 
-func (g *Graph) HasChanged() bool { return g.graph.HasChanged() }
-func (g *Graph) Size() int        { return g.graph.Size() }
+// Size returns the number of units in the graph.
+func (g *Graph) Size() int { return g.graph.Size() }
 
 func collectProcessor(processors *[]unit.FrameProcessor, nodes []*graph.Node, singleSampleDisabled bool) {
 	if len(nodes) > 1 {
