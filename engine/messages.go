@@ -36,7 +36,7 @@ type MessageChannel interface {
 }
 
 func newMessageChannel() messageChannel {
-	return messageChannel{make(chan *Message, 100)}
+	return messageChannel{make(chan *Message)}
 }
 
 type messageChannel struct {
