@@ -103,8 +103,7 @@ func (e *Engine) Run() {
 	}
 	<-e.stop
 
-	err := e.graph.Close()
-	if err != nil {
+	if err := e.graph.Close(); err != nil {
 		e.stop <- err
 		return
 	}
