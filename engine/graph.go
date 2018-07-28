@@ -11,6 +11,7 @@ import (
 )
 
 type Graph struct {
+	singleSampleDisabled  bool
 	graph                 *graph.Graph
 	processors            []unit.FrameProcessor
 	sink                  *unit.Unit
@@ -32,16 +33,19 @@ func (g *Graph) createSink(fadeIn, frameSize, sampleRate int) error {
 	return nil
 }
 
-func (g *Graph) sort(singleSampleDisabled bool) {
+func (g *Graph) Sort() {
+	if !g.graph.HasChanged() {
+		return
+	}
 	processors := g.processors[:0]
 	for _, v := range g.graph.Sorted() {
-		collectProcessor(&processors, v, singleSampleDisabled)
+		collectProcessor(&processors, v, g.singleSampleDisabled)
 	}
 	g.processors = processors
 	g.graph.AckChange()
 }
 
-func (g *Graph) reset(fadeIn, frameSize, sampleRate int, singleSampleDisabled bool) error {
+func (g *Graph) reset(fadeIn, frameSize, sampleRate int) error {
 	if err := g.closeProcessors(); err != nil {
 		return err
 	}
@@ -50,7 +54,7 @@ func (g *Graph) reset(fadeIn, frameSize, sampleRate int, singleSampleDisabled bo
 	if err := g.createSink(fadeIn, frameSize, sampleRate); err != nil {
 		return err
 	}
-	g.sort(singleSampleDisabled)
+	g.Sort()
 
 	return nil
 }

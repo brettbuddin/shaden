@@ -30,7 +30,7 @@ func WithMessageChannel(ch MessageChannel) Option {
 // WithSingleSampleDisabled disables the single-sample feedback loop behavior.
 func WithSingleSampleDisabled() Option {
 	return func(e *Engine) {
-		e.singleSampleDisabled = true
+		e.graph.singleSampleDisabled = true
 	}
 }
 
@@ -43,15 +43,14 @@ func WithFadeIn(ms int) Option {
 
 // Engine is the connection of the synthesizer to PortAudio
 type Engine struct {
-	messages             MessageChannel
-	backend              Backend
-	graph                *Graph
-	processors           []unit.FrameProcessor
-	errors, stop         chan error
-	chunks               int
-	singleSampleDisabled bool
-	fadeIn               int
-	frameSize            int
+	messages     MessageChannel
+	backend      Backend
+	graph        *Graph
+	processors   []unit.FrameProcessor
+	errors, stop chan error
+	chunks       int
+	fadeIn       int
+	frameSize    int
 }
 
 // New returns a new Sink
@@ -97,7 +96,7 @@ func (e *Engine) UnitBuilders() map[string]unit.Builder {
 
 // Reset clears the state of the Engine. This includes clearing the audio graph.
 func (e *Engine) Reset() error {
-	return e.graph.reset(e.fadeIn, e.frameSize, e.backend.SampleRate(), e.singleSampleDisabled)
+	return e.graph.reset(e.fadeIn, e.frameSize, e.backend.SampleRate())
 }
 
 // SendMessage sends a message to to the engine for it to handle within its goroutine
@@ -149,8 +148,8 @@ func (e *Engine) handle(msg *Message) {
 	start := time.Now()
 	data, err := e.call(msg.Action)
 
-	if err == nil && e.graph.HasChanged() {
-		e.graph.sort(e.singleSampleDisabled)
+	if err == nil {
+		e.graph.Sort()
 	}
 
 	if msg.Reply != nil {
