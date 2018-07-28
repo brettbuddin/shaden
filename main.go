@@ -45,6 +45,7 @@ func run(args []string) error {
 		deviceOut       = set.Int("device-out", 1, "output device")
 		deviceLatency   = set.String("device-latency", "low", "latency setting for audio device")
 		deviceFrameSize = set.Int("device-frame", 1024, "frame size used when writing to audio device")
+		fadeIn          = set.Int("fade-in", 100, "Duration of fade-in (milliseconds) once output signal is detected")
 
 		logger = log.New(os.Stdout, "", 0)
 	)
@@ -107,7 +108,7 @@ func run(args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "creating portaudio backend")
 	}
-	opts := []engine.Option{engine.WithFadeIn(100)}
+	opts := []engine.Option{engine.WithFadeIn(*fadeIn)}
 	if *singleSampleDisabled {
 		opts = append(opts, engine.WithSingleSampleDisabled())
 	}
