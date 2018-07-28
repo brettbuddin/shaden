@@ -51,6 +51,10 @@ func parseArgs(args []string) (Config, error) {
 		cfg.ScriptPath = set.Arg(0)
 	}
 
+	if cfg.HTTPAddr == "" {
+		return cfg, errors.Errorf("addr cannot be empty")
+	}
+
 	if cfg.DeviceFrameSize < cfg.FrameSize {
 		return cfg, errors.Errorf("device frame size cannot be less than %d", cfg.FrameSize)
 	}
