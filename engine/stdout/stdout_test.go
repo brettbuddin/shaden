@@ -7,8 +7,11 @@ import (
 	"math"
 	"testing"
 
+	"github.com/brettbuddin/shaden/engine"
 	"github.com/stretchr/testify/assert"
 )
+
+var _ engine.Backend = &Stdout{}
 
 func TestStdout(t *testing.T) {
 	const frameSize = 256

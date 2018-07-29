@@ -5,11 +5,7 @@ import (
 	"io"
 	"math"
 	"sync"
-
-	"github.com/brettbuddin/shaden/engine"
 )
-
-var _ engine.Backend = &Stdout{}
 
 func New(out io.Writer, frameSize, sampleRate int) *Stdout {
 	return &Stdout{
