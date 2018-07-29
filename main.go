@@ -26,18 +26,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger := log.New(os.Stdout, "", 0)
-
-	if err := run(cfg, logger); err != nil {
+	if err := run(cfg); err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(cfg Config, logger *log.Logger) error {
+func run(cfg Config) error {
 	rand.Seed(cfg.Seed)
 
-	var backend engine.Backend
+	var (
+		backend engine.Backend
+
+		logger = log.New(os.Stdout, "", 0)
+	)
 
 	switch cfg.Backend {
 	case backendPortAudio:
