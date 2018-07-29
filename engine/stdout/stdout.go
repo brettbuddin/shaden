@@ -2,6 +2,7 @@ package stdout
 
 import (
 	"encoding/binary"
+	"math"
 	"os"
 )
 
@@ -41,6 +42,5 @@ func (s *Stdout) SampleRate() int { return s.sampleRate }
 func (s *Stdout) FrameSize() int  { return s.frameSize }
 
 func toInt16(v float32) int16 {
-	const maxInt16 = 32767
-	return int16(v * float32(maxInt16))
+	return int16(v * float32(math.MaxInt16))
 }
