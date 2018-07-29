@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/brettbuddin/shaden/engine"
 	"github.com/brettbuddin/shaden/errors"
 	portaudio "github.com/gordonklaus/portaudio"
 )
@@ -13,6 +14,8 @@ const (
 	latencyLow  = "low"
 	latencyHigh = "high"
 )
+
+var _ engine.Backend = &PortAudio{}
 
 // PortAudio is a wrapper for a portaudio client.
 type PortAudio struct {
