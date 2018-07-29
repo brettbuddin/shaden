@@ -88,7 +88,7 @@ func run(cfg Config) error {
 		backend = paBackend
 	case backendStdout:
 		logger = log.New(os.Stderr, "", 0)
-		backend = stdout.New(cfg.FrameSize, int(cfg.SampleRate))
+		backend = stdout.New(os.Stdout, cfg.FrameSize, int(cfg.SampleRate))
 	default:
 		return errors.Errorf("unknown backend %q", cfg.Backend)
 	}
