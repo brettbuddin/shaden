@@ -21,6 +21,4 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CGO_LDFLAGS="-lportmidi -lporttime -L/usr/lib -L/usr/local/lib"; fi
 
 script:
-  - go test -v -race ./...
-  - go vet -v ./...
-  - go list ./... | grep -v /vendor/ | xargs -L1 golint
+  - make ci
