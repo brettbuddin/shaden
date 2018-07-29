@@ -154,7 +154,7 @@ func (s *stages) advanceStage(totalStages, mode int) {
 		s.stage = (s.stage + 1) % totalStages
 		s.pong = false
 	case patternModeReverse:
-		s.stage -= 1
+		s.stage--
 		if s.stage < 0 {
 			s.stage = totalStages - 1
 		}

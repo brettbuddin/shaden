@@ -6,14 +6,17 @@ import (
 	"net/http"
 )
 
+// Evaler evaluates script content sent via HTTP.
 type Evaler interface {
 	Eval([]byte) (interface{}, error)
 }
 
+// ServeMux is a mux abstraction.
 type ServeMux interface {
 	Handle(string, http.Handler)
 }
 
+// AddHandler registers the evaluation handler with a ServeMux.
 func AddHandler(mux ServeMux, evaler Evaler) {
 	mux.Handle("/eval", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {

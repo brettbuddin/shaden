@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// New returns a new Stdout
 func New(out io.Writer, frameSize, sampleRate int) *Stdout {
 	return &Stdout{
 		out:        out,
@@ -16,6 +17,8 @@ func New(out io.Writer, frameSize, sampleRate int) *Stdout {
 	}
 }
 
+// Stdout is an engine backend that writes little-endian int16s to an output
+// stream (stdout).
 type Stdout struct {
 	out                   io.Writer
 	frameSize, sampleRate int
@@ -24,6 +27,7 @@ type Stdout struct {
 	running bool
 }
 
+// Start starts the backend.
 func (s *Stdout) Start(callback func([]float32, [][]float32)) error {
 	var (
 		in  = make([]float32, s.frameSize)
@@ -51,14 +55,19 @@ func (s *Stdout) Start(callback func([]float32, [][]float32)) error {
 	return nil
 }
 
+// Stop stops the backend.
 func (s *Stdout) Stop() error {
 	s.mutex.Lock()
 	s.running = false
 	s.mutex.Unlock()
 	return nil
 }
+
+// SampleRate returns the sample rate of the backend.
 func (s *Stdout) SampleRate() int { return s.sampleRate }
-func (s *Stdout) FrameSize() int  { return s.frameSize }
+
+// FrameSize returns the frame size of the backend.
+func (s *Stdout) FrameSize() int { return s.frameSize }
 
 func toInt16(v float32) int16 {
 	return int16(v * float32(math.MaxInt16))
