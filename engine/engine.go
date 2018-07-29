@@ -40,6 +40,13 @@ func WithFadeIn(ms int) Option {
 	}
 }
 
+// WithGain sets the global gain for all samples written to the output
+func WithGain(gain float32) Option {
+	return func(e *Engine) {
+		e.gain = gain
+	}
+}
+
 // Engine is the connection of the synthesizer to PortAudio
 type Engine struct {
 	messages     MessageChannel
@@ -49,6 +56,7 @@ type Engine struct {
 	chunks       int
 	fadeIn       int
 	frameSize    int
+	gain         float32
 }
 
 // New returns a new Sink
@@ -61,6 +69,7 @@ func New(backend Backend, frameSize int, opts ...Option) (*Engine, error) {
 		stop:      make(chan error),
 		chunks:    int(backend.FrameSize() / frameSize),
 		frameSize: frameSize,
+		gain:      1,
 	}
 
 	for _, opt := range opts {
@@ -160,6 +169,7 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 			input     = e.graph.in
 			leftOut   = e.graph.leftOut
 			rightOut  = e.graph.rightOut
+			gain      = e.gain
 		)
 		for i := 0; i < frameSize; i++ {
 			input[i] = float64(in[offset+i])
@@ -170,9 +180,9 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 		for i := range out {
 			for j := 0; j < frameSize; j++ {
 				if i%2 == 0 {
-					out[i][offset+j] = float32(leftOut[j])
+					out[i][offset+j] = float32(leftOut[j]) * gain
 				} else {
-					out[i][offset+j] = float32(rightOut[j])
+					out[i][offset+j] = float32(rightOut[j]) * gain
 				}
 			}
 		}

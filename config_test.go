@@ -102,6 +102,12 @@ func TestParseArgs_Available(t *testing.T) {
 				assert.Equal(t, "", cfg.ScriptPath)
 			},
 		},
+		{
+			args: []string{"-gain", "-6"},
+			check: func(t *testing.T, cfg Config) {
+				assert.Equal(t, -6.0, cfg.Gain)
+			},
+		},
 	}
 
 	for _, tt := range tests {

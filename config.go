@@ -7,6 +7,11 @@ import (
 	"github.com/brettbuddin/shaden/errors"
 )
 
+const (
+	backendPortAudio = "portaudio"
+	backendStdout    = "stdout"
+)
+
 // Config is a structure for storing all the parsed flags.
 type Config struct {
 	Seed                 int64
@@ -16,6 +21,9 @@ type Config struct {
 	SampleRate           float64
 	SingleSampleDisabled bool
 	FadeIn               int
+	Gain                 float64
+
+	Backend string
 
 	DeviceList      bool
 	DeviceIn        int
@@ -38,6 +46,7 @@ func parseArgs(args []string) (Config, error) {
 	set.Float64Var(&cfg.SampleRate, "samplerate", 44.1, "sample rate (8, 22.05, 44.1, 48.0)")
 	set.BoolVar(&cfg.SingleSampleDisabled, "disable-single-sample", false, "disables single-sample mode for feedback loops")
 	set.IntVar(&cfg.FadeIn, "fade-in", 100, "Duration of fade-in (milliseconds) once output signal is detected")
+	set.Float64Var(&cfg.Gain, "gain", 0, "gain decibels (dB)")
 
 	set.BoolVar(&cfg.DeviceList, "device-list", false, "list all devices")
 	set.IntVar(&cfg.DeviceIn, "device-in", 0, "input device")
@@ -45,10 +54,19 @@ func parseArgs(args []string) (Config, error) {
 	set.StringVar(&cfg.DeviceLatency, "device-latency", "low", "latency setting for audio device")
 	set.IntVar(&cfg.DeviceFrameSize, "device-frame", 1024, "frame size used when writing to audio device")
 
+	set.StringVar(&cfg.Backend, "backend", "portaudio", "driver (portaudio, stdout)")
+
 	err := set.Parse(args)
 
 	if len(set.Args()) > 0 {
 		cfg.ScriptPath = set.Arg(0)
+	}
+
+	switch cfg.Backend {
+	case "portaudio":
+	case "stdout":
+	default:
+		return cfg, errors.Errorf("unknown backend %q", cfg.Backend)
 	}
 
 	if cfg.HTTPAddr == "" {

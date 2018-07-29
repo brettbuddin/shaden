@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	_ "net/http/pprof"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/brettbuddin/shaden/engine"
 	"github.com/brettbuddin/shaden/engine/portaudio"
+	"github.com/brettbuddin/shaden/engine/stdout"
 	"github.com/brettbuddin/shaden/errors"
 	"github.com/brettbuddin/shaden/midi"
 	"github.com/brettbuddin/shaden/runtime"
@@ -33,48 +35,66 @@ func main() {
 }
 
 func run(cfg Config, logger *log.Logger) error {
-	devices, err := portaudio.Initialize()
-	if err != nil {
-		return errors.Wrap(err, "initializing portaudio")
-	}
-	defer func() {
-		if err := portaudio.Terminate(); err != nil {
-			logger.Fatal(err)
-		}
-	}()
-
-	midiDevices, err := midi.Initialize()
-	if err != nil {
-		return errors.Wrap(err, "initializing portmidi")
-	}
-	defer func() {
-		if err := midi.Terminate(); err != nil {
-			logger.Fatal(err)
-		}
-	}()
-
-	if cfg.DeviceList {
-		fmt.Println("Audio Devices")
-		fmt.Println(devices)
-		fmt.Println("MIDI Devices")
-		fmt.Println(midiDevices)
-		return nil
-	}
-
 	rand.Seed(cfg.Seed)
 
-	// Create the engine
-	backend, err := portaudio.New(
-		cfg.DeviceIn,
-		cfg.DeviceOut,
-		cfg.DeviceLatency,
-		cfg.DeviceFrameSize,
-		int(cfg.SampleRate),
-	)
-	if err != nil {
-		return errors.Wrap(err, "creating portaudio backend")
+	var backend engine.Backend
+
+	switch cfg.Backend {
+	case backendPortAudio:
+		devices, err := portaudio.Initialize()
+		if err != nil {
+			return errors.Wrap(err, "initializing portaudio")
+		}
+		defer func() {
+			if err := portaudio.Terminate(); err != nil {
+				logger.Fatal(err)
+			}
+		}()
+
+		midiDevices, err := midi.Initialize()
+		if err != nil {
+			return errors.Wrap(err, "initializing portmidi")
+		}
+		defer func() {
+			if err := midi.Terminate(); err != nil {
+				logger.Fatal(err)
+			}
+		}()
+
+		if cfg.DeviceList {
+			fmt.Println("Audio Devices")
+			fmt.Println(devices)
+			fmt.Println("MIDI Devices")
+			fmt.Println(midiDevices)
+			return nil
+		}
+
+		// Create the engine
+		paBackend, err := portaudio.New(
+			cfg.DeviceIn,
+			cfg.DeviceOut,
+			cfg.DeviceLatency,
+			cfg.DeviceFrameSize,
+			int(cfg.SampleRate),
+		)
+		if err != nil {
+			return errors.Wrap(err, "creating portaudio backend")
+		}
+
+		printPreamble(paBackend, cfg.Seed)
+
+		backend = paBackend
+	case backendStdout:
+		logger = log.New(os.Stderr, "", 0)
+		backend = stdout.New(cfg.FrameSize, int(cfg.SampleRate))
+	default:
+		return errors.Errorf("unknown backend %q", cfg.Backend)
 	}
-	opts := []engine.Option{engine.WithFadeIn(cfg.FadeIn)}
+
+	opts := []engine.Option{
+		engine.WithFadeIn(cfg.FadeIn),
+		engine.WithGain(dbToFloat(cfg.Gain)),
+	}
 	if cfg.SingleSampleDisabled {
 		opts = append(opts, engine.WithSingleSampleDisabled())
 	}
@@ -82,7 +102,6 @@ func run(cfg Config, logger *log.Logger) error {
 	if err != nil {
 		return errors.Wrap(err, "engine create failed")
 	}
-	printPreamble(backend, cfg.Seed)
 
 	// Create the lisp runtime
 	run, err := runtime.New(e, logger)
@@ -154,4 +173,8 @@ func printPreamble(pa *portaudio.PortAudio, seed int64) {
 		outDevice.DefaultLowOutputLatency,
 		outDevice.DefaultHighOutputLatency,
 	)
+}
+
+func dbToFloat(v float64) float32 {
+	return float32(math.Pow(10, 0.05*v))
 }
