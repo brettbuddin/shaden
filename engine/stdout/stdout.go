@@ -37,18 +37,20 @@ func (s *Stdout) Start(callback func([]float32, [][]float32)) error {
 		}
 	)
 
-	for {
-		s.mutex.Lock()
-		if !s.running {
-			return nil
+	go func() {
+		for {
+			s.mutex.Lock()
+			if !s.running {
+				return
+			}
+			s.mutex.Unlock()
+			callback(in, out)
+			for i := 0; i < s.frameSize; i++ {
+				binary.Write(s.out, binary.LittleEndian, toInt16(out[0][i]))
+				binary.Write(s.out, binary.LittleEndian, toInt16(out[1][i]))
+			}
 		}
-		s.mutex.Unlock()
-		callback(in, out)
-		for i := 0; i < s.frameSize; i++ {
-			binary.Write(s.out, binary.LittleEndian, toInt16(out[0][i]))
-			binary.Write(s.out, binary.LittleEndian, toInt16(out[1][i]))
-		}
-	}
+	}()
 
 	return nil
 }

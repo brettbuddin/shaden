@@ -16,19 +16,15 @@ func TestStdout(t *testing.T) {
 	var (
 		r, w   = io.Pipe()
 		stdout = New(w, frameSize, 44100)
-		msg    = make(chan struct{})
 	)
 
-	go func() {
-		defer close(msg)
-		err := stdout.Start(func(_ []float32, out [][]float32) {
-			for i := 0; i < frameSize; i++ {
-				out[0][i] = 1
-				out[1][i] = 1
-			}
-		})
-		assert.NoError(t, err)
-	}()
+	err := stdout.Start(func(_ []float32, out [][]float32) {
+		for i := 0; i < frameSize; i++ {
+			out[0][i] = 1
+			out[1][i] = 1
+		}
+	})
+	assert.NoError(t, err)
 
 	var (
 		expected = bytes.NewBuffer(nil)
