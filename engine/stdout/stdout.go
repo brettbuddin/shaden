@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
+	"runtime"
 	"sync"
 )
 
@@ -49,6 +50,7 @@ func (s *Stdout) Start(callback func([]float32, [][]float32)) error {
 				binary.Write(s.out, binary.LittleEndian, toInt16(out[0][i]))
 				binary.Write(s.out, binary.LittleEndian, toInt16(out[1][i]))
 			}
+			runtime.Gosched()
 		}
 	}()
 
