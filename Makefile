@@ -1,14 +1,3 @@
-default: build
-
-install:
-	go install .
-
-clean:
-	rm -rf bin/
-
-build:
-	go build -o bin/shaden .
-
 test:
 	go test -race -cover ./...
 
@@ -20,4 +9,4 @@ lint:
 
 ci: test lint vet
 
-.PHONY: build install clean test vet lint ci
+.PHONY: test vet lint ci
