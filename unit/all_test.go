@@ -2,6 +2,7 @@ package unit
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"testing"
 
@@ -175,7 +176,7 @@ func TestAllUnits(t *testing.T) {
 						"y": []float64{0, 3, 2, 4},
 					},
 					outputs: map[string][]float64{
-						"out": []float64{1, 1.0 / 3.0, 0.5, -1.0 / 4},
+						"out": []float64{math.Inf(1), 1.0 / 3.0, 0.5, -1.0 / 4},
 					},
 				},
 			},
