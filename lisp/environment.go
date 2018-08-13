@@ -119,42 +119,37 @@ func (e *Environment) Eval(node interface{}) (interface{}, error) {
 // expressions. However, unlike `quote` it can evaluation some nested expressions marked by the special `unquote`
 // function invocation.
 func (e *Environment) QuasiQuoteEval(node interface{}) (interface{}, error) {
-	switch node := node.(type) {
-	case List:
-		var result List
-		for _, n := range node {
-			var (
-				v        interface{}
-				err      error
-				list, ok = n.(List)
-			)
+	list, ok := node.(List)
+	if !ok {
+		return e.Eval(node)
+	}
 
-			if ok {
-				switch size := len(list); {
-				case size == 2 && list[0] == unquote:
-					v, err = e.Eval(list[1])
-				case size > 0 && list[0] == unquote:
-					err = errors.Errorf("unquote expects 1 argument")
-				default:
-					v, err = e.QuasiQuoteEval(n)
-				}
-			} else {
+	var result List
+	for _, n := range list {
+		var (
+			v        interface{}
+			err      error
+			list, ok = n.(List)
+		)
+
+		if ok {
+			switch size := len(list); {
+			case size == 2 && list[0] == unquote:
+				v, err = e.Eval(list[1])
+			case size > 0 && list[0] == unquote:
+				err = errors.Errorf("unquote expects 1 argument")
+			default:
 				v, err = e.QuasiQuoteEval(n)
 			}
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, v)
+		} else {
+			v, err = e.QuasiQuoteEval(n)
 		}
-		return result, nil
-	case string, float64, int, bool, Keyword, Symbol:
-		return node, nil
-	default:
-		if node == nil {
-			return nil, nil
+		if err != nil {
+			return nil, err
 		}
-		return nil, errors.Errorf("unknown node type %T", node)
+		result = append(result, v)
 	}
+	return result, nil
 }
 
 func (e *Environment) call(nodes List) (interface{}, error) {
