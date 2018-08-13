@@ -30,7 +30,7 @@ type binaryOp func(x, y float64) float64
 func binarySum(x, y float64) float64  { return x + y }
 func binaryDiff(x, y float64) float64 { return x - y }
 func binaryMult(x, y float64) float64 { return x * y }
-func binaryDiv(x, y float64) float64  { return x / math.Max(y, 1) }
+func binaryDiv(x, y float64) float64  { return x / y }
 func binaryMod(x, y float64) float64  { return math.Mod(x, math.Max(y, 1)) }
 func binaryGT(x, y float64) float64 {
 	if x > y {
