@@ -111,13 +111,15 @@ func (r *Runtime) Load(path string) error {
 
 func (r *Runtime) loadShaden() error {
 	var (
-		engine = r.engine
-		logger = r.logger
-		env    = r.base
+		engine     = r.engine
+		logger     = r.logger
+		env        = r.base
+		sampleRate = engine.SampleRate()
+		frameSize  = engine.FrameSize()
 	)
 
-	r.loadConstants(env)
-	r.loadValues(env, engine.SampleRate())
+	r.loadConstants(env, sampleRate, frameSize)
+	r.loadValues(env, sampleRate)
 
 	// Engine
 	env.DefineSymbol("emit", emitFn(engine, logger))
@@ -153,7 +155,11 @@ func (r *Runtime) loadValues(env *lisp.Environment, sampleRate int) {
 	env.DefineSymbol("theory/transpose", transposeFn)
 }
 
-func (r *Runtime) loadConstants(env *lisp.Environment) {
+func (r *Runtime) loadConstants(env *lisp.Environment, sampleRate, frameSize int) {
+	// Environment
+	env.DefineSymbol("samplerate", sampleRate)
+	env.DefineSymbol("framesize", frameSize)
+
 	// Basic Modes
 	env.DefineSymbol("mode/on", 1)
 	env.DefineSymbol("mode/off", 0)
