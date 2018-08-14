@@ -1,7 +1,6 @@
 package builtin
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -10,7 +9,7 @@ import (
 )
 
 func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "load", 1); err != nil {
+	if err := checkArityEqual(args, 1); err != nil {
 		return nil, err
 	}
 
@@ -20,7 +19,7 @@ func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 	path, ok := raw.(string)
 	if !ok {
-		return nil, argExpectError("load", "string", 1)
+		return nil, argExpectError("string", 1)
 	}
 
 	loadPath, err := env.GetSymbol("load-path")
@@ -37,7 +36,7 @@ func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 
 	if found == "" {
-		return nil, fmt.Errorf("%s not found n load-path", path)
+		return nil, errors.Errorf("%s not found n load-path", path)
 	}
 
 	f, err := os.Open(found)

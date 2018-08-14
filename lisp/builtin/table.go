@@ -1,15 +1,13 @@
 package builtin
 
 import (
-	"errors"
-	"fmt"
-
+	"github.com/brettbuddin/shaden/errors"
 	"github.com/brettbuddin/shaden/lisp"
 )
 
 func tableFn(args lisp.List) (interface{}, error) {
 	if len(args)%2 != 0 {
-		return nil, errors.New("table expects an even number of arguments")
+		return nil, errors.New("expects an even number of arguments")
 	}
 	m := lisp.Table{}
 	for i := 0; i < len(args); i += 2 {
@@ -20,11 +18,11 @@ func tableFn(args lisp.List) (interface{}, error) {
 
 func tgetFn(args lisp.List) (interface{}, error) {
 	if len(args) < 2 || len(args) > 3 {
-		return nil, fmt.Errorf("table-get expects 2 or 3 arguments")
+		return nil, errors.Errorf("expects 2 or 3 arguments")
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError("table-get", "table", 1)
+		return nil, argExpectError(typeTable, 1)
 	}
 	if v, ok := m[args[1]]; ok {
 		return v, nil
@@ -36,43 +34,43 @@ func tgetFn(args lisp.List) (interface{}, error) {
 }
 
 func tsetFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "table-set", 3); err != nil {
+	if err := checkArityEqual(args, 3); err != nil {
 		return nil, err
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError("table-set", "table", 1)
+		return nil, argExpectError(typeTable, 1)
 	}
 	m[args[1]] = args[2]
 	return nil, nil
 }
 
 func tdeleteFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "table-delete", 2); err != nil {
+	if err := checkArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError("table-delete", "table", 1)
+		return nil, argExpectError(typeTable, 1)
 	}
 	delete(m, args[1])
 	return nil, nil
 }
 
 func texistsFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "table-exists?", 2); err != nil {
+	if err := checkArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError("table-exists?", "table", 1)
+		return nil, argExpectError(typeTable, 1)
 	}
 	_, ok = m[args[1]]
 	return ok, nil
 }
 
 func mergeFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "table-merge", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	m := lisp.Table{}
@@ -82,26 +80,26 @@ func mergeFn(args lisp.List) (interface{}, error) {
 				m[k] = v
 			}
 		} else {
-			return nil, fmt.Errorf("table-merge expects arguments to be tables")
+			return nil, errors.Errorf("expects arguments to be tables")
 		}
 	}
 	return m, nil
 }
 
 func tselectFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "table-select", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	filtered := lisp.Table{}
 
 	t, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError("table-select", "table", 1)
+		return nil, argExpectError(typeTable, 1)
 	}
 
 	fn, ok := args[1].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError("table-select", "function", 2)
+		return nil, argExpectError(typeFunction, 2)
 	}
 
 	for k, v := range t {
@@ -111,7 +109,7 @@ func tselectFn(args lisp.List) (interface{}, error) {
 		}
 		b, ok := result.(bool)
 		if !ok {
-			return nil, errors.New("table-select expects function to return boolean value")
+			return nil, errors.New("expects function to return boolean value")
 		}
 		if b {
 			filtered[k] = v

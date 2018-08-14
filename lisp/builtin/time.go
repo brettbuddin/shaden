@@ -7,7 +7,7 @@ import (
 )
 
 func sleepFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "sleep", 1); err != nil {
+	if err := checkArityAtLeast(args, 1); err != nil {
 		return nil, err
 	}
 
@@ -18,7 +18,7 @@ func sleepFn(args lisp.List) (interface{}, error) {
 	case float64:
 		d = time.Duration(v)
 	default:
-		return nil, argExpectError("sleep", "integer or float", 1)
+		return nil, argExpectError(acceptTypes(typeInt, typeFloat), 1)
 	}
 
 	time.Sleep(d * time.Second)

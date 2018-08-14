@@ -1,18 +1,17 @@
 package builtin
 
 import (
-	"fmt"
-
+	"github.com/brettbuddin/shaden/errors"
 	"github.com/brettbuddin/shaden/lisp"
 )
 
 func mapFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "map", 2); err != nil {
+	if err := checkArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	fn, ok := args[0].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError("map", "function", 1)
+		return nil, argExpectError(typeFunction, 1)
 	}
 
 	switch v := args[1].(type) {
@@ -37,17 +36,17 @@ func mapFn(args lisp.List) (interface{}, error) {
 		}
 		return out, nil
 	default:
-		return nil, fmt.Errorf("map expects list or hash for argument 2")
+		return nil, argExpectError(acceptTypes(typeList, typeTable), 2)
 	}
 }
 
 func eachFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "each", 2); err != nil {
+	if err := checkArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	fn, ok := args[0].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError("each", "function", 1)
+		return nil, argExpectError(typeFunction, 1)
 	}
 
 	switch v := args[1].(type) {
@@ -68,31 +67,31 @@ func eachFn(args lisp.List) (interface{}, error) {
 		}
 		return v, nil
 	default:
-		return nil, argExpectError("each", "list or table", 2)
+		return nil, argExpectError(acceptTypes(typeList, typeTable), 2)
 	}
 }
 
 func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "dotimes", 2); err != nil {
+	if err := checkArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	binding, ok := args[0].(lisp.List)
 	if !ok {
-		return nil, argExpectError("dotimes", "list", 1)
+		return nil, argExpectError(typeList, 1)
 	}
 	if len(binding) != 2 {
-		return nil, argExpectError("dotimes", "a name/value pair binding", 1)
+		return nil, argExpectError("name/value pair binding", 1)
 	}
 
 	body, ok := args[1].(lisp.List)
 	if !ok {
-		return nil, argExpectError("dotimes", "list", 2)
+		return nil, argExpectError(typeList, 2)
 	}
 
 	env = env.Branch()
 	name, ok := binding[0].(lisp.Symbol)
 	if !ok {
-		return nil, fmt.Errorf("dotimes expects binding name to be a symbol")
+		return nil, errors.Errorf("expects binding name to be a symbol")
 	}
 	value, err := env.Eval(binding[1])
 	if err != nil {
@@ -100,7 +99,7 @@ func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 	n, ok := value.(int)
 	if !ok {
-		return nil, fmt.Errorf("dotimes expects an integer for binding value")
+		return nil, errors.Errorf("expects an int for binding value")
 	}
 
 	if err := env.DefineSymbol(string(name), 0); err != nil {
@@ -120,12 +119,12 @@ func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func reduceFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "reduce", 3); err != nil {
+	if err := checkArityEqual(args, 3); err != nil {
 		return nil, err
 	}
 	fn, ok := args[0].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError("reduce", "function", 1)
+		return nil, argExpectError(typeFunction, 1)
 	}
 
 	switch v := args[2].(type) {
@@ -150,6 +149,6 @@ func reduceFn(args lisp.List) (interface{}, error) {
 		}
 		return reduce, nil
 	default:
-		return nil, argExpectError("reduce", "list or table", 3)
+		return nil, argExpectError(acceptTypes(typeList, typeTable), 3)
 	}
 }

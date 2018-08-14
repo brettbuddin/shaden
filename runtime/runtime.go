@@ -104,7 +104,7 @@ func (r *Runtime) Load(path string) error {
 	}
 
 	if _, err := r.user.Eval(node); err != nil {
-		return errors.Wrapf(err, "failed to evaluating %q", path)
+		return errors.Wrapf(err, "failed to evaluate %q", path)
 	}
 	return nil
 }

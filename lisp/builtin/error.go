@@ -1,41 +1,58 @@
 package builtin
 
 import (
+	"strings"
+
 	"github.com/brettbuddin/shaden/errors"
 	"github.com/brettbuddin/shaden/lisp"
 )
 
 func errorfFn(args lisp.List) (interface{}, error) {
-	if len(args) < 1 {
-		return nil, errors.Errorf("errorf expects at least 1 argument")
+	if err := checkArityAtLeast(args, 1); err != nil {
+		return nil, err
 	}
 	format, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("errorf expects string for argument 1")
+		return nil, argExpectError(typeString, 1)
 	}
 	return errors.Errorf(format, args[1:]...), nil
 }
 
-func checkArityEqual(l lisp.List, name string, expected int) error {
+func errorFn(args lisp.List) (interface{}, error) {
+	if err := checkArityEqual(args, 1); err != nil {
+		return nil, err
+	}
+	str, ok := args[0].(string)
+	if !ok {
+		return nil, argExpectError(typeString, 1)
+	}
+	return errors.New(str), nil
+}
+
+func checkArityEqual(l lisp.List, expected int) error {
 	actual := len(l)
 	if actual != expected {
-		return errors.Errorf("%s expects %d argument; %d given", name, expected, actual)
+		return errors.Errorf("expects %d argument; %d given", expected, actual)
 	}
 	return nil
 }
 
-func checkArityAtLeast(l lisp.List, name string, expected int) error {
+func checkArityAtLeast(l lisp.List, expected int) error {
 	actual := len(l)
 	if actual < expected {
 		var plural string
 		if expected > 1 {
 			plural = "s"
 		}
-		return errors.Errorf("%s expects at least %d argument%s; %d given", name, expected, plural, actual)
+		return errors.Errorf("expects at least %d argument%s; %d given", expected, plural, actual)
 	}
 	return nil
 }
 
-func argExpectError(name, what string, pos int) error {
-	return errors.Errorf("%s expects %s for argument %d", name, what, pos)
+func argExpectError(what string, pos int) error {
+	return errors.Errorf("expects %s for argument %d", what, pos)
+}
+
+func acceptTypes(names ...string) string {
+	return strings.Replace(strings.Join(names, ", "), ",", "or", len(names)-1)
 }

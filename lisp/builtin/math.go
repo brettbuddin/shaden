@@ -1,16 +1,15 @@
 package builtin
 
 import (
-	"errors"
-	"fmt"
 	"math"
 	"math/rand"
 
+	"github.com/brettbuddin/shaden/errors"
 	"github.com/brettbuddin/shaden/lisp"
 )
 
 func multFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "*", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -27,7 +26,7 @@ func multFn(args lisp.List) (interface{}, error) {
 			outf *= arg
 			seenFloat = true
 		default:
-			return nil, fmt.Errorf("cannot multiply %#v", arg)
+			return nil, errors.Errorf("cannot multiply %#v", arg)
 		}
 	}
 	if seenFloat {
@@ -37,7 +36,7 @@ func multFn(args lisp.List) (interface{}, error) {
 }
 
 func divFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "/", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -64,7 +63,7 @@ func divFn(args lisp.List) (interface{}, error) {
 			}
 			seenFloat = true
 		default:
-			return nil, fmt.Errorf("cannot divide with %#v", arg)
+			return nil, errors.Errorf("cannot divide %#v", arg)
 		}
 	}
 	if seenFloat {
@@ -74,7 +73,7 @@ func divFn(args lisp.List) (interface{}, error) {
 }
 
 func sumFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "+", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -91,7 +90,7 @@ func sumFn(args lisp.List) (interface{}, error) {
 			outf += arg
 			seenFloat = true
 		default:
-			return nil, fmt.Errorf("cannot add %#v", arg)
+			return nil, errors.Errorf("cannot add %#v", arg)
 		}
 	}
 	if seenFloat {
@@ -101,7 +100,7 @@ func sumFn(args lisp.List) (interface{}, error) {
 }
 
 func diffFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "-", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -128,7 +127,7 @@ func diffFn(args lisp.List) (interface{}, error) {
 			}
 			seenFloat = true
 		default:
-			return nil, fmt.Errorf("cannot subtract with %#v", arg)
+			return nil, errors.Errorf("cannot subtract %#v", arg)
 		}
 	}
 	if seenFloat {
@@ -138,7 +137,7 @@ func diffFn(args lisp.List) (interface{}, error) {
 }
 
 func powFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "pow", 2); err != nil {
+	if err := checkArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -149,7 +148,7 @@ func powFn(args lisp.List) (interface{}, error) {
 	} else if f, ok := args[0].(float64); ok {
 		x = f
 	} else {
-		return nil, argExpectError("pow", "number", 1)
+		return nil, argExpectError(acceptTypes(typeInt, typeFloat), 1)
 	}
 
 	if v, ok := args[1].(int); ok {
@@ -157,26 +156,15 @@ func powFn(args lisp.List) (interface{}, error) {
 	} else if f, ok := args[1].(float64); ok {
 		y = f
 	} else {
-		return nil, argExpectError("pow", "number", 2)
+		return nil, argExpectError(acceptTypes(typeInt, typeFloat), 2)
 	}
 
 	return math.Pow(x, y), nil
 }
 
 func randFn(args lisp.List) (value interface{}, err error) {
-	if err := checkArityEqual(args, "rand", 0); err != nil {
+	if err := checkArityEqual(args, 0); err != nil {
 		return nil, err
 	}
 	return rand.Float64(), nil
-}
-
-func randIntnFn(args lisp.List) (value interface{}, err error) {
-	if len(args) > 1 {
-		return nil, errors.New("rand-intn expects 0 or 1 arguments")
-	}
-	n, ok := args[0].(int)
-	if !ok {
-		return nil, argExpectError("rand-intn", "integer", 1)
-	}
-	return rand.Intn(n), nil
 }

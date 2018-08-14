@@ -3,12 +3,12 @@ package builtin
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/brettbuddin/shaden/errors"
 	"github.com/brettbuddin/shaden/lisp"
 )
 
@@ -31,7 +31,7 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("and", andFn)
 	env.DefineSymbol("append", appendFn)
 	env.DefineSymbol("apply", applyFn)
-	env.DefineSymbol("boolean?", isBoolFn)
+	env.DefineSymbol("bool?", isBoolFn)
 	env.DefineSymbol("cond", condFn)
 	env.DefineSymbol("cons", consFn)
 	env.DefineSymbol("define", defineFn)
@@ -41,6 +41,7 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("dotimes", dotimesFn)
 	env.DefineSymbol("each", eachFn)
 	env.DefineSymbol("empty?", isEmptyFn)
+	env.DefineSymbol("error", errorFn)
 	env.DefineSymbol("error?", isErrorFn)
 	env.DefineSymbol("errorf", errorfFn)
 	env.DefineSymbol("eval", evalFn)
@@ -72,7 +73,6 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("quasiquote", quasiquoteFn)
 	env.DefineSymbol("quote", quoteFn)
 	env.DefineSymbol("rand", randFn)
-	env.DefineSymbol("rand-intn", randIntnFn)
 	env.DefineSymbol("read", readFn)
 	env.DefineSymbol("reduce", reduceFn)
 	env.DefineSymbol("rest", restFn)
@@ -101,7 +101,7 @@ func Load(env *lisp.Environment) {
 }
 
 func evalFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "eval", 1); err != nil {
+	if err := checkArityEqual(args, 1); err != nil {
 		return nil, err
 	}
 	v, err := env.Eval(args[0])
@@ -112,7 +112,7 @@ func evalFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "read", 1); err != nil {
+	if err := checkArityEqual(args, 1); err != nil {
 		return nil, err
 	}
 	v, err := env.Eval(args[0])
@@ -121,7 +121,7 @@ func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 	str, ok := v.(string)
 	if !ok {
-		return nil, argExpectError("read", "string", 1)
+		return nil, argExpectError(typeString, 1)
 	}
 	node, err := lisp.Parse(bytes.NewBufferString(str))
 	if err != nil {
@@ -131,7 +131,7 @@ func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "define", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -145,19 +145,19 @@ func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	case lisp.List:
 		for _, n := range v {
 			if _, ok := n.(lisp.Symbol); !ok {
-				return nil, errors.New("define expects all function parameters to be symbols")
+				return nil, errors.New("expects all function parameters to be symbols")
 			}
 		}
 		name := v[0].(lisp.Symbol)
-		fn := buildFunction(env, string(name), v[1:], args[1:])
+		fn := buildFunction(env, v[1:], args[1:])
 		return nil, env.DefineSymbol(string(name), fn)
 	default:
-		return nil, argExpectError("define", "symbol or list", 1)
+		return nil, argExpectError(acceptTypes(typeSymbol, typeList), 1)
 	}
 }
 
 func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "define-macro", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -179,20 +179,20 @@ func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 			processed = append(processed, p)
 		}
 
-		fn := buildMacroFunction(env, string(name), v[1:], processed)
+		fn := buildMacroFunction(env, v[1:], processed)
 		return nil, env.DefineSymbol(string(name), fn)
 	default:
-		return nil, argExpectError("define-macro", "list", 1)
+		return nil, argExpectError(typeList, 1)
 	}
 }
 
 func setFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "set", 2); err != nil {
+	if err := checkArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	symbol, ok := args[0].(lisp.Symbol)
 	if !ok {
-		return nil, argExpectError("set", "symbol", 1)
+		return nil, argExpectError(typeSymbol, 1)
 	}
 	value, err := env.Eval(args[1])
 	if err != nil {
@@ -202,12 +202,12 @@ func setFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func undefineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, "undefine", 1); err != nil {
+	if err := checkArityEqual(args, 1); err != nil {
 		return nil, err
 	}
 	symbol, ok := args[0].(lisp.Symbol)
 	if !ok {
-		return nil, argExpectError("undefine", "symbol", 1)
+		return nil, argExpectError(typeSymbol, 1)
 	}
 	env.UnsetSymbol(string(symbol))
 	return nil, nil
@@ -221,7 +221,7 @@ func printlnFn(args lisp.List) (interface{}, error) {
 func printfFn(args lisp.List) (interface{}, error) {
 	format, ok := args[0].(string)
 	if !ok {
-		return nil, argExpectError("printf", "string", 1)
+		return nil, argExpectError(typeString, 1)
 	}
 	fmt.Printf(format, args[1:]...)
 	return nil, nil
@@ -230,7 +230,7 @@ func printfFn(args lisp.List) (interface{}, error) {
 func sprintfFn(args lisp.List) (interface{}, error) {
 	format, ok := args[0].(string)
 	if !ok {
-		return nil, argExpectError("sprintf", "string", 1)
+		return nil, argExpectError(typeString, 1)
 	}
 	return fmt.Sprintf(format, args[1:]...), nil
 }

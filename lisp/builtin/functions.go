@@ -26,24 +26,24 @@ func doFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "let", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 
 	bindings, ok := args[0].(lisp.List)
 	if !ok {
-		return nil, argExpectError("let", "list", 1)
+		return nil, argExpectError(typeList, 1)
 	}
 
 	env = env.Branch()
 	for _, n := range bindings {
 		if list, ok := n.(lisp.List); ok {
 			if len(list) != 2 {
-				return nil, errors.New("let expects bindings to be list pairs")
+				return nil, errors.Errorf("expects bindings to be list pairs")
 			}
 			name, ok := list[0].(lisp.Symbol)
 			if !ok {
-				return nil, errors.New("let expects binding names to be symbols")
+				return nil, errors.Errorf("expects binding names to be symbols")
 			}
 			value, err := env.Eval(list[1])
 			if err != nil {
@@ -68,32 +68,32 @@ func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func fnFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "fn", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	params, ok := args[0].(lisp.List)
 	if !ok {
-		return nil, argExpectError("fn", "list", 1)
+		return nil, argExpectError(typeList, 1)
 	}
 	for _, n := range params {
 		if _, ok := n.(lisp.Symbol); !ok {
-			return nil, errors.New("fn expects all function parameters to be symbols")
+			return nil, errors.Errorf("expects all function parameters to be symbols")
 		}
 	}
-	return buildFunction(env, "anonymous function", params, args[1:]), nil
+	return buildFunction(env, params, args[1:]), nil
 }
 
-func buildFunction(env *lisp.Environment, name string, defArgs, body lisp.List) func(lisp.List) (interface{}, error) {
+func buildFunction(env *lisp.Environment, defArgs, body lisp.List) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
 		env = env.Branch()
-		return functionEvaluate(env, name, args, defArgs, body)
+		return functionEvaluate(env, args, defArgs, body)
 	}
 }
 
-func buildMacroFunction(env *lisp.Environment, name string, defArgs, body lisp.List) func(*lisp.Environment, lisp.List) (interface{}, error) {
+func buildMacroFunction(env *lisp.Environment, defArgs, body lisp.List) func(*lisp.Environment, lisp.List) (interface{}, error) {
 	return func(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		env = env.Branch()
-		v, err := functionEvaluate(env, name, args, defArgs, body)
+		v, err := functionEvaluate(env, args, defArgs, body)
 		if err != nil {
 			return nil, err
 		}
@@ -101,18 +101,18 @@ func buildMacroFunction(env *lisp.Environment, name string, defArgs, body lisp.L
 	}
 }
 
-func functionArityError(name string, defArgCount int) error {
-	switch defArgCount {
+func functionArityError(defCount, givenCount int) error {
+	switch defCount {
 	case 0:
-		return errors.Errorf("%s expects 0 arguments", name)
+		return errors.Errorf("expects 0 arguments; %d given", givenCount)
 	case 1:
-		return errors.Errorf("%s expects 1 argument", name)
+		return errors.Errorf("expects 1 argument; %d given", givenCount)
 	default:
-		return errors.Errorf("%s expects %d arguments", name, defArgCount)
+		return errors.Errorf("expects %d arguments; %d given", defCount, givenCount)
 	}
 }
 
-func functionEvaluate(env *lisp.Environment, name string, args, defArgs, body lisp.List) (interface{}, error) {
+func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (interface{}, error) {
 	// Locate the variadic symbol "&" position
 	var (
 		variadicAt     = -1
@@ -128,10 +128,10 @@ func functionEvaluate(env *lisp.Environment, name string, args, defArgs, body li
 
 	if variadicAt < 0 {
 		if len(args) != len(defArgs) {
-			return nil, functionArityError(name, len(defArgs))
+			return nil, functionArityError(len(defArgs), len(args))
 		}
 	} else if len(args) < variadicAt {
-		return nil, functionArityError(name, variadicAt)
+		return nil, functionArityError(variadicAt, len(args))
 	} else if variadicAt >= 0 {
 		if len(defArgs)-2 != variadicAt {
 			return nil, errors.New("definition has too many arguments after variadic symbol &")
@@ -173,7 +173,7 @@ func functionEvaluate(env *lisp.Environment, name string, args, defArgs, body li
 }
 
 func applyFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, "apply", 2); err != nil {
+	if err := checkArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -195,6 +195,6 @@ func applyFn(args lisp.List) (interface{}, error) {
 	case func(lisp.List) (interface{}, error):
 		return fn(flat)
 	default:
-		return nil, argExpectError("apply", "function", 1)
+		return nil, argExpectError(typeFunction, 1)
 	}
 }
