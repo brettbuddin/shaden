@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	underscoreSymbol = lisp.Symbol("_")
-	ampersandSymbol  = lisp.Symbol("&")
+	symbolUnderscore = lisp.Symbol("_")
+	symbolAmpersand  = lisp.Symbol("&")
 )
 
 func doFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
@@ -120,7 +120,7 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (int
 		variadicArgs   = lisp.List{}
 	)
 	for i, arg := range defArgs {
-		if arg.(lisp.Symbol) == ampersandSymbol {
+		if arg.(lisp.Symbol) == symbolAmpersand {
 			variadicAt = i
 			break
 		}
@@ -144,7 +144,7 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (int
 			variadicArgs = append(variadicArgs, arg)
 		} else {
 			symbol := defArgs[i].(lisp.Symbol)
-			if symbol == underscoreSymbol {
+			if symbol == symbolUnderscore {
 				continue
 			}
 			if err := env.DefineSymbol(string(symbol), arg); err != nil {
@@ -153,7 +153,7 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (int
 		}
 	}
 
-	if variadicSymbol != "" && variadicSymbol != underscoreSymbol {
+	if variadicSymbol != "" && variadicSymbol != symbolUnderscore {
 		if err := env.DefineSymbol(string(variadicSymbol), variadicArgs); err != nil {
 			return nil, err
 		}
