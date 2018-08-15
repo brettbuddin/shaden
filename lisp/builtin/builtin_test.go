@@ -17,6 +17,13 @@ func TestParser(t *testing.T) {
 		result interface{}
 		error  string
 	}{
+		// Comments
+		{input: []byte(";1\n"), result: nil},
+		{input: []byte(";1"), result: nil},
+		{input: []byte("2 ;1\n 3"), result: 3},
+		{input: []byte("1 ;1"), result: 1},
+		{input: []byte("2 ;1"), result: 2},
+
 		// Data types
 		{input: []byte("1"), result: 1},
 		{input: []byte(`"hello"`), result: `hello`},

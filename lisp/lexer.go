@@ -183,6 +183,9 @@ func lexKeyword(l *lexer) stateFn {
 
 func lexComment(l *lexer) stateFn {
 	i := strings.Index(l.input[l.pos:], "\n")
+	if i < 0 {
+		return nil
+	}
 	l.pos += pos(i)
 	l.ignore()
 	return lexText
