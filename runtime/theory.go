@@ -7,19 +7,19 @@ import (
 )
 
 func pitchFn(args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.Errorf("pitch expects one argument")
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
+		return nil, err
 	}
 	str, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("pitch expects a string for argument 1")
+		return nil, lisp.ArgExpectError(lisp.TypeString, 1)
 	}
 	return musictheory.ParsePitch(str)
 }
 
 func intervalFn(args lisp.List) (interface{}, error) {
-	if len(args) != 2 {
-		return nil, errors.Errorf("interval expects two arguments")
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
+		return nil, err
 	}
 
 	var quality string
@@ -29,12 +29,12 @@ func intervalFn(args lisp.List) (interface{}, error) {
 	case lisp.Keyword:
 		quality = string(v)
 	default:
-		return nil, errors.Errorf("interval expects a string or keyword for argument 1")
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 1)
 	}
 
 	step, ok := args[1].(int)
 	if !ok {
-		return nil, errors.Errorf("interval expects an integer for argument 2")
+		return nil, lisp.ArgExpectError(lisp.TypeInt, 2)
 	}
 
 	switch quality {
@@ -56,16 +56,16 @@ func intervalFn(args lisp.List) (interface{}, error) {
 }
 
 func transposeFn(args lisp.List) (interface{}, error) {
-	if len(args) != 2 {
-		return nil, errors.Errorf("transpose expects two arguments")
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
+		return nil, err
 	}
 	pitch, ok := args[0].(musictheory.Pitch)
 	if !ok {
-		return nil, errors.Errorf("transpose expects a pitch for argument 1")
+		return nil, lisp.ArgExpectError("pitch", 1)
 	}
 	interval, ok := args[1].(musictheory.Interval)
 	if !ok {
-		return nil, errors.Errorf("interval expects an interval for argument 2")
+		return nil, lisp.ArgExpectError("interval", 2)
 	}
 	return pitch.Transpose(interval), nil
 }
