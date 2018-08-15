@@ -10,7 +10,7 @@ const (
 	symbolAmpersand  = lisp.Symbol("&")
 )
 
-func doFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func beginFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	env = env.Branch()
 	var (
 		value interface{}

@@ -177,7 +177,7 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(apply (fn (x y) (+ x y)) 5 9)`), result: 14},
 		{input: []byte(`(define (add1 x) (+ x 1)) (add1 1)`), result: 2},
 		{input: []byte(`(define (add3 x) (set x (+ x 1)) (+ x 2)) (add3 1)`), result: 4},
-		{input: []byte(`(do (/ 10 2) (* 2 2))`), result: 4},
+		{input: []byte(`(begin (/ 10 2) (* 2 2))`), result: 4},
 		{input: []byte(`(let ((x 3) (y 4)) (* x y))`), result: 12},
 
 		// Variadic Functions
