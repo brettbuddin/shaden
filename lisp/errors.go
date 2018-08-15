@@ -48,6 +48,7 @@ func newLineError(err error, line pos) error {
 	}
 }
 
+// CheckArityEqual requires the argument list to be of a certain length
 func CheckArityEqual(l List, expected int) error {
 	actual := len(l)
 	if actual != expected {
@@ -56,6 +57,7 @@ func CheckArityEqual(l List, expected int) error {
 	return nil
 }
 
+// CheckArityEqual requires the argument list to be at least certain length
 func CheckArityAtLeast(l List, expected int) error {
 	actual := len(l)
 	if actual < expected {
@@ -68,10 +70,12 @@ func CheckArityAtLeast(l List, expected int) error {
 	return nil
 }
 
+// ArgExpectError returns an error that indicates requirements for an argument
 func ArgExpectError(what string, pos int) error {
 	return errors.Errorf("expects %s for argument %d", what, pos)
 }
 
+// AcceptTypes creates a formatted list of accepted types for humans
 func AcceptTypes(names ...string) string {
 	return strings.Replace(strings.Join(names, ", "), ",", "or", len(names)-1)
 }
