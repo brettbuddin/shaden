@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/brettbuddin/musictheory"
@@ -11,8 +10,8 @@ import (
 
 func hzFn(sampleRate int) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
-		if len(args) != 1 {
-			return nil, fmt.Errorf("hz expects a string or number")
+		if err := lisp.CheckArityEqual(args, 1); err != nil {
+			return nil, err
 		}
 		switch v := args[0].(type) {
 		case float64:
@@ -26,15 +25,15 @@ func hzFn(sampleRate int) func(lisp.List) (interface{}, error) {
 		case lisp.Keyword:
 			return dsp.ParsePitch(string(v), sampleRate)
 		default:
-			return 0, fmt.Errorf("hz expects a number")
+			return 0, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeInt, lisp.TypeFloat), 1)
 		}
 	}
 }
 
 func msFn(sampleRate int) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
-		if len(args) != 1 {
-			return nil, fmt.Errorf("ms expects a number")
+		if err := lisp.CheckArityEqual(args, 1); err != nil {
+			return nil, err
 		}
 		switch v := args[0].(type) {
 		case float64:
@@ -42,15 +41,15 @@ func msFn(sampleRate int) func(lisp.List) (interface{}, error) {
 		case int:
 			return dsp.Duration(float64(v), sampleRate), nil
 		default:
-			return 0, fmt.Errorf("ms expects a number")
+			return 0, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 1)
 		}
 	}
 }
 
 func bpmFn(sampleRate int) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
-		if len(args) != 1 {
-			return nil, fmt.Errorf("bpm expects a number")
+		if err := lisp.CheckArityEqual(args, 1); err != nil {
+			return nil, err
 		}
 		switch v := args[0].(type) {
 		case float64:
@@ -58,22 +57,21 @@ func bpmFn(sampleRate int) func(lisp.List) (interface{}, error) {
 		case int:
 			return dsp.BPM(float64(v), sampleRate), nil
 		default:
-			return 0, fmt.Errorf("bpm expects a number")
+			return 0, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 1)
 		}
 	}
 }
 
 func dbFn(args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, fmt.Errorf("db expects a number")
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
+		return nil, err
 	}
-
 	switch v := args[0].(type) {
 	case float64:
 		return math.Pow(10, 0.05*v), nil
 	case int:
 		return math.Pow(10, 0.05*float64(v)), nil
 	default:
-		return 0, fmt.Errorf("db expects a number")
+		return 0, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 1)
 	}
 }
