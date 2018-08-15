@@ -16,15 +16,6 @@ func (e UndefinedSymbolError) Error() string {
 	return fmt.Sprintf("undefined symbol %s", e.Name)
 }
 
-// DefinedSymbolError is an error returned when a symbol has already been defined in the current Environment.
-type DefinedSymbolError struct {
-	Name string
-}
-
-func (e DefinedSymbolError) Error() string {
-	return fmt.Sprintf("symbol %s already defined", e.Name)
-}
-
 type lineError struct {
 	error error
 	line  pos
