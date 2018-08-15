@@ -27,6 +27,9 @@ const (
 	nameUnitPatchOnly = "=>"
 	nameUnitOutput    = "<-"
 	nameEmit          = "emit"
+
+	typeUnit      = "unit"
+	typeOutputRef = "output reference"
 )
 
 var bold = color.New(color.Bold).SprintFunc()
@@ -96,14 +99,14 @@ func unitBuilders(e Engine) (map[string]unit.Builder, error) {
 func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logger *log.Logger, name string) {
 	env.DefineSymbol(name, func(args lisp.List) (interface{}, error) {
 		if len(args) > 1 {
-			return nil, exactArgCountError(name, 1)
+			return nil, errors.Errorf("expects at most 1 argument")
 		}
 
 		config := map[string]interface{}{}
 		if len(args) == 1 {
 			m, ok := args[0].(lisp.Table)
 			if !ok {
-				return nil, errors.Errorf("%s expects a hash", name)
+				return nil, lisp.ArgExpectError(lisp.TypeTable, 1)
 			}
 			for k, v := range m {
 				switch k := k.(type) {
@@ -150,13 +153,13 @@ func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logge
 
 func unitRemoveFn(e Engine, logger *log.Logger) func(*lisp.Environment, lisp.List) (interface{}, error) {
 	return func(env *lisp.Environment, args lisp.List) (interface{}, error) {
-		if len(args) != 1 {
-			return nil, exactArgCountError(nameUnitRemove, 1)
+		if err := lisp.CheckArityEqual(args, 1); err != nil {
+			return nil, err
 		}
 
 		symbol, ok := args[0].(lisp.Symbol)
 		if !ok {
-			return nil, typeError(nameUnitRemove, "symbol", 1)
+			return nil, lisp.ArgExpectError(lisp.TypeSymbol, 1)
 		}
 
 		values := make(lisp.List, len(args))
@@ -178,13 +181,13 @@ func unitRemoveFn(e Engine, logger *log.Logger) func(*lisp.Environment, lisp.Lis
 
 func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
-		if len(args) != 1 {
-			return nil, exactArgCountError(nameUnitUnmount, 1)
+		if err := lisp.CheckArityEqual(args, 1); err != nil {
+			return nil, err
 		}
 
 		lazy, ok := args[0].(*lazyUnit)
 		if !ok {
-			return nil, typeError(nameUnitUnmount, "unit", 1)
+			return nil, lisp.ArgExpectError(typeUnit, 1)
 		}
 
 		u, err := lazy.mounted()
@@ -209,13 +212,13 @@ func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, e
 
 func patchFn(e Engine, logger *log.Logger, forceReset bool) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
-		if len(args) < 2 {
-			return nil, minArgCountError(nameUnitPatch, 2)
+		if err := lisp.CheckArityAtLeast(args, 2); err != nil {
+			return nil, err
 		}
 
 		lazy, ok := args[0].(*lazyUnit)
 		if !ok {
-			return nil, typeError(nameUnitPatch, "unit", 1)
+			return nil, lisp.ArgExpectError(typeUnit, 1)
 		}
 
 		inputs, err := patchableInputs(args[1:])
@@ -296,7 +299,7 @@ func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 				}
 			}
 		default:
-			return nil, typeRemainingError(nameUnitPatch, "hash or list", 2)
+			return nil, typeRemainingError("hash or list", 2)
 		}
 	}
 	return inputs, nil
@@ -324,12 +327,12 @@ func patchableValue(v interface{}) interface{} {
 func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
 		if len(args) < 1 || len(args) > 2 {
-			return nil, errors.Errorf("%s expects 1 or 2 arguments", nameEmit)
+			return nil, errors.Errorf("expects 1 or 2 arguments")
 		}
 
 		left, ok := args[0].(unit.OutRef)
 		if !ok {
-			return nil, typeError(nameEmit, "output reference", 1)
+			return nil, lisp.ArgExpectError(typeOutputRef, 1)
 		}
 
 		var right unit.OutRef
@@ -337,7 +340,7 @@ func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 			var ok bool
 			right, ok = args[1].(unit.OutRef)
 			if !ok {
-				return nil, typeError(nameEmit, "output reference", 2)
+				return nil, lisp.ArgExpectError(typeOutputRef, 2)
 			}
 		} else {
 			right = left
@@ -365,12 +368,12 @@ func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 func outFn(e Engine) func(lisp.List) (interface{}, error) {
 	return func(args lisp.List) (interface{}, error) {
 		if len(args) < 1 || len(args) > 2 {
-			return nil, errors.Errorf("%s expects 1 or 2 arguments", nameUnitOutput)
+			return nil, errors.Errorf("expects 1 or 2 arguments")
 		}
 
 		lazy, ok := args[0].(*lazyUnit)
 		if !ok {
-			return nil, typeError(nameUnitOutput, "unit", 1)
+			return nil, lisp.ArgExpectError(typeUnit, 1)
 		}
 
 		var output string
@@ -383,7 +386,7 @@ func outFn(e Engine) func(lisp.List) (interface{}, error) {
 			case lisp.Keyword:
 				output = string(arg)
 			default:
-				return nil, typeError(nameUnitOutput, "string or keyword", 2)
+				return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 2)
 			}
 		}
 
@@ -406,45 +409,45 @@ func outFn(e Engine) func(lisp.List) (interface{}, error) {
 }
 
 func unitInputsFn(args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.Errorf("%s expects 1 argument", nameUnitInputs)
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
+		return nil, err
 	}
 	lazy, ok := args[0].(*lazyUnit)
 	if !ok {
-		return nil, typeError(nameUnitInputs, "unit", 1)
+		return nil, lisp.ArgExpectError(typeUnit, 1)
 	}
 	return lazy.inputs, nil
 }
 
 func unitOutputsFn(args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.Errorf("%s expects 1 argument", nameUnitOutputs)
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
+		return nil, err
 	}
 	lazy, ok := args[0].(*lazyUnit)
 	if !ok {
-		return nil, typeError(nameUnitOutputs, "unit", 1)
+		return nil, lisp.ArgExpectError(typeUnit, 1)
 	}
 	return lazy.outputs, nil
 }
 
 func unitTypeFn(args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.Errorf("%s expects 1 argument", nameUnitType)
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
+		return nil, err
 	}
 	lazy, ok := args[0].(*lazyUnit)
 	if !ok {
-		return nil, typeError(nameUnitType, "unit", 1)
+		return nil, lisp.ArgExpectError(typeUnit, 1)
 	}
 	return lazy.typ, nil
 }
 
 func unitIDFn(args lisp.List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, errors.Errorf("%s expects 1 argument", nameUnitID)
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
+		return nil, err
 	}
 	lazy, ok := args[0].(*lazyUnit)
 	if !ok {
-		return nil, typeError(nameUnitID, "unit", 1)
+		return nil, lisp.ArgExpectError(typeUnit, 1)
 	}
 	return lazy.id, nil
 }
