@@ -6,12 +6,12 @@ import (
 )
 
 func mapFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	fn, ok := args[0].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError(typeFunction, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
 	}
 
 	switch v := args[1].(type) {
@@ -36,17 +36,17 @@ func mapFn(args lisp.List) (interface{}, error) {
 		}
 		return out, nil
 	default:
-		return nil, argExpectError(acceptTypes(typeList, typeTable), 2)
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeList, lisp.TypeTable), 2)
 	}
 }
 
 func eachFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	fn, ok := args[0].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError(typeFunction, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
 	}
 
 	switch v := args[1].(type) {
@@ -67,25 +67,25 @@ func eachFn(args lisp.List) (interface{}, error) {
 		}
 		return v, nil
 	default:
-		return nil, argExpectError(acceptTypes(typeList, typeTable), 2)
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeList, lisp.TypeTable), 2)
 	}
 }
 
 func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	binding, ok := args[0].(lisp.List)
 	if !ok {
-		return nil, argExpectError(typeList, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeList, 1)
 	}
 	if len(binding) != 2 {
-		return nil, argExpectError("name/value pair binding", 1)
+		return nil, lisp.ArgExpectError("name/value pair binding", 1)
 	}
 
 	body, ok := args[1].(lisp.List)
 	if !ok {
-		return nil, argExpectError(typeList, 2)
+		return nil, lisp.ArgExpectError(lisp.TypeList, 2)
 	}
 
 	env = env.Branch()
@@ -119,12 +119,12 @@ func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func reduceFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 3); err != nil {
+	if err := lisp.CheckArityEqual(args, 3); err != nil {
 		return nil, err
 	}
 	fn, ok := args[0].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError(typeFunction, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
 	}
 
 	switch v := args[2].(type) {
@@ -149,6 +149,6 @@ func reduceFn(args lisp.List) (interface{}, error) {
 		}
 		return reduce, nil
 	default:
-		return nil, argExpectError(acceptTypes(typeList, typeTable), 3)
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeList, lisp.TypeTable), 3)
 	}
 }

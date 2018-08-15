@@ -6,21 +6,21 @@ import (
 )
 
 func equalFn(args lisp.List) (value interface{}, err error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	return args[0] == args[1], nil
 }
 
 func notEqualFn(args lisp.List) (value interface{}, err error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	return args[0] != args[1], nil
 }
 
 func lessThanFn(args lisp.List) (value interface{}, err error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -45,7 +45,7 @@ func lessThanFn(args lisp.List) (value interface{}, err error) {
 }
 
 func greaterThanFn(args lisp.List) (value interface{}, err error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -116,7 +116,7 @@ func orFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func notFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 1); err != nil {
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
 	var condition bool
@@ -133,7 +133,7 @@ func notFn(args lisp.List) (interface{}, error) {
 }
 
 func ifFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 3); err != nil {
+	if err := lisp.CheckArityEqual(args, 3); err != nil {
 		return nil, err
 	}
 	v, err := env.Eval(args[0])
@@ -154,7 +154,7 @@ func ifFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func whenFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	v, err := env.Eval(args[0])
@@ -179,7 +179,7 @@ func whenFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func unlessFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	v, err := env.Eval(args[0])
@@ -204,7 +204,7 @@ func unlessFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func condFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 1); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 1); err != nil {
 		return nil, err
 	}
 	for _, n := range args {

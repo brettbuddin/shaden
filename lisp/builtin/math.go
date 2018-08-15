@@ -9,7 +9,7 @@ import (
 )
 
 func multFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -36,7 +36,7 @@ func multFn(args lisp.List) (interface{}, error) {
 }
 
 func divFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -73,7 +73,7 @@ func divFn(args lisp.List) (interface{}, error) {
 }
 
 func sumFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -100,7 +100,7 @@ func sumFn(args lisp.List) (interface{}, error) {
 }
 
 func diffFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	var (
@@ -137,7 +137,7 @@ func diffFn(args lisp.List) (interface{}, error) {
 }
 
 func powFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -148,7 +148,7 @@ func powFn(args lisp.List) (interface{}, error) {
 	} else if f, ok := args[0].(float64); ok {
 		x = f
 	} else {
-		return nil, argExpectError(acceptTypes(typeInt, typeFloat), 1)
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 1)
 	}
 
 	if v, ok := args[1].(int); ok {
@@ -156,14 +156,14 @@ func powFn(args lisp.List) (interface{}, error) {
 	} else if f, ok := args[1].(float64); ok {
 		y = f
 	} else {
-		return nil, argExpectError(acceptTypes(typeInt, typeFloat), 2)
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 2)
 	}
 
 	return math.Pow(x, y), nil
 }
 
 func randFn(args lisp.List) (value interface{}, err error) {
-	if err := checkArityEqual(args, 0); err != nil {
+	if err := lisp.CheckArityEqual(args, 0); err != nil {
 		return nil, err
 	}
 	return rand.Float64(), nil

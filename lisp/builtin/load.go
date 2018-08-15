@@ -9,7 +9,7 @@ import (
 )
 
 func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 1); err != nil {
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
 
@@ -19,7 +19,7 @@ func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 	path, ok := raw.(string)
 	if !ok {
-		return nil, argExpectError("string", 1)
+		return nil, lisp.ArgExpectError("string", 1)
 	}
 
 	loadPath, err := env.GetSymbol("load-path")

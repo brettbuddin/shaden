@@ -22,7 +22,7 @@ func tgetFn(args lisp.List) (interface{}, error) {
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError(typeTable, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeTable, 1)
 	}
 	if v, ok := m[args[1]]; ok {
 		return v, nil
@@ -34,43 +34,43 @@ func tgetFn(args lisp.List) (interface{}, error) {
 }
 
 func tsetFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 3); err != nil {
+	if err := lisp.CheckArityEqual(args, 3); err != nil {
 		return nil, err
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError(typeTable, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeTable, 1)
 	}
 	m[args[1]] = args[2]
 	return nil, nil
 }
 
 func tdeleteFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError(typeTable, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeTable, 1)
 	}
 	delete(m, args[1])
 	return nil, nil
 }
 
 func texistsFn(args lisp.List) (interface{}, error) {
-	if err := checkArityEqual(args, 2); err != nil {
+	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	m, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError(typeTable, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeTable, 1)
 	}
 	_, ok = m[args[1]]
 	return ok, nil
 }
 
 func mergeFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	m := lisp.Table{}
@@ -87,19 +87,19 @@ func mergeFn(args lisp.List) (interface{}, error) {
 }
 
 func tselectFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	filtered := lisp.Table{}
 
 	t, ok := args[0].(lisp.Table)
 	if !ok {
-		return nil, argExpectError(typeTable, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeTable, 1)
 	}
 
 	fn, ok := args[1].(func(lisp.List) (interface{}, error))
 	if !ok {
-		return nil, argExpectError(typeFunction, 2)
+		return nil, lisp.ArgExpectError(lisp.TypeFunction, 2)
 	}
 
 	for k, v := range t {

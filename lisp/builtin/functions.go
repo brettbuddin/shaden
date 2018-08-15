@@ -26,13 +26,13 @@ func doFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 
 	bindings, ok := args[0].(lisp.List)
 	if !ok {
-		return nil, argExpectError(typeList, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeList, 1)
 	}
 
 	env = env.Branch()
@@ -68,12 +68,12 @@ func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 }
 
 func fnFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 	params, ok := args[0].(lisp.List)
 	if !ok {
-		return nil, argExpectError(typeList, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeList, 1)
 	}
 	for _, n := range params {
 		if _, ok := n.(lisp.Symbol); !ok {
@@ -173,7 +173,7 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (int
 }
 
 func applyFn(args lisp.List) (interface{}, error) {
-	if err := checkArityAtLeast(args, 2); err != nil {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
 
@@ -195,6 +195,6 @@ func applyFn(args lisp.List) (interface{}, error) {
 	case func(lisp.List) (interface{}, error):
 		return fn(flat)
 	default:
-		return nil, argExpectError(typeFunction, 1)
+		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
 	}
 }

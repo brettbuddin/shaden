@@ -2,6 +2,18 @@ package lisp
 
 import "fmt"
 
+const (
+	TypeBool     = "bool"
+	TypeFloat    = "float"
+	TypeFunction = "function"
+	TypeInt      = "int"
+	TypeKeyword  = "keyword"
+	TypeList     = "list"
+	TypeString   = "string"
+	TypeSymbol   = "symbol"
+	TypeTable    = "table"
+)
+
 // Func is a object that can act as a function invocation in the lisp. It receives fully evaluated arguments.
 type Func interface {
 	Name() string
