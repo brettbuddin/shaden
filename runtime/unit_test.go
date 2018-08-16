@@ -31,7 +31,7 @@ func TestUnitOutputs(t *testing.T) {
 		(unit-outputs noop)
 	`))
 	require.NoError(t, err)
-	require.Equal(t, []string{"out"}, v)
+	require.Equal(t, lisp.List{"out"}, v)
 }
 
 func TestUnitInputs(t *testing.T) {
@@ -50,7 +50,7 @@ func TestUnitInputs(t *testing.T) {
 		(unit-inputs noop)
 	`))
 	require.NoError(t, err)
-	require.Equal(t, []string{"x"}, v)
+	require.Equal(t, lisp.List{"x"}, v)
 }
 
 func TestUnitID(t *testing.T) {

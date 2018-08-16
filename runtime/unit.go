@@ -416,7 +416,11 @@ func unitInputsFn(args lisp.List) (interface{}, error) {
 	if !ok {
 		return nil, lisp.ArgExpectError(typeUnit, 1)
 	}
-	return lazy.inputs, nil
+	var inputs lisp.List
+	for _, in := range lazy.inputs {
+		inputs = append(inputs, in)
+	}
+	return inputs, nil
 }
 
 func unitOutputsFn(args lisp.List) (interface{}, error) {
@@ -427,7 +431,11 @@ func unitOutputsFn(args lisp.List) (interface{}, error) {
 	if !ok {
 		return nil, lisp.ArgExpectError(typeUnit, 1)
 	}
-	return lazy.outputs, nil
+	var outputs lisp.List
+	for _, out := range lazy.outputs {
+		outputs = append(outputs, out)
+	}
+	return outputs, nil
 }
 
 func unitTypeFn(args lisp.List) (interface{}, error) {
