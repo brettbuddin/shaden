@@ -10,7 +10,7 @@ const (
 	symbolAmpersand  = lisp.Symbol("&")
 )
 
-func doFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func beginFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	env = env.Branch()
 	var (
 		value interface{}
@@ -49,9 +49,7 @@ func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 			if err != nil {
 				return nil, err
 			}
-			if err := env.DefineSymbol(string(name), value); err != nil {
-				return nil, err
-			}
+			env.DefineSymbol(string(name), value)
 		}
 	}
 	var (
@@ -147,16 +145,12 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (int
 			if symbol == symbolUnderscore {
 				continue
 			}
-			if err := env.DefineSymbol(string(symbol), arg); err != nil {
-				return nil, err
-			}
+			env.DefineSymbol(string(symbol), arg)
 		}
 	}
 
 	if variadicSymbol != "" && variadicSymbol != symbolUnderscore {
-		if err := env.DefineSymbol(string(variadicSymbol), variadicArgs); err != nil {
-			return nil, err
-		}
+		env.DefineSymbol(string(variadicSymbol), variadicArgs)
 	}
 
 	var (

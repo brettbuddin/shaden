@@ -9,8 +9,7 @@ import (
 
 func TestEnvironment_Lookup(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", 42)
-	require.NoError(t, err)
+	env.DefineSymbol("hello", 42)
 	v, err := env.GetSymbol("hello")
 	require.NoError(t, err)
 	require.Equal(t, 42, v)
@@ -18,17 +17,15 @@ func TestEnvironment_Lookup(t *testing.T) {
 
 func TestEnvironment_LookupUndefined(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", 42)
-	require.NoError(t, err)
-	_, err = env.GetSymbol("helloworld")
+	env.DefineSymbol("hello", 42)
+	_, err := env.GetSymbol("helloworld")
 	require.Error(t, err)
 }
 
 func TestEnvironment_Set(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", 42)
-	require.NoError(t, err)
-	err = env.SetSymbol("hello", 41)
+	env.DefineSymbol("hello", 42)
+	err := env.SetSymbol("hello", 41)
 	require.NoError(t, err)
 	v, err := env.GetSymbol("hello")
 	require.NoError(t, err)
@@ -37,9 +34,8 @@ func TestEnvironment_Set(t *testing.T) {
 
 func TestEnvironment_Unset(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", 42)
-	require.NoError(t, err)
-	err = env.UnsetSymbol("hello")
+	env.DefineSymbol("hello", 42)
+	err := env.UnsetSymbol("hello")
 	require.NoError(t, err)
 	_, err = env.GetSymbol("hello")
 	require.Error(t, err)
@@ -47,9 +43,8 @@ func TestEnvironment_Unset(t *testing.T) {
 
 func TestEnvironment_UnsetUndefined(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", 42)
-	require.NoError(t, err)
-	err = env.UnsetSymbol("helloworld")
+	env.DefineSymbol("hello", 42)
+	err := env.UnsetSymbol("helloworld")
 	require.Error(t, err)
 }
 
@@ -61,27 +56,25 @@ func TestEnvironment_SetUndefined(t *testing.T) {
 
 func TestEnvironment_SymbolAlreadyDefined(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", 42)
-	require.NoError(t, err)
-	err = env.DefineSymbol("hello", 41)
-	require.Error(t, err)
+	env.DefineSymbol("hello", 42)
 	v, err := env.GetSymbol("hello")
 	require.NoError(t, err)
 	require.Equal(t, 42, v)
+
+	env.DefineSymbol("hello", 41)
+	v, err = env.GetSymbol("hello")
+	require.NoError(t, err)
+	require.Equal(t, 41, v)
 }
 
 func TestEnvironment_BranchParentLookup(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", 42)
-	require.NoError(t, err)
-
-	err = env.DefineSymbol("world", 2)
-	require.NoError(t, err)
+	env.DefineSymbol("hello", 42)
+	env.DefineSymbol("world", 2)
 
 	env = env.Branch()
 
-	err = env.DefineSymbol("hello", 41)
-	require.NoError(t, err)
+	env.DefineSymbol("hello", 41)
 
 	v, err := env.GetSymbol("hello")
 	require.NoError(t, err)
@@ -94,10 +87,9 @@ func TestEnvironment_BranchParentLookup(t *testing.T) {
 
 func TestEnvironment_FunctionCall(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", func(args List) (interface{}, error) {
+	env.DefineSymbol("hello", func(args List) (interface{}, error) {
 		return "hello " + args[0].(string), nil
 	})
-	require.NoError(t, err)
 
 	v, err := env.Eval(List{Symbol("hello"), "world"})
 	require.NoError(t, err)
@@ -106,10 +98,9 @@ func TestEnvironment_FunctionCall(t *testing.T) {
 
 func TestEnvironment_FunctionInterfaceCall(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", function(func(args List) (interface{}, error) {
+	env.DefineSymbol("hello", function(func(args List) (interface{}, error) {
 		return "hello " + args[0].(string), nil
 	}))
-	require.NoError(t, err)
 
 	v, err := env.Eval(List{Symbol("hello"), "world"})
 	require.NoError(t, err)
@@ -118,14 +109,13 @@ func TestEnvironment_FunctionInterfaceCall(t *testing.T) {
 
 func TestEnvironment_EnvFunctionCall(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", func(env *Environment, args List) (interface{}, error) {
+	env.DefineSymbol("hello", func(env *Environment, args List) (interface{}, error) {
 		v, err := env.Eval(args[0])
 		if err != nil {
 			return nil, err
 		}
 		return "hello " + v.(string), nil
 	})
-	require.NoError(t, err)
 
 	v, err := env.Eval(List{Symbol("hello"), "world"})
 	require.NoError(t, err)
@@ -134,14 +124,13 @@ func TestEnvironment_EnvFunctionCall(t *testing.T) {
 
 func TestEnvironment_EnvFunctionInterfaceCall(t *testing.T) {
 	env := NewEnvironment()
-	err := env.DefineSymbol("hello", envFunction(func(env *Environment, args List) (interface{}, error) {
+	env.DefineSymbol("hello", envFunction(func(env *Environment, args List) (interface{}, error) {
 		v, err := env.Eval(args[0])
 		if err != nil {
 			return nil, err
 		}
 		return "hello " + v.(string), nil
 	}))
-	require.NoError(t, err)
 
 	v, err := env.Eval(List{Symbol("hello"), "world"})
 	require.NoError(t, err)

@@ -31,13 +31,13 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("and", andFn)
 	env.DefineSymbol("append", appendFn)
 	env.DefineSymbol("apply", applyFn)
+	env.DefineSymbol("begin", beginFn)
 	env.DefineSymbol("bool?", isBoolFn)
 	env.DefineSymbol("cond", condFn)
 	env.DefineSymbol("cons", consFn)
 	env.DefineSymbol("define", defineFn)
 	env.DefineSymbol("defined?", isDefinedFn)
 	env.DefineSymbol("define-macro", defineMacroFn)
-	env.DefineSymbol("do", doFn)
 	env.DefineSymbol("dotimes", dotimesFn)
 	env.DefineSymbol("each", eachFn)
 	env.DefineSymbol("empty?", isEmptyFn)
@@ -76,7 +76,7 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("read", readFn)
 	env.DefineSymbol("reduce", reduceFn)
 	env.DefineSymbol("rest", restFn)
-	env.DefineSymbol("set", setFn)
+	env.DefineSymbol("set!", setFn)
 	env.DefineSymbol("sleep", sleepFn)
 	env.DefineSymbol("string-split", stringSplitFn)
 	env.DefineSymbol("string-join", stringJoinFn)
@@ -88,11 +88,11 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("symbol", symbolFn)
 	env.DefineSymbol("symbol?", isSymbolFn)
 	env.DefineSymbol("table", tableFn)
-	env.DefineSymbol("table-delete", tdeleteFn)
+	env.DefineSymbol("table-delete!", tdeleteFn)
 	env.DefineSymbol("table-exists?", texistsFn)
 	env.DefineSymbol("table-get", tgetFn)
 	env.DefineSymbol("table-merge", mergeFn)
-	env.DefineSymbol("table-set", tsetFn)
+	env.DefineSymbol("table-set!", tsetFn)
 	env.DefineSymbol("table-select", tselectFn)
 	env.DefineSymbol("table?", isTableFn)
 	env.DefineSymbol("undefine", undefineFn)
@@ -141,7 +141,8 @@ func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		return nil, env.DefineSymbol(string(v), value)
+		env.DefineSymbol(string(v), value)
+		return nil, nil
 	case lisp.List:
 		for _, n := range v {
 			if _, ok := n.(lisp.Symbol); !ok {
@@ -150,7 +151,8 @@ func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		}
 		name := v[0].(lisp.Symbol)
 		fn := buildFunction(env, v[1:], args[1:])
-		return nil, env.DefineSymbol(string(name), fn)
+		env.DefineSymbol(string(name), fn)
+		return nil, nil
 	default:
 		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeSymbol, lisp.TypeList), 1)
 	}
@@ -180,7 +182,8 @@ func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		}
 
 		fn := buildMacroFunction(env, v[1:], processed)
-		return nil, env.DefineSymbol(string(name), fn)
+		env.DefineSymbol(string(name), fn)
+		return nil, nil
 	default:
 		return nil, lisp.ArgExpectError(lisp.TypeList, 1)
 	}

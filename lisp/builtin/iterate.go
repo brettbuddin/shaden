@@ -102,9 +102,8 @@ func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		return nil, errors.Errorf("expects an int for binding value")
 	}
 
-	if err := env.DefineSymbol(string(name), 0); err != nil {
-		return nil, err
-	}
+	env.DefineSymbol(string(name), 0)
+
 	for i := 0; i < n; i++ {
 		if i > 0 {
 			if err := env.SetSymbol(string(name), i); err != nil {
