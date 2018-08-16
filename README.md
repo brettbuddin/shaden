@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/brettbuddin/shaden?status.svg)](https://godoc.org/github.com/brettbuddin/shaden)
 [![Go Report Card](https://goreportcard.com/badge/github.com/brettbuddin/shaden)](https://goreportcard.com/report/github.com/brettbuddin/shaden)
 
-<img src="https://github.com/brettbuddin/shaden/raw/snail/extra/shaden-snail.png" width="200">
+<img src="https://github.com/brettbuddin/shaden/raw/master/extra/shaden-snail.png" width="200">
 
 Shaden is a modular audio synthesizer. Patches for the synthesizer are written in a Lisp dialect. A REPL and HTTP
 interface are provided for interacting with the synthesizer in real-time. I started this project as a way of learning
