@@ -92,8 +92,8 @@ func TestParser(t *testing.T) {
 		{input: []byte(`((table :a 1) :a)`), result: 1},
 		{input: []byte(`(table-exists? (table :a 1) :a)`), result: true},
 		{input: []byte(`(table-exists? (table :a 1) :b)`), result: false},
-		{input: []byte(`(let ((hm (table :a 1))) (table-set hm :a 3) (table-get hm :a))`), result: 3},
-		{input: []byte(`(let ((hm (table :a 1))) (table-delete hm :a) (table-get hm :a))`), result: nil},
+		{input: []byte(`(let ((hm (table :a 1))) (table-set! hm :a 3) (table-get hm :a))`), result: 3},
+		{input: []byte(`(let ((hm (table :a 1))) (table-delete! hm :a) (table-get hm :a))`), result: nil},
 		{input: []byte(`(rest (list 1 2 3))`), result: lisp.List{2, 3}},
 		{input: []byte(`(first (list 1 2 3))`), result: 1},
 		{input: []byte(`(cons 1 (list 2 3 4))`), result: lisp.List{1, 2, 3, 4}},
@@ -170,13 +170,13 @@ func TestParser(t *testing.T) {
 		// Definitions and Functions
 		{input: []byte(`(define hello 100) hello`), result: 100},
 		{input: []byte(`((fn (x y) (+ x y)) 5 8)`), result: 13},
-		{input: []byte(`((fn (x y) (set x (+ x y)) (+ x 1)) 5 8)`), result: 14},
+		{input: []byte(`((fn (x y) (set! x (+ x y)) (+ x 1)) 5 8)`), result: 14},
 		{input: []byte(`((fn (_ y) _) 1 2)`), error: "failed to call anonymous function: undefined symbol _"},
 		{input: []byte(`((fn (_ y) y) 1 2)`), result: 2},
 		{input: []byte(`(apply (fn (x y) (+ x y)) (list 5 8))`), result: 13},
 		{input: []byte(`(apply (fn (x y) (+ x y)) 5 9)`), result: 14},
 		{input: []byte(`(define (add1 x) (+ x 1)) (add1 1)`), result: 2},
-		{input: []byte(`(define (add3 x) (set x (+ x 1)) (+ x 2)) (add3 1)`), result: 4},
+		{input: []byte(`(define (add3 x) (set! x (+ x 1)) (+ x 2)) (add3 1)`), result: 4},
 		{input: []byte(`(begin (/ 10 2) (* 2 2))`), result: 4},
 		{input: []byte(`(let ((x 3) (y 4)) (* x y))`), result: 12},
 
@@ -196,7 +196,7 @@ func TestParser(t *testing.T) {
 			lisp.Keyword("b"): 2,
 		}},
 		{input: []byte(`(each (fn (i v) (+ 1 v)) (list 1 2 3))`), result: lisp.List{1, 2, 3}},
-		{input: []byte(`(define x 0) (dotimes (i 3) (set x (+ x 1))) x`), result: 3},
+		{input: []byte(`(define x 0) (dotimes (i 3) (set! x (+ x 1))) x`), result: 3},
 	}
 
 	for _, test := range tests {
@@ -232,7 +232,7 @@ func TestLoad(t *testing.T) {
 }
 
 func TestLoad_CustomLoadPath(t *testing.T) {
-	node, err := lisp.Parse(bytes.NewBufferString(`(set load-path (list "testdata/load-path/")) (load "load-path-example.lisp")`))
+	node, err := lisp.Parse(bytes.NewBufferString(`(set! load-path (list "testdata/load-path/")) (load "load-path-example.lisp")`))
 	require.NoError(t, err)
 
 	env := lisp.NewEnvironment()
