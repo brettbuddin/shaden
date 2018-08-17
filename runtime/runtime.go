@@ -120,6 +120,7 @@ func (r *Runtime) loadShaden() error {
 
 	r.loadConstants(env, sampleRate, frameSize)
 	r.loadValues(env, sampleRate)
+	loadTheory(env)
 
 	// Engine
 	env.DefineSymbol("emit", emitFn(engine, logger))
@@ -148,11 +149,6 @@ func (r *Runtime) loadValues(env *lisp.Environment, sampleRate int) {
 	env.DefineSymbol("ms", msFn(sampleRate))
 	env.DefineSymbol("bpm", bpmFn(sampleRate))
 	env.DefineSymbol("db", dbFn)
-
-	// Music Theory
-	env.DefineSymbol("theory/pitch", pitchFn)
-	env.DefineSymbol("theory/interval", intervalFn)
-	env.DefineSymbol("theory/transpose", transposeFn)
 }
 
 func (r *Runtime) loadConstants(env *lisp.Environment, sampleRate, frameSize int) {
@@ -183,13 +179,6 @@ func (r *Runtime) loadConstants(env *lisp.Environment, sampleRate, frameSize int
 	env.DefineSymbol("mode/lp", 0)
 	env.DefineSymbol("mode/both", 1)
 	env.DefineSymbol("mode/amp", 2)
-
-	// Note Qualities
-	env.DefineSymbol("quality/perfect", 0)
-	env.DefineSymbol("quality/minor", 1)
-	env.DefineSymbol("quality/major", 2)
-	env.DefineSymbol("quality/diminished", 3)
-	env.DefineSymbol("quality/augmented", 4)
 
 	// Logic Modes
 	env.DefineSymbol("logic/or", 0)
