@@ -49,7 +49,7 @@ func init() {
 	Chromatic = []mt.Interval{P1, m2, M2, m3, M3, P4, A4, P5, m6, M6, m7, M7}
 	DominantBebop = []mt.Interval{P1, M2, M3, P4, P5, M6, m7, M7}
 	Dorian = []mt.Interval{P1, M2, m3, P4, P5, M6, m7}
-	DoubleHarmonic = []mt.Interval{m2, M3, P4, P5, m6, M7}
+	DoubleHarmonic = []mt.Interval{P1, m2, M3, P4, P5, m6, M7}
 	HarmonicMinor = []mt.Interval{P1, M2, m3, P4, P5, m6, M7}
 	HarmonicMinorBebop = []mt.Interval{P1, M2, m3, P4, P5, M6, d7, m7}
 	InSen = []mt.Interval{P1, m2, P4, P5, m7}
