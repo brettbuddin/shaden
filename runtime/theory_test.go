@@ -6,7 +6,9 @@ import (
 	"testing"
 
 	"github.com/brettbuddin/musictheory"
+	"github.com/brettbuddin/musictheory/intervals"
 	"github.com/brettbuddin/shaden/engine"
+	"github.com/brettbuddin/shaden/lisp"
 	"github.com/stretchr/testify/require"
 )
 
@@ -88,4 +90,110 @@ func TestTranspose(t *testing.T) {
 
 	_, err = run.Eval([]byte(`(theory/pitch)`))
 	require.Error(t, err)
+}
+
+func TestScale(t *testing.T) {
+	var (
+		messages = messageChannel{make(chan *engine.Message)}
+		eng, err = engine.New(newBackend(0), frameSize, engine.WithMessageChannel(messages))
+		logger   = log.New(os.Stdout, "", -1)
+	)
+
+	require.NoError(t, err)
+	run, err := New(eng, logger)
+	require.NoError(t, err)
+
+	root, _ := musictheory.ParsePitch("C4")
+
+	newScale := func(intvls []musictheory.Interval, octaves int) lisp.List {
+		var list lisp.List
+		for _, v := range musictheory.NewScale(root, intvls, octaves) {
+			list = append(list, v)
+		}
+		return list
+	}
+
+	tests := []struct {
+		input    string
+		expected lisp.List
+	}{
+		{`(theory/scale (theory/pitch "C4") "major" 1)`, newScale(intervals.Major, 1)},
+		{`(theory/scale (theory/pitch "C4") "minor" 1)`, newScale(intervals.Minor, 1)},
+		{`(theory/scale (theory/pitch "C4") "aeolian" 1)`, newScale(intervals.Aeolian, 1)},
+		{`(theory/scale (theory/pitch "C4") "chromatic" 1)`, newScale(intervals.Chromatic, 1)},
+		{`(theory/scale (theory/pitch "C4") "dominant-bebop" 1)`, newScale(intervals.DominantBebop, 1)},
+		{`(theory/scale (theory/pitch "C4") "dorian" 1)`, newScale(intervals.Dorian, 1)},
+		{`(theory/scale (theory/pitch "C4") "double-harmonic" 1)`, newScale(intervals.DoubleHarmonic, 1)},
+		{`(theory/scale (theory/pitch "C4") "in-sen" 1)`, newScale(intervals.InSen, 1)},
+		{`(theory/scale (theory/pitch "C4") "ionian" 1)`, newScale(intervals.Ionian, 1)},
+		{`(theory/scale (theory/pitch "C4") "locrian" 1)`, newScale(intervals.Locrian, 1)},
+		{`(theory/scale (theory/pitch "C4") "lydian" 1)`, newScale(intervals.Lydian, 1)},
+		{`(theory/scale (theory/pitch "C4") "major-bebop" 1)`, newScale(intervals.MajorBebop, 1)},
+		{`(theory/scale (theory/pitch "C4") "major-pentatonic" 1)`, newScale(intervals.MajorPentatonic, 1)},
+		{`(theory/scale (theory/pitch "C4") "melodic-minor-bebop" 1)`, newScale(intervals.MelodicMinorBebop, 1)},
+		{`(theory/scale (theory/pitch "C4") "minor-pentatonic" 1)`, newScale(intervals.MinorPentatonic, 1)},
+		{`(theory/scale (theory/pitch "C4") "mixolydian" 1)`, newScale(intervals.Mixolydian, 1)},
+		{`(theory/scale (theory/pitch "C4") "phrygian" 1)`, newScale(intervals.Phrygian, 1)},
+		{`(theory/scale (theory/pitch "C4") "whole-tone" 1)`, newScale(intervals.WholeTone, 1)},
+		{`(theory/scale (theory/pitch "C4") "whole-tone" 2)`, newScale(intervals.WholeTone, 2)},
+	}
+
+	for _, test := range tests {
+		t.Run(test.input, func(t *testing.T) {
+			v, err := run.Eval([]byte(test.input))
+			require.NoError(t, err)
+			require.Equal(t, test.expected, v)
+		})
+	}
+}
+
+func TestChord(t *testing.T) {
+	var (
+		messages = messageChannel{make(chan *engine.Message)}
+		eng, err = engine.New(newBackend(0), frameSize, engine.WithMessageChannel(messages))
+		logger   = log.New(os.Stdout, "", -1)
+	)
+
+	require.NoError(t, err)
+	run, err := New(eng, logger)
+	require.NoError(t, err)
+
+	root, _ := musictheory.ParsePitch("C4")
+
+	newChord := func(intvls []musictheory.Interval) lisp.List {
+		var list lisp.List
+		for _, v := range musictheory.NewChord(root, intvls) {
+			list = append(list, v)
+		}
+		return list
+	}
+
+	tests := []struct {
+		input    string
+		expected lisp.List
+	}{
+		{`(theory/chord (theory/pitch "C4") "major")`, newChord(intervals.MajorTriad)},
+		{`(theory/chord (theory/pitch "C4") "minor")`, newChord(intervals.MinorTriad)},
+		{`(theory/chord (theory/pitch "C4") "augmented-major-seventh")`, newChord(intervals.AugmentedMajorSeventh)},
+		{`(theory/chord (theory/pitch "C4") "augmented-seventh")`, newChord(intervals.AugmentedSeventh)},
+		{`(theory/chord (theory/pitch "C4") "augmented-sixth")`, newChord(intervals.AugmentedSixth)},
+		{`(theory/chord (theory/pitch "C4") "augmented")`, newChord(intervals.AugmentedTriad)},
+		{`(theory/chord (theory/pitch "C4") "diminished-major-seventh")`, newChord(intervals.DiminishedMajorSeventh)},
+		{`(theory/chord (theory/pitch "C4") "diminished-seventh")`, newChord(intervals.DiminishedSeventh)},
+		{`(theory/chord (theory/pitch "C4") "diminished")`, newChord(intervals.DiminishedTriad)},
+		{`(theory/chord (theory/pitch "C4") "dominant-seventh")`, newChord(intervals.DominantSeventh)},
+		{`(theory/chord (theory/pitch "C4") "half-diminished-seventh")`, newChord(intervals.HalfDiminishedSeventh)},
+		{`(theory/chord (theory/pitch "C4") "major-seventh")`, newChord(intervals.MajorSeventh)},
+		{`(theory/chord (theory/pitch "C4") "major-sixth")`, newChord(intervals.MajorSixth)},
+		{`(theory/chord (theory/pitch "C4") "minor-seventh")`, newChord(intervals.MinorSeventh)},
+		{`(theory/chord (theory/pitch "C4") "minor-sixth")`, newChord(intervals.MinorSixth)},
+	}
+
+	for _, test := range tests {
+		t.Run(test.input, func(t *testing.T) {
+			v, err := run.Eval([]byte(test.input))
+			require.NoError(t, err)
+			require.Equal(t, test.expected, v)
+		})
+	}
 }
