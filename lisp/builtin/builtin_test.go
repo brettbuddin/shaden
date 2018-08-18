@@ -33,6 +33,7 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(string-replace "hi-world" "world" "mark" -1)`), result: "hi-mark"},
 		{input: []byte(`(string-replace "hi-world-world" "world" "mark" 1)`), result: "hi-mark-world"},
 		{input: []byte(`(string? (string :hello))`), result: true},
+		{input: []byte(`(reverse "hello")`), result: "olleh"},
 		{input: []byte(`:hello`), result: lisp.Keyword(`hello`)},
 		{input: []byte(`(keyword "hello")`), result: lisp.Keyword(`hello`)},
 		{input: []byte(`(keyword (keyword "hello"))`), result: lisp.Keyword(`hello`)},
@@ -111,6 +112,7 @@ func TestParser(t *testing.T) {
 		}},
 		{input: []byte(`(reduce (fn (r i v) (+ r v)) 0 (list 1 2 3))`), result: 6},
 		{input: []byte(`(reduce (fn (r k v) (+ r v)) 0 (table :a 2 :b 3))`), result: 5},
+		{input: []byte(`(reverse (list 1 2 3))`), result: lisp.List{3, 2, 1}},
 
 		// Math
 		{input: []byte(`(+ 1 1)`), result: 2},
