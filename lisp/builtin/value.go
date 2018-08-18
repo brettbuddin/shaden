@@ -198,6 +198,11 @@ func isEmptyFn(args lisp.List) (interface{}, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
+
+	if args[0] == nil {
+		return true, nil
+	}
+
 	switch v := args[0].(type) {
 	case lisp.Table:
 		return len(v) == 0, nil
