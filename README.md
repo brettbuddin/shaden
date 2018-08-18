@@ -52,7 +52,7 @@ On macOS you can install these dependencies with: `brew install go portaudio por
 
 #### HTTP
 
-    $ shaden
+    $ shaden examples/krell.lisp
     $ curl -X POST http://127.0.0.1:5000/eval -d "(define source (unit/gen)) ; ..."
 
 This is my preferred way of interacting with the synthesizer. I've written a small Vim plugin that can send over
