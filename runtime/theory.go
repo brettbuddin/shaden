@@ -93,10 +93,17 @@ func scaleFn(args lisp.List) (interface{}, error) {
 	if !ok {
 		return nil, lisp.ArgExpectError("pitch", 1)
 	}
-	name, ok := args[1].(string)
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeString, 2)
+
+	var name string
+	switch v := args[1].(type) {
+	case string:
+		name = v
+	case lisp.Keyword:
+		name = string(v)
+	default:
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 2)
 	}
+
 	octaves, ok := args[2].(int)
 	if !ok {
 		return nil, lisp.ArgExpectError(lisp.TypeInt, 3)
@@ -122,9 +129,15 @@ func chordFn(args lisp.List) (interface{}, error) {
 	if !ok {
 		return nil, lisp.ArgExpectError("pitch", 1)
 	}
-	name, ok := args[1].(string)
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeString, 2)
+
+	var name string
+	switch v := args[1].(type) {
+	case string:
+		name = v
+	case lisp.Keyword:
+		name = string(v)
+	default:
+		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 2)
 	}
 
 	itvls, err := nameToChord(name)
