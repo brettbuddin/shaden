@@ -3,11 +3,15 @@ package musictheory
 import "math"
 
 func normalizeChromatic(v int) int {
-	return int(mod(float64(v), 12))
+	return int(math.Mod(float64(v), 12))
 }
 
 func normalizeDiatonic(v int) int {
-	return int(mod(float64(v), 7))
+	return int(math.Mod(float64(v), 7))
+}
+
+func normalizeChromaticPositive(v int) int {
+	return int(posMod(float64(v), 12))
 }
 
 func diatonicOctaves(v int) int {
@@ -26,7 +30,7 @@ func inverseDiatonic(v int) int {
 	return 7 - v
 }
 
-func mod(n, m float64) float64 {
+func posMod(n, m float64) float64 {
 	out := math.Mod(n, m)
 	if out < 0 {
 		out += m

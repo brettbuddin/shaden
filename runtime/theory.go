@@ -53,6 +53,8 @@ func intervalFn(args lisp.List) (interface{}, error) {
 	}
 
 	switch quality {
+	case "semitone":
+		return musictheory.Semitones(step), nil
 	case "perfect":
 		return musictheory.Perfect(step), nil
 	case "minor", "min":
@@ -66,7 +68,7 @@ func intervalFn(args lisp.List) (interface{}, error) {
 	case "octave":
 		return musictheory.Octave(step), nil
 	default:
-		return nil, errors.Errorf("unknown interval quality %s", quality)
+		return nil, errors.Errorf("unknown interval %s", quality)
 	}
 }
 

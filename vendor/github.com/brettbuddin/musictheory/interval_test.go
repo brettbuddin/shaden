@@ -97,6 +97,9 @@ func TestTranspose(test *testing.T) {
 		initial, interval, expected Interval
 		times                       int
 	}{
+		{Interval{0, 0, 0}, Semitones(1), Interval{0, 1, 1}, 1},
+		{Interval{0, 0, 0}, Semitones(12), Interval{1, 0, 0}, 1},
+
 		// Sequential transpositions M2
 		{Interval{0, 0, 0}, Major(2), Interval{0, 1, 2}, 1},
 		{Interval{0, 0, 0}, Major(2), Interval{0, 2, 4}, 2},

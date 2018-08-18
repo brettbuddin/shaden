@@ -62,7 +62,7 @@ type ModifierStrategy func(int) int
 // Name returns the name of the pitch using a particular name strategy (either AscNames or DescNames). The result is
 // in scientific pitch notation format.
 func (p Pitch) Name(strategy ModifierStrategy) string {
-	semitones := normalizeChromatic(p.Chromatic)
+	semitones := normalizeChromaticPositive(p.Chromatic)
 	nameIndex := strategy(semitones)
 	delta := semitones - diatonicToChromatic(nameIndex)
 
@@ -97,7 +97,7 @@ func (p Pitch) String() string {
 }
 
 func modifierName(i int) string {
-	return modifierNames[int(mod(float64(i), float64(len(modifierNames))))]
+	return modifierNames[int(posMod(float64(i), float64(len(modifierNames))))]
 }
 
 // NearestPitch returns the closest pitch to an arbitrary frequency

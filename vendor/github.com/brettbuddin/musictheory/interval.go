@@ -59,7 +59,8 @@ func Octave(step int) Interval {
 
 // Semitones is an interval using direct semitones
 func Semitones(step int) Interval {
-	return Interval{chromaticOctaves(step), chromaticToDiatonic(step), step}
+	normal := normalizeChromatic(step)
+	return Interval{chromaticOctaves(step), chromaticToDiatonic(normal), normal}
 }
 
 func qualityInterval(step int, quality Quality) Interval {
@@ -132,13 +133,14 @@ func (i Interval) Transpose(o Interval) Interval {
 		diatonic = i.Diatonic + o.Diatonic
 	}
 
-	diatonicOctaves := diatonicOctaves(diatonic)
-	diatonicRemainder := normalizeDiatonic(diatonic)
+	var (
+		chromatic         = i.Chromatic + o.Chromatic
+		diatonicRemainder = normalizeDiatonic(diatonic)
+		octaves           = i.Octaves + o.Octaves + chromaticOctaves(chromatic)
+		finalChromatic    = normalizeChromatic(i.Chromatic + o.Chromatic)
+	)
 
-	octaves := i.Octaves + o.Octaves + diatonicOctaves
-	chromatic := normalizeChromatic(i.Chromatic + o.Chromatic)
-
-	return Interval{octaves, diatonicRemainder, chromatic}
+	return Interval{octaves, diatonicRemainder, finalChromatic}
 }
 
 // Negate returns a new, negated Interval
