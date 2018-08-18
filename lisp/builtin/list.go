@@ -13,6 +13,11 @@ func consFn(args lisp.List) (interface{}, error) {
 		return nil, err
 	}
 	list := lisp.List{args[0]}
+
+	if args[1] == nil {
+		return list, nil
+	}
+
 	switch v := args[1].(type) {
 	case lisp.List:
 		for _, e := range v {
