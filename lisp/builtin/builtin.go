@@ -95,6 +95,7 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("table-set!", tsetFn)
 	env.DefineSymbol("table-select", tselectFn)
 	env.DefineSymbol("table?", isTableFn)
+	env.DefineSymbol("type", typeFn)
 	env.DefineSymbol("undefine", undefineFn)
 	env.DefineSymbol("unless", unlessFn)
 	env.DefineSymbol("when", whenFn)

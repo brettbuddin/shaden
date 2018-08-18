@@ -8,6 +8,34 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
+func typeFn(args lisp.List) (interface{}, error) {
+	if err := lisp.CheckArityEqual(args, 1); err != nil {
+		return nil, err
+	}
+	switch v := args[0].(type) {
+	case string:
+		return lisp.TypeString, nil
+	case int:
+		return lisp.TypeInt, nil
+	case float64:
+		return lisp.TypeFloat, nil
+	case lisp.Keyword:
+		return lisp.TypeKeyword, nil
+	case lisp.Symbol:
+		return lisp.TypeSymbol, nil
+	case lisp.List:
+		return lisp.TypeList, nil
+	case lisp.Table:
+		return lisp.TypeTable, nil
+	case func(lisp.List) (interface{}, error):
+		return lisp.TypeFunction, nil
+	case func(*lisp.Environment, lisp.List) (interface{}, error):
+		return lisp.TypeFunction, nil
+	default:
+		return fmt.Sprintf("%T", v), nil
+	}
+}
+
 func quoteFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	if len(args) == 0 {
 		return nil, nil
