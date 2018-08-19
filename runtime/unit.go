@@ -325,7 +325,7 @@ func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 				}
 			}
 		default:
-			return nil, typeRemainingError("hash or list", 2)
+			return nil, typeRemainingError(lisp.AcceptTypes(lisp.TypeTable, lisp.TypeList), 2)
 		}
 	}
 	return inputs, nil

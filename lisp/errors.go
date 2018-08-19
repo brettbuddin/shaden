@@ -68,5 +68,8 @@ func ArgExpectError(what string, pos int) error {
 
 // AcceptTypes creates a formatted list of accepted types for humans
 func AcceptTypes(names ...string) string {
+	if len(names) == 2 {
+		return strings.Join(names, " or ")
+	}
 	return strings.Replace(strings.Join(names, ", "), ",", "or", len(names)-1)
 }

@@ -19,7 +19,7 @@ func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 	path, ok := raw.(string)
 	if !ok {
-		return nil, lisp.ArgExpectError("string", 1)
+		return nil, lisp.ArgExpectError(lisp.TypeString, 1)
 	}
 
 	loadPath, err := env.GetSymbol("load-path")
@@ -36,7 +36,7 @@ func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 
 	if found == "" {
-		return nil, errors.Errorf("%s not found n load-path", path)
+		return nil, errors.Errorf("%s not found in load-path", path)
 	}
 
 	f, err := os.Open(found)
