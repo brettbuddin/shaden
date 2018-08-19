@@ -41,10 +41,10 @@ func EmitOutputs(left, right unit.OutRef) func(*Graph) (interface{}, error) {
 				return nil, errors.Errorf("unit %s has no output %q", right.Unit.ID, right.Output)
 			}
 		}
-		if err := unit.Patch(g.graph, leftOut, g.sink.In["l"]); err != nil {
+		if err := g.Patch(leftOut, g.sink.In["l"]); err != nil {
 			return nil, errors.Wrap(err, "patch")
 		}
-		return nil, unit.Patch(g.graph, rightOut, g.sink.In["r"])
+		return nil, g.Patch(rightOut, g.sink.In["r"])
 	}
 }
 
@@ -79,5 +79,50 @@ func PatchInput(u *unit.Unit, inputs map[string]interface{}, forceReset bool) fu
 			}
 		}
 		return nil, nil
+	}
+}
+
+// SwapUnit swaps one unit out in the graph for another. If the two units or of
+// different types, the original is just removed and nothing is done. Otherwise,
+// it tries its best to patch sources and destinatinos from the original unit to
+// the new unit.
+func SwapUnit(u1, u2 *unit.Unit) func(*Graph) (interface{}, error) {
+	return func(g *Graph) (interface{}, error) {
+		if u1.Type != u2.Type {
+			return nil, g.Unmount(u1)
+		}
+
+		for k, u1in := range u1.In {
+			u2in, ok := u2.In[k]
+			if !ok {
+				continue
+			}
+			if u1in.HasSource() {
+				if err := g.Patch(u1in.Source(), u2in); err != nil {
+					return nil, err
+				}
+				if err := g.Unpatch(u1in); err != nil {
+					return nil, err
+				}
+			} else {
+				if err := g.Patch(u1in.Constant(), u2in); err != nil {
+					return nil, err
+				}
+			}
+		}
+
+		for k, u1out := range u1.Out {
+			u2out, ok := u2.Out[k]
+			if !ok {
+				continue
+			}
+			for _, in := range u1out.Out().Destinations() {
+				if err := g.Patch(u2out, in); err != nil {
+					return nil, err
+				}
+			}
+		}
+
+		return nil, g.Unmount(u1)
 	}
 }

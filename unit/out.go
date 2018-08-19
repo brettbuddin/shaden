@@ -65,6 +65,18 @@ func (out *Out) ExternalNeighborCount() int {
 	return out.node.OutNeighborCount()
 }
 
+// Destinations returns a list of all destination inputs of the output
+func (out *Out) Destinations() []*In {
+	var (
+		nodes = out.node.OutNeighbors()
+		dests = make([]*In, len(nodes))
+	)
+	for i, n := range nodes {
+		dests[i] = n.Value.(*In)
+	}
+	return dests
+}
+
 func (out *Out) String() string {
 	return fmt.Sprintf("%s/%s", out.unit.ID, out.Name)
 }

@@ -23,7 +23,7 @@ const controlPeriod = 64
 type In struct {
 	Name               string
 	Mode               InMode
-	normal             dsp.Valuer
+	normal, constant   dsp.Valuer
 	frame, normalFrame []float64
 	unit               *Unit
 	source             *Out
@@ -78,6 +78,7 @@ func (in *In) Fill(v dsp.Valuer) {
 	for i := range in.frame {
 		in.frame[i] = v.Float64()
 	}
+	in.constant = v
 }
 
 // Write writes a sample to the internal buffer
@@ -98,11 +99,22 @@ func (in *In) HasSource() bool {
 	return in.source != nil
 }
 
+// Source returns the inbound connection if it has one
+func (in *In) Source() *Out {
+	return in.source
+}
+
+// Constant is the constant value that's filling the buffer.
+func (in *In) Constant() dsp.Valuer {
+	return in.constant
+}
+
 // Reset disconnects an input from an output (if a connection has been established) and fills the frame with the normal
 // constant value
 func (in *In) Reset() {
 	in.source = nil
 	in.frame = in.normalFrame
+	in.constant = in.normal
 	in.Fill(in.normal)
 }
 

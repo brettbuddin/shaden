@@ -128,10 +128,14 @@ func (u *Unit) Detach(g *graph.Graph) error {
 		if out := e.Out(); out.DestinationCount() > 0 {
 			dests := out.node.OutNeighbors()
 			for _, n := range dests {
-				n.Value.(*In).Reset()
 				if err := g.RemoveConnection(out.node, n); err != nil {
 					return errors.Wrap(err, "remove output connection failed")
 				}
+				in := n.Value.(*In)
+				if in.Source() != out {
+					continue
+				}
+				in.Reset()
 			}
 		}
 		if err := g.RemoveNode(e.Out().node); err != nil {
@@ -151,6 +155,10 @@ func (u *Unit) ExternalNeighborCount() int {
 		n += out.Out().ExternalNeighborCount()
 	}
 	return n
+}
+
+func (u *Unit) String() string {
+	return u.ID
 }
 
 func isTrig(last, current float64) bool {

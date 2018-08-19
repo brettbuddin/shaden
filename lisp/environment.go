@@ -34,10 +34,16 @@ func (e *Environment) Branch() *Environment {
 }
 
 // DefineSymbol defines a symbol.
-func (e *Environment) DefineSymbol(symbol string, v interface{}) {
+func (e *Environment) DefineSymbol(symbol string, v interface{}) error {
 	e.Lock()
 	defer e.Unlock()
+	if exist, ok := e.symbols[symbol]; ok {
+		if err := e.replace(exist, v); err != nil {
+			return err
+		}
+	}
 	e.symbols[symbol] = v
+	return nil
 }
 
 // SetSymbol sets the value of a symbol. Like GetSymbol, it advances to parent Environments if the symbol cannot be
@@ -46,13 +52,26 @@ func (e *Environment) SetSymbol(symbol string, v interface{}) error {
 	e.Lock()
 	defer e.Unlock()
 	for e != nil {
-		if _, ok := e.symbols[symbol]; ok {
+		if exist, ok := e.symbols[symbol]; ok {
+			if err := e.replace(exist, v); err != nil {
+				return err
+			}
 			e.symbols[symbol] = v
 			return nil
 		}
 		e = e.parent
 	}
 	return UndefinedSymbolError{symbol}
+}
+
+func (e *Environment) replace(existing, replacement interface{}) error {
+	r, ok := existing.(interface {
+		Replace(v interface{}) error
+	})
+	if !ok {
+		return nil
+	}
+	return r.Replace(replacement)
 }
 
 // UnsetSymbol removes a symbol definition. It only operates on the current context; no parent Environments will be

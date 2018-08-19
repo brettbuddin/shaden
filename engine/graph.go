@@ -99,20 +99,24 @@ func (g *Graph) Close() error {
 func (g *Graph) Patch(v interface{}, in *unit.In) error {
 	switch v := v.(type) {
 	case float64:
-		if err := unit.Unpatch(g.graph, in); err != nil {
+		if err := g.Unpatch(in); err != nil {
 			return errors.Wrap(err, fmt.Sprintf("unpatch %q", in))
 		}
 		in.Fill(dsp.Float64(v))
 	case int:
-		if err := unit.Unpatch(g.graph, in); err != nil {
+		if err := g.Unpatch(in); err != nil {
 			return errors.Wrap(err, fmt.Sprintf("unpatch %q", in))
 		}
 		in.Fill(dsp.Float64(v))
 	case dsp.Valuer:
-		if err := unit.Unpatch(g.graph, in); err != nil {
+		if err := g.Unpatch(in); err != nil {
 			return errors.Wrap(err, fmt.Sprintf("unpatch %q", in))
 		}
 		in.Fill(v)
+	case unit.Output:
+		if err := unit.Patch(g.graph, v, in); err != nil {
+			return errors.Wrap(err, fmt.Sprintf("patch %q into %q", v.Out(), in))
+		}
 	case unit.OutRef:
 		out, ok := v.Unit.Out[v.Output]
 		if !ok {
@@ -123,6 +127,11 @@ func (g *Graph) Patch(v interface{}, in *unit.In) error {
 		}
 	}
 	return nil
+}
+
+// Unpatch disconnects any sources from an input.
+func (g *Graph) Unpatch(in *unit.In) error {
+	return unit.Unpatch(g.graph, in)
 }
 
 // Mount adds a unit to the graph.

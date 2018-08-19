@@ -44,27 +44,53 @@ type lazyUnit struct {
 	mount           bool
 }
 
-func (r *lazyUnit) String() string {
-	return fmt.Sprintf("%s(mounted=%v)", r.id, r.mount)
+func (u *lazyUnit) String() string {
+	return fmt.Sprintf("%s(mounted=%v)", u.id, u.mount)
 }
 
-func (r *lazyUnit) mounted() (*unit.Unit, error) {
-	if r.mount {
-		return r.created, nil
+func (u *lazyUnit) mounted() (*unit.Unit, error) {
+	if u.mount {
+		return u.created, nil
 	}
 
-	m := engine.NewMessage(engine.MountUnit(r.created))
+	m := engine.NewMessage(engine.MountUnit(u.created))
 
-	if err := r.engine.SendMessage(m); err != nil {
+	if err := u.engine.SendMessage(m); err != nil {
 		return nil, err
 	}
 	reply := <-m.Reply
 	if reply.Error != nil {
 		return nil, reply.Error
 	}
-	r.logger.Printf("%s\n└ Completed in %s\n", bold("Adding "+r.created.ID), reply.Duration)
-	r.mount = true
-	return r.created, nil
+	u.logger.Printf("%s\n└ Completed in %s\n", bold("Adding "+u.created.ID), reply.Duration)
+	u.mount = true
+	return u.created, nil
+}
+
+// Replace is called by the lisp layer when a symbol binding is about to be
+// replaced by another value. In this case, it gives us an opportunity to swap
+// out a unit with another one.
+func (u *lazyUnit) Replace(v interface{}) error {
+	otherUnit, ok := v.(*lazyUnit)
+	if !ok {
+		return nil
+	}
+
+	if !u.mount {
+		return nil
+	}
+
+	unit, err := otherUnit.mounted()
+	if err != nil {
+		return err
+	}
+
+	m := engine.NewMessage(engine.SwapUnit(u.created, unit))
+	if err := u.engine.SendMessage(m); err != nil {
+		return err
+	}
+	reply := <-m.Reply
+	return reply.Error
 }
 
 func createBuilders(env *lisp.Environment, e Engine, logger *log.Logger) error {
