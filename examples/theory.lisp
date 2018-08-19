@@ -27,7 +27,7 @@
 (define slope (unit/slope))
 (define gate (unit/gate))
 
-(-> clock (table :tempo (bpm 5)))
+(-> clock (table :tempo (hz 5)))
 
 (-> switch
     freqs
