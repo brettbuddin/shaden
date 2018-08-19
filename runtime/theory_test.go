@@ -10,6 +10,7 @@ import (
 	"github.com/brettbuddin/shaden/dsp"
 	"github.com/brettbuddin/shaden/engine"
 	"github.com/brettbuddin/shaden/lisp"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -87,7 +88,7 @@ func TestTranspose(t *testing.T) {
 
 	actualPitch, err := musictheory.ParsePitch("C5")
 	require.NoError(t, err)
-	require.True(t, actualPitch.Eq(v.(musictheory.Pitch)))
+	require.True(t, actualPitch.Eq(v.(dsp.Pitch).Pitch))
 
 	_, err = run.Eval([]byte(`(theory/pitch)`))
 	require.Error(t, err)
@@ -141,9 +142,17 @@ func TestScale(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
-			v, err := run.Eval([]byte(test.input))
+			iactual, err := run.Eval([]byte(test.input))
 			require.NoError(t, err)
-			require.Equal(t, test.expected, v)
+
+			actual := iactual.(lisp.List)
+
+			for i, expected := range test.expected {
+				if i >= len(actual) {
+					t.Fail()
+				}
+				assert.Equal(t, expected, actual[i].(dsp.Pitch).Pitch)
+			}
 		})
 	}
 }
@@ -192,9 +201,17 @@ func TestChord(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
-			v, err := run.Eval([]byte(test.input))
+			iactual, err := run.Eval([]byte(test.input))
 			require.NoError(t, err)
-			require.Equal(t, test.expected, v)
+
+			actual := iactual.(lisp.List)
+
+			for i, expected := range test.expected {
+				if i >= len(actual) {
+					t.Fail()
+				}
+				assert.Equal(t, expected, actual[i].(dsp.Pitch).Pitch)
+			}
 		})
 	}
 }

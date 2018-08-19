@@ -45,14 +45,19 @@ func ParsePitch(v string, sampleRate int) (Pitch, error) {
 	if err != nil {
 		return Pitch{}, err
 	}
-	return NewPitch(p, sampleRate), nil
+	return newPitch(p, sampleRate, v), nil
 }
 
 // NewPitch creates a Pitch
 func NewPitch(p musictheory.Pitch, sampleRate int) Pitch {
+	return newPitch(p, sampleRate, "")
+}
+
+func newPitch(p musictheory.Pitch, sampleRate int, rawName string) Pitch {
 	return Pitch{
 		Valuer: Frequency(p.Freq(), sampleRate),
 		Pitch:  p,
+		Raw:    rawName,
 	}
 }
 
@@ -60,6 +65,7 @@ func NewPitch(p musictheory.Pitch, sampleRate int) Pitch {
 type Pitch struct {
 	Valuer
 	Pitch musictheory.Pitch
+	Raw   string
 }
 
 // Float64 returns the constant value
@@ -70,11 +76,16 @@ func (p Pitch) Float64() float64 {
 	return p.Valuer.Float64()
 }
 
-func (p Pitch) String() string { return p.Pitch.Name(musictheory.AscNames) }
+func (p Pitch) String() string {
+	if p.Raw == "" {
+		return p.Pitch.Name(musictheory.AscNames)
+	}
+	return p.Raw
+}
 
 // Transpose transposes the pitch by some interval
 func (p Pitch) Transpose(interval musictheory.Interval, sampleRate int) Pitch {
-	return NewPitch(p.Pitch.Transpose(interval), sampleRate)
+	return newPitch(p.Pitch.Transpose(interval), sampleRate, "")
 }
 
 // MS is a value representation of milliseconds
