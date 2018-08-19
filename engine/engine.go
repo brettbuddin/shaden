@@ -112,11 +112,11 @@ func (e *Engine) Run() {
 	}
 	<-e.stop
 
-	if err := e.graph.Close(); err != nil {
+	if err := e.backend.Stop(); err != nil {
 		e.stop <- err
 		return
 	}
-	e.stop <- e.backend.Stop()
+	e.stop <- e.graph.Close()
 }
 
 // Stop shuts down the Engine
