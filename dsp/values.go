@@ -78,7 +78,7 @@ func (p Pitch) Float64() float64 {
 
 func (p Pitch) String() string {
 	if p.Raw == "" {
-		return p.Pitch.Name(musictheory.AscNames)
+		return p.Pitch.Name(musictheory.DescNames)
 	}
 	return p.Raw
 }
