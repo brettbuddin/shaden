@@ -120,7 +120,7 @@ func (r *Runtime) loadShaden() error {
 
 	r.loadConstants(env, sampleRate, frameSize)
 	r.loadValues(env, sampleRate)
-	loadTheory(env)
+	loadTheory(env, sampleRate)
 
 	// Engine
 	env.DefineSymbol("emit", emitFn(engine, logger))

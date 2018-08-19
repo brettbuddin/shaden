@@ -7,6 +7,7 @@ import (
 
 	"github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/musictheory/intervals"
+	"github.com/brettbuddin/shaden/dsp"
 	"github.com/brettbuddin/shaden/engine"
 	"github.com/brettbuddin/shaden/lisp"
 	"github.com/stretchr/testify/require"
@@ -15,7 +16,7 @@ import (
 func TestPitch(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(&backend{}, sampleRate, engine.WithMessageChannel(messages))
+		eng, err = engine.New(newBackend(0), frameSize, engine.WithMessageChannel(messages))
 		logger   = log.New(os.Stdout, "", -1)
 	)
 
@@ -25,7 +26,7 @@ func TestPitch(t *testing.T) {
 
 	v, err := run.Eval([]byte(`(theory/pitch "A4")`))
 	require.NoError(t, err)
-	require.Equal(t, 440.0, v.(musictheory.Pitch).Freq())
+	require.Equal(t, 0.009977324263038548, v.(dsp.Pitch).Float64())
 
 	_, err = run.Eval([]byte(`(theory/pitch "1")`))
 	require.Error(t, err)

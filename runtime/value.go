@@ -3,7 +3,6 @@ package runtime
 import (
 	"math"
 
-	"github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/shaden/dsp"
 	"github.com/brettbuddin/shaden/lisp"
 )
@@ -18,8 +17,8 @@ func hzFn(sampleRate int) func(lisp.List) (interface{}, error) {
 			return dsp.Frequency(v, sampleRate), nil
 		case int:
 			return dsp.Frequency(float64(v), sampleRate), nil
-		case musictheory.Pitch:
-			return dsp.Frequency(v.Freq(), sampleRate), nil
+		case dsp.Pitch:
+			return v, nil
 		case string:
 			return dsp.ParsePitch(v, sampleRate)
 		case lisp.Keyword:

@@ -3,33 +3,40 @@ package runtime
 import (
 	"github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/musictheory/intervals"
+	"github.com/brettbuddin/shaden/dsp"
 	"github.com/brettbuddin/shaden/errors"
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func loadTheory(env *lisp.Environment) {
+const (
+	typePitch = "pitch"
+)
+
+func loadTheory(env *lisp.Environment, sampleRate int) {
 	env.DefineSymbol("quality/perfect", 0)
 	env.DefineSymbol("quality/minor", 1)
 	env.DefineSymbol("quality/major", 2)
 	env.DefineSymbol("quality/diminished", 3)
 	env.DefineSymbol("quality/augmented", 4)
 
-	env.DefineSymbol("theory/pitch", pitchFn)
+	env.DefineSymbol("theory/pitch", pitchFn(sampleRate))
 	env.DefineSymbol("theory/interval", intervalFn)
-	env.DefineSymbol("theory/transpose", transposeFn)
-	env.DefineSymbol("theory/scale", scaleFn)
-	env.DefineSymbol("theory/chord", chordFn)
+	env.DefineSymbol("theory/transpose", transposeFn(sampleRate))
+	env.DefineSymbol("theory/scale", scaleFn(sampleRate))
+	env.DefineSymbol("theory/chord", chordFn(sampleRate))
 }
 
-func pitchFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
+func pitchFn(sampleRate int) func(args lisp.List) (interface{}, error) {
+	return func(args lisp.List) (interface{}, error) {
+		if err := lisp.CheckArityEqual(args, 1); err != nil {
+			return nil, err
+		}
+		str, ok := args[0].(string)
+		if !ok {
+			return nil, lisp.ArgExpectError(lisp.TypeString, 1)
+		}
+		return dsp.ParsePitch(str, sampleRate)
 	}
-	str, ok := args[0].(string)
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeString, 1)
-	}
-	return musictheory.ParsePitch(str)
 }
 
 func intervalFn(args lisp.List) (interface{}, error) {
@@ -72,86 +79,92 @@ func intervalFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func transposeFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 2); err != nil {
-		return nil, err
+func transposeFn(sampleRate int) func(args lisp.List) (interface{}, error) {
+	return func(args lisp.List) (interface{}, error) {
+		if err := lisp.CheckArityEqual(args, 2); err != nil {
+			return nil, err
+		}
+		pitch, ok := args[0].(dsp.Pitch)
+		if !ok {
+			return nil, lisp.ArgExpectError(typePitch, 1)
+		}
+		interval, ok := args[1].(musictheory.Interval)
+		if !ok {
+			return nil, lisp.ArgExpectError("interval", 2)
+		}
+		return pitch.Transpose(interval, sampleRate), nil
 	}
-	pitch, ok := args[0].(musictheory.Pitch)
-	if !ok {
-		return nil, lisp.ArgExpectError("pitch", 1)
-	}
-	interval, ok := args[1].(musictheory.Interval)
-	if !ok {
-		return nil, lisp.ArgExpectError("interval", 2)
-	}
-	return pitch.Transpose(interval), nil
 }
 
-func scaleFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 3); err != nil {
-		return nil, err
-	}
-	root, ok := args[0].(musictheory.Pitch)
-	if !ok {
-		return nil, lisp.ArgExpectError("pitch", 1)
-	}
+func scaleFn(sampleRate int) func(args lisp.List) (interface{}, error) {
+	return func(args lisp.List) (interface{}, error) {
+		if err := lisp.CheckArityEqual(args, 3); err != nil {
+			return nil, err
+		}
+		root, ok := args[0].(dsp.Pitch)
+		if !ok {
+			return nil, lisp.ArgExpectError(typePitch, 1)
+		}
 
-	var name string
-	switch v := args[1].(type) {
-	case string:
-		name = v
-	case lisp.Keyword:
-		name = string(v)
-	default:
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 2)
-	}
+		var name string
+		switch v := args[1].(type) {
+		case string:
+			name = v
+		case lisp.Keyword:
+			name = string(v)
+		default:
+			return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 2)
+		}
 
-	octaves, ok := args[2].(int)
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeInt, 3)
-	}
+		octaves, ok := args[2].(int)
+		if !ok {
+			return nil, lisp.ArgExpectError(lisp.TypeInt, 3)
+		}
 
-	itvls, err := nameToScale(name)
-	if err != nil {
-		return nil, err
-	}
+		itvls, err := nameToScale(name)
+		if err != nil {
+			return nil, err
+		}
 
-	var list lisp.List
-	for _, v := range musictheory.NewScale(root, itvls, octaves) {
-		list = append(list, v)
+		var list lisp.List
+		for _, p := range musictheory.NewScale(root.Pitch, itvls, octaves) {
+			list = append(list, dsp.NewPitch(p, sampleRate))
+		}
+		return list, nil
 	}
-	return list, nil
 }
 
-func chordFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 2); err != nil {
-		return nil, err
-	}
-	root, ok := args[0].(musictheory.Pitch)
-	if !ok {
-		return nil, lisp.ArgExpectError("pitch", 1)
-	}
+func chordFn(sampleRate int) func(args lisp.List) (interface{}, error) {
+	return func(args lisp.List) (interface{}, error) {
+		if err := lisp.CheckArityEqual(args, 2); err != nil {
+			return nil, err
+		}
+		root, ok := args[0].(dsp.Pitch)
+		if !ok {
+			return nil, lisp.ArgExpectError(typePitch, 1)
+		}
 
-	var name string
-	switch v := args[1].(type) {
-	case string:
-		name = v
-	case lisp.Keyword:
-		name = string(v)
-	default:
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 2)
-	}
+		var name string
+		switch v := args[1].(type) {
+		case string:
+			name = v
+		case lisp.Keyword:
+			name = string(v)
+		default:
+			return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeString, lisp.TypeKeyword), 2)
+		}
 
-	itvls, err := nameToChord(name)
-	if err != nil {
-		return nil, err
-	}
+		itvls, err := nameToChord(name)
+		if err != nil {
+			return nil, err
+		}
 
-	var list lisp.List
-	for _, v := range musictheory.NewChord(root, itvls) {
-		list = append(list, v)
+		var list lisp.List
+		for _, p := range musictheory.NewChord(root.Pitch, itvls) {
+			list = append(list, dsp.NewPitch(p, sampleRate))
+		}
+		return list, nil
 	}
-	return list, nil
 }
 
 func nameToScale(name string) ([]musictheory.Interval, error) {
