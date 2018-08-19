@@ -48,7 +48,7 @@ func CheckArityEqual(l List, expected int) error {
 	return nil
 }
 
-// CheckArityEqual requires the argument list to be at least certain length
+// CheckArityAtLeast requires the argument list to be at least certain length
 func CheckArityAtLeast(l List, expected int) error {
 	actual := len(l)
 	if actual < expected {

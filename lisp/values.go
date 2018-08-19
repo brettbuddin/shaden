@@ -2,6 +2,7 @@ package lisp
 
 import "fmt"
 
+// Lisp type names
 const (
 	TypeBool     = "bool"
 	TypeFloat    = "float"
