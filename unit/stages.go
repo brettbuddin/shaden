@@ -56,6 +56,7 @@ func newStages(io *IO, c Config) (*Unit, error) {
 		gate:        io.NewOut("gate"),
 		data:        io.NewOut("data"),
 		eos:         io.NewOut("eos"),
+		sop:         io.NewOut("sop"),
 		slew:        newSlew(),
 		stageInputs: stageInputs,
 		pulse:       -1,
@@ -86,12 +87,12 @@ type stageValues struct {
 type stages struct {
 	clock, reset, mode, glideTime, totalStages *In
 	stageInputs                                []*stage
-	out, gate, data, eos                       *Out
+	out, gate, data, eos, sop                  *Out
 
-	slew                    *slew
-	pong, firstPulse        bool
-	stage, pulse, lastStage int
-	lastClock, lastReset    float64
+	slew                       *slew
+	ping, lastPing, firstPulse bool
+	stage, pulse, lastStage    int
+	lastClock, lastReset       float64
 }
 
 func (s *stages) ProcessSample(i int) {
@@ -123,10 +124,12 @@ func (s *stages) ProcessSample(i int) {
 	s.fillFreq(i, stage, glideTime)
 	s.fillData(i, stage)
 	s.fillEOS(i)
+	s.fillSOP(i, mode, totalStages)
 
 	s.lastClock = clock
 	s.lastReset = reset
 	s.lastStage = s.stage
+	s.lastPing = s.ping
 }
 
 func (s *stages) advance(stage *stage, totalStages, mode int) {
@@ -152,31 +155,31 @@ func (s *stages) advanceStage(totalStages, mode int) {
 	switch mode {
 	case patternModeForward:
 		s.stage = (s.stage + 1) % totalStages
-		s.pong = false
+		s.ping = false
 	case patternModeReverse:
 		s.stage--
 		if s.stage < 0 {
 			s.stage = totalStages - 1
 		}
-		s.pong = false
+		s.ping = false
 	case patternModePingPong:
 		var inc = 1
-		if s.pong {
+		if s.ping {
 			inc = -1
 		}
 
 		if s.stage >= totalStages-1 {
 			inc = -1
-			s.pong = true
+			s.ping = true
 		} else if s.stage <= 0 {
 			inc = 1
-			s.pong = false
+			s.ping = false
 		}
 
 		s.stage += inc
 	case patternModeRandom:
 		s.stage = rand.Intn(totalStages)
-		s.pong = false
+		s.ping = false
 	}
 }
 
@@ -236,4 +239,28 @@ func (s *stages) fillEOS(i int) {
 	} else {
 		s.eos.Write(i, -1)
 	}
+}
+
+func (s *stages) fillSOP(i, mode, totalStages int) {
+	if s.lastStage == s.stage {
+		s.sop.Write(i, -1)
+		return
+	}
+
+	var value = -1.0
+	switch mode {
+	case patternModeForward:
+		if s.stage == 0 {
+			value = 1
+		}
+	case patternModeReverse:
+		if s.stage == totalStages {
+			value = 1
+		}
+	case patternModePingPong:
+		if s.lastPing && !s.ping {
+			value = 1
+		}
+	}
+	s.sop.Write(i, value)
 }
