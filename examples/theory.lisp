@@ -12,8 +12,7 @@
 
 ; Create the two whole-tone scales for this key; one ascending and the other
 ; descending.
-(define root (theory/pitch "Eb4"))
-(define asc (theory/scale root :whole-tone 1))
+(define asc (theory/scale (hz "Eb4") :whole-tone 1))
 (define desc (shift-semitone (reverse asc)))
 
 ; Interleave the ascending and descending lists and convert to Hz.
