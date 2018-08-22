@@ -226,6 +226,9 @@ func (s *stages) fillFreq(i int, stage *stage, glidetime float64) {
 	if glide == 0 {
 		glidetime = 0
 	}
+	if stage.values.mode == pulseModeRest {
+		return
+	}
 	s.out.Write(i, s.slew.Tick(freq, glidetime, glidetime))
 }
 
