@@ -1,6 +1,10 @@
 package lisp
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/brettbuddin/shaden/errors"
+)
 
 // Lisp type names
 const (
@@ -42,11 +46,11 @@ func (k Keyword) Name() string { return fmt.Sprintf("keyword function %s", k) }
 // default value to be returned if there is no value for the key.
 func (k Keyword) Func(args List) (interface{}, error) {
 	if len(args) < 1 || len(args) > 2 {
-		return nil, fmt.Errorf("keyword function %s expects 1 or 2 arguments", k)
+		return nil, errors.Errorf("expects 1 or 2 arguments")
 	}
 	m, ok := args[0].(Table)
 	if !ok {
-		return nil, fmt.Errorf("keyword function %s expects hash for argument 1", k)
+		return nil, ArgExpectError(TypeTable, 1)
 	}
 	if v, ok := m[k]; ok {
 		return v, nil
@@ -66,15 +70,15 @@ func (List) Name() string { return "list function" }
 // Func implements the Func interface. It allows Lists to be called like functions that accept an integer as their first
 // argument to perform offset indexing.
 func (l List) Func(args List) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, fmt.Errorf("list expects 1 argument")
+	if err := CheckArityEqual(args, 1); err != nil {
+		return nil, err
 	}
 	idx, ok := args[0].(int)
 	if !ok {
-		return nil, fmt.Errorf("list expects integer for argument 1")
+		return nil, ArgExpectError(TypeInt, 1)
 	}
 	if idx > len(l)-1 {
-		return nil, fmt.Errorf("index out of range")
+		return nil, errors.Errorf("index out of range")
 	}
 	return l[idx], nil
 }
@@ -90,7 +94,7 @@ func (Table) Name() string { return "table function" }
 // to be returned if there is no value for the key.
 func (t Table) Func(args List) (interface{}, error) {
 	if len(args) < 1 || len(args) > 2 {
-		return nil, fmt.Errorf("table expects 1 or 2 arguments")
+		return nil, errors.Errorf("expects 1 or 2 arguments")
 	}
 	if v, ok := t[args[0]]; ok {
 		return v, nil
