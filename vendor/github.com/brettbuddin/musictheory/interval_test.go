@@ -99,6 +99,8 @@ func TestTranspose(test *testing.T) {
 	}{
 		{Interval{0, 0, 0}, Semitones(1), Interval{0, 1, 1}, 1},
 		{Interval{0, 0, 0}, Semitones(12), Interval{1, 0, 0}, 1},
+		{Interval{0, 0, 0}, Semitones(-12), Interval{-1, 0, 0}, 1},
+		{Interval{0, 0, 0}, Semitones(-16), Interval{-1, -2, -4}, 1},
 
 		// Sequential transpositions M2
 		{Interval{0, 0, 0}, Major(2), Interval{0, 1, 2}, 1},
@@ -187,6 +189,52 @@ func TestIntervalRatio(test *testing.T) {
 
 	for i, t := range data {
 		actual := t.input.Ratio()
+		if actual != t.expected {
+			test.Errorf("index=%d actual=%v expected=%v", i, actual, t.expected)
+		}
+	}
+}
+
+func TestIntervalNames(test *testing.T) {
+	data := []struct {
+		input    Interval
+		expected string
+	}{
+		{Perfect(1), "perfect 1"},
+		{Minor(2), "minor 2"},
+		{Minor(3), "minor 3"},
+		{Major(3), "major 3"},
+		{Perfect(4), "perfect 4"},
+		{Diminished(4), "diminished 4"},
+		{Perfect(5), "perfect 5"},
+		{Diminished(6), "diminished 6"},
+		{DoublyDiminished(6), "doubly diminished 6"},
+		{Augmented(6), "augmented 6"},
+		{DoublyAugmented(6), "doubly augmented 6"},
+		{Minor(7), "minor 7"},
+		{Major(7), "major 7"},
+		{Perfect(8), "perfect 8"},
+		{Octave(1), "perfect 8"},
+		{Minor(9), "minor 9"},
+
+		{Minor(-2), "minor -2"},
+		{Minor(-3), "minor -3"},
+		{Major(-3), "major -3"},
+		{Perfect(-4), "perfect -4"},
+		{Diminished(-4), "diminished -4"},
+		{Perfect(-5), "perfect -5"},
+		{Diminished(-6), "diminished -6"},
+		{DoublyDiminished(-6), "doubly diminished -6"},
+		{Augmented(-6), "augmented -6"},
+		{DoublyAugmented(-6), "doubly augmented -6"},
+		{Minor(-7), "minor -7"},
+		{Major(-7), "major -7"},
+		{Perfect(-8), "perfect -8"},
+		{Octave(-1), "perfect -8"},
+	}
+
+	for i, t := range data {
+		actual := t.input.String()
 		if actual != t.expected {
 			test.Errorf("index=%d actual=%v expected=%v", i, actual, t.expected)
 		}

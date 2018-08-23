@@ -91,10 +91,6 @@ type Interval struct {
 	Chromatic int
 }
 
-func (i Interval) String() string {
-	return fmt.Sprintf("(octaves: %d, diatonic: %d, chromatic: %d)", i.Octaves, i.Diatonic, i.Chromatic)
-}
-
 // Semitones returns the total number of semitones that make up the interval
 func (i Interval) Semitones() int {
 	return i.Octaves*12 + i.Chromatic
@@ -157,6 +153,19 @@ func (i Interval) Eq(o Interval) bool {
 	return i.Semitones() == o.Semitones()
 }
 
+func (i Interval) String() string {
+	mag := 1
+	if i.Octaves < 0 {
+		i = i.Negate()
+		mag = -1
+	}
+	var (
+		quality  = i.Quality()
+		diatonic = (i.Octaves * 7) + i.Diatonic + 1
+	)
+	return fmt.Sprintf("%s %d", quality, mag*diatonic)
+}
+
 // QualityType represents the type a Quality can take
 type QualityType int
 
@@ -211,7 +220,11 @@ func (q Quality) String() string {
 	case PerfectType, MajorType, MinorType:
 		return fmt.Sprintf("%s", q.Type)
 	case AugmentedType, DiminishedType:
-		return fmt.Sprintf("%s(%d)", q.Type, q.Size)
+		prefix := ""
+		if q.Size == 2 || q.Size == -2 {
+			prefix = "doubly "
+		}
+		return fmt.Sprintf("%s%s", prefix, q.Type)
 	default:
 		return "unknown"
 	}
