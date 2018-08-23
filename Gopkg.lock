@@ -2,15 +2,15 @@
 
 
 [[projects]]
-  digest = "1:705e4c67705b73114a98c29adf3a5b6420a9852ea16ec5986a7e9d31dfe20fc8"
+  digest = "1:51bca8fe0a18d4f25bc745c2f459a0f126c3e4c6a558d41178cd7afb4f507875"
   name = "github.com/brettbuddin/musictheory"
   packages = [
     ".",
     "intervals",
   ]
   pruneopts = ""
-  revision = "a9e863a97e6ef24312179c53177bd17f163221cf"
-  version = "v0.0.13"
+  revision = "0dc068938349d6c45988b624864bed820f31f95c"
+  version = "v0.0.14"
 
 [[projects]]
   branch = "master"
