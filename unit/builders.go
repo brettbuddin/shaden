@@ -49,6 +49,7 @@ var (
 		"dynamics":           newDynamics,
 		"euclid":             newEuclid,
 		"filter":             newFilter,
+		"filter-bank":        newFilterBank,
 		"fold":               newFold,
 		"gate":               newGate,
 		"gate-mix":           newGateMix,
