@@ -50,7 +50,7 @@ func (io *IO) NewProp(name string, v interface{}, setter func(*Prop, interface{}
 // NewIn registers a new input
 func (io *IO) NewIn(name string, v dsp.Valuer) *In {
 	in := NewIn(name, v, io.frameSize)
-	io.In[in.Name] = in
+	io.In[in.name] = in
 	return in
 }
 
@@ -66,12 +66,12 @@ func (io *IO) NewOutWithFrame(name string, f []float64) *Out {
 
 // ExposeOutputProcessor registers a new output that is also a Processor
 func (io *IO) ExposeOutputProcessor(o OutputProcessor) {
-	io.Out[o.Out().Name] = o
+	io.Out[o.Out().name] = o
 }
 
 func (io *IO) newOut(name string, f []float64) *Out {
 	o := &Out{
-		Name:  name,
+		name:  name,
 		frame: f,
 	}
 	io.Out[name] = o

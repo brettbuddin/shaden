@@ -19,7 +19,7 @@ func TestIn_BlockRead(t *testing.T) {
 
 func TestIn_SampleRead(t *testing.T) {
 	in := NewIn("in", dsp.Float64(0), frameSize)
-	in.Mode = Sample
+	in.mode = Sample
 	in.frame[0] = 10
 	in.frame[5] = 20
 	require.Equal(t, 10.0, in.Read(1))
@@ -75,7 +75,7 @@ func TestIn_CoupleOutput(t *testing.T) {
 
 func TestIn_ReadControlRate(t *testing.T) {
 	in := NewIn("in", dsp.Float64(0), frameSize)
-	in.Mode = Sample
+	in.mode = Sample
 	in.Couple(&Out{
 		unit:  &Unit{rate: RateControl},
 		frame: make([]float64, frameSize),

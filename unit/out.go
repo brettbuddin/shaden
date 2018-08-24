@@ -21,7 +21,7 @@ type OutputProcessor interface {
 
 // Out is a unit output
 type Out struct {
-	Name  string
+	name  string
 	unit  *Unit
 	node  *graph.Node
 	frame []float64
@@ -30,7 +30,7 @@ type Out struct {
 // NewOut returns a new output
 func NewOut(name string, f []float64) *Out {
 	return &Out{
-		Name:  name,
+		name:  name,
 		frame: f,
 	}
 }
@@ -78,7 +78,7 @@ func (out *Out) Destinations() []*In {
 }
 
 func (out *Out) String() string {
-	return fmt.Sprintf("%s/%s", out.unit.ID, out.Name)
+	return fmt.Sprintf("%s/%s", out.unit.ID, out.name)
 }
 
 // OutRef is an unresolved reference to a Unit's Out.

@@ -164,7 +164,7 @@ func collectProcessor(processors *[]unit.FrameProcessor, nodes []*graph.Node, si
 
 	first := nodes[0]
 	if in, ok := first.Value.(*unit.In); ok && !singleSampleDisabled {
-		in.Mode = unit.Block
+		in.SetMode(unit.Block)
 	}
 	if p, ok := first.Value.(unit.FrameProcessor); ok {
 		if isp, ok := p.(unit.CondProcessor); ok {
@@ -181,7 +181,7 @@ func collectGroup(processors *[]unit.FrameProcessor, nodes []*graph.Node, single
 	var g group
 	for _, w := range nodes {
 		if in, ok := w.Value.(*unit.In); ok && !singleSampleDisabled {
-			in.Mode = unit.Sample
+			in.SetMode(unit.Sample)
 		}
 		if p, ok := w.Value.(unit.SampleProcessor); ok {
 			if isp, ok := p.(unit.CondProcessor); ok {

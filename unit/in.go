@@ -21,8 +21,8 @@ const controlPeriod = 64
 
 // In is a unit input
 type In struct {
-	Name               string
-	Mode               InMode
+	name               string
+	mode               InMode
 	normal, constant   dsp.Valuer
 	frame, normalFrame []float64
 	unit               *Unit
@@ -37,7 +37,7 @@ type In struct {
 func NewIn(name string, v dsp.Valuer, frameSize int) *In {
 	f := make([]float64, frameSize)
 	in := &In{
-		Name:        name,
+		name:        name,
 		frame:       f,
 		normalFrame: f,
 	}
@@ -50,7 +50,7 @@ func (in *In) Read(i int) float64 {
 	if isSourceControlRate(in) {
 		return in.frame[0]
 	}
-	if in.Mode == Sample {
+	if in.mode == Sample {
 		size := len(in.frame)
 		i = (i - 1 + size) % size
 	}
@@ -118,6 +118,11 @@ func (in *In) Reset() {
 	in.Fill(in.normal)
 }
 
+// SetMode sets the processing mode for this input.
+func (in *In) SetMode(mode InMode) {
+	in.mode = mode
+}
+
 // ExternalNeighborCount returns the count of neighboring nodes outside of the parent Unit
 func (in *In) ExternalNeighborCount() int {
 	return in.node.InNeighborCount()
@@ -129,7 +134,7 @@ func (in *In) setNormal(v dsp.Valuer) {
 }
 
 func (in *In) String() string {
-	return fmt.Sprintf("%s/%s", in.unit.ID, in.Name)
+	return fmt.Sprintf("%s/%s", in.unit.ID, in.name)
 }
 
 func isSourceControlRate(in *In) bool {
