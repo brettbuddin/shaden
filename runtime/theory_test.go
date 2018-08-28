@@ -14,28 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPitch(t *testing.T) {
-	var (
-		messages = messageChannel{make(chan *engine.Message)}
-		eng, err = engine.New(newBackend(0), frameSize, engine.WithMessageChannel(messages))
-		logger   = log.New(os.Stdout, "", -1)
-	)
-
-	require.NoError(t, err)
-	run, err := New(eng, logger)
-	require.NoError(t, err)
-
-	v, err := run.Eval([]byte(`(theory/pitch "A4")`))
-	require.NoError(t, err)
-	require.Equal(t, 0.009977324263038548, v.(dsp.Pitch).Float64())
-
-	_, err = run.Eval([]byte(`(theory/pitch "1")`))
-	require.Error(t, err)
-
-	_, err = run.Eval([]byte(`(theory/pitch)`))
-	require.Error(t, err)
-}
-
 func TestInterval(t *testing.T) {
 	var (
 		messages = messageChannel{make(chan *engine.Message)}
@@ -83,15 +61,12 @@ func TestTranspose(t *testing.T) {
 	run, err := New(eng, logger)
 	require.NoError(t, err)
 
-	v, err := run.Eval([]byte(`(theory/transpose (theory/pitch "A4") (theory/interval :minor 3))`))
+	v, err := run.Eval([]byte(`(theory/transpose (hz "A4") (theory/interval :minor 3))`))
 	require.NoError(t, err)
 
 	actualPitch, err := musictheory.ParsePitch("C5")
 	require.NoError(t, err)
 	require.True(t, actualPitch.Eq(v.(dsp.Pitch).Pitch))
-
-	_, err = run.Eval([]byte(`(theory/pitch)`))
-	require.Error(t, err)
 }
 
 func TestScale(t *testing.T) {
@@ -119,25 +94,25 @@ func TestScale(t *testing.T) {
 		input    string
 		expected lisp.List
 	}{
-		{`(theory/scale (theory/pitch "C4") "major" 1)`, newScale(intervals.Major, 1)},
-		{`(theory/scale (theory/pitch "C4") "minor" 1)`, newScale(intervals.Minor, 1)},
-		{`(theory/scale (theory/pitch "C4") "aeolian" 1)`, newScale(intervals.Aeolian, 1)},
-		{`(theory/scale (theory/pitch "C4") "chromatic" 1)`, newScale(intervals.Chromatic, 1)},
-		{`(theory/scale (theory/pitch "C4") "dominant-bebop" 1)`, newScale(intervals.DominantBebop, 1)},
-		{`(theory/scale (theory/pitch "C4") "dorian" 1)`, newScale(intervals.Dorian, 1)},
-		{`(theory/scale (theory/pitch "C4") "double-harmonic" 1)`, newScale(intervals.DoubleHarmonic, 1)},
-		{`(theory/scale (theory/pitch "C4") "in-sen" 1)`, newScale(intervals.InSen, 1)},
-		{`(theory/scale (theory/pitch "C4") "ionian" 1)`, newScale(intervals.Ionian, 1)},
-		{`(theory/scale (theory/pitch "C4") "locrian" 1)`, newScale(intervals.Locrian, 1)},
-		{`(theory/scale (theory/pitch "C4") "lydian" 1)`, newScale(intervals.Lydian, 1)},
-		{`(theory/scale (theory/pitch "C4") "major-bebop" 1)`, newScale(intervals.MajorBebop, 1)},
-		{`(theory/scale (theory/pitch "C4") "major-pentatonic" 1)`, newScale(intervals.MajorPentatonic, 1)},
-		{`(theory/scale (theory/pitch "C4") "melodic-minor-bebop" 1)`, newScale(intervals.MelodicMinorBebop, 1)},
-		{`(theory/scale (theory/pitch "C4") "minor-pentatonic" 1)`, newScale(intervals.MinorPentatonic, 1)},
-		{`(theory/scale (theory/pitch "C4") "mixolydian" 1)`, newScale(intervals.Mixolydian, 1)},
-		{`(theory/scale (theory/pitch "C4") "phrygian" 1)`, newScale(intervals.Phrygian, 1)},
-		{`(theory/scale (theory/pitch "C4") "whole-tone" 1)`, newScale(intervals.WholeTone, 1)},
-		{`(theory/scale (theory/pitch "C4") "whole-tone" 2)`, newScale(intervals.WholeTone, 2)},
+		{`(theory/scale (hz "C4") "major" 1)`, newScale(intervals.Major, 1)},
+		{`(theory/scale (hz "C4") "minor" 1)`, newScale(intervals.Minor, 1)},
+		{`(theory/scale (hz "C4") "aeolian" 1)`, newScale(intervals.Aeolian, 1)},
+		{`(theory/scale (hz "C4") "chromatic" 1)`, newScale(intervals.Chromatic, 1)},
+		{`(theory/scale (hz "C4") "dominant-bebop" 1)`, newScale(intervals.DominantBebop, 1)},
+		{`(theory/scale (hz "C4") "dorian" 1)`, newScale(intervals.Dorian, 1)},
+		{`(theory/scale (hz "C4") "double-harmonic" 1)`, newScale(intervals.DoubleHarmonic, 1)},
+		{`(theory/scale (hz "C4") "in-sen" 1)`, newScale(intervals.InSen, 1)},
+		{`(theory/scale (hz "C4") "ionian" 1)`, newScale(intervals.Ionian, 1)},
+		{`(theory/scale (hz "C4") "locrian" 1)`, newScale(intervals.Locrian, 1)},
+		{`(theory/scale (hz "C4") "lydian" 1)`, newScale(intervals.Lydian, 1)},
+		{`(theory/scale (hz "C4") "major-bebop" 1)`, newScale(intervals.MajorBebop, 1)},
+		{`(theory/scale (hz "C4") "major-pentatonic" 1)`, newScale(intervals.MajorPentatonic, 1)},
+		{`(theory/scale (hz "C4") "melodic-minor-bebop" 1)`, newScale(intervals.MelodicMinorBebop, 1)},
+		{`(theory/scale (hz "C4") "minor-pentatonic" 1)`, newScale(intervals.MinorPentatonic, 1)},
+		{`(theory/scale (hz "C4") "mixolydian" 1)`, newScale(intervals.Mixolydian, 1)},
+		{`(theory/scale (hz "C4") "phrygian" 1)`, newScale(intervals.Phrygian, 1)},
+		{`(theory/scale (hz "C4") "whole-tone" 1)`, newScale(intervals.WholeTone, 1)},
+		{`(theory/scale (hz "C4") "whole-tone" 2)`, newScale(intervals.WholeTone, 2)},
 	}
 
 	for _, test := range tests {
@@ -182,21 +157,21 @@ func TestChord(t *testing.T) {
 		input    string
 		expected lisp.List
 	}{
-		{`(theory/chord (theory/pitch "C4") "major")`, newChord(intervals.MajorTriad)},
-		{`(theory/chord (theory/pitch "C4") "minor")`, newChord(intervals.MinorTriad)},
-		{`(theory/chord (theory/pitch "C4") "augmented-major-seventh")`, newChord(intervals.AugmentedMajorSeventh)},
-		{`(theory/chord (theory/pitch "C4") "augmented-seventh")`, newChord(intervals.AugmentedSeventh)},
-		{`(theory/chord (theory/pitch "C4") "augmented-sixth")`, newChord(intervals.AugmentedSixth)},
-		{`(theory/chord (theory/pitch "C4") "augmented")`, newChord(intervals.AugmentedTriad)},
-		{`(theory/chord (theory/pitch "C4") "diminished-major-seventh")`, newChord(intervals.DiminishedMajorSeventh)},
-		{`(theory/chord (theory/pitch "C4") "diminished-seventh")`, newChord(intervals.DiminishedSeventh)},
-		{`(theory/chord (theory/pitch "C4") "diminished")`, newChord(intervals.DiminishedTriad)},
-		{`(theory/chord (theory/pitch "C4") "dominant-seventh")`, newChord(intervals.DominantSeventh)},
-		{`(theory/chord (theory/pitch "C4") "half-diminished-seventh")`, newChord(intervals.HalfDiminishedSeventh)},
-		{`(theory/chord (theory/pitch "C4") "major-seventh")`, newChord(intervals.MajorSeventh)},
-		{`(theory/chord (theory/pitch "C4") "major-sixth")`, newChord(intervals.MajorSixth)},
-		{`(theory/chord (theory/pitch "C4") "minor-seventh")`, newChord(intervals.MinorSeventh)},
-		{`(theory/chord (theory/pitch "C4") "minor-sixth")`, newChord(intervals.MinorSixth)},
+		{`(theory/chord (hz "C4") "major")`, newChord(intervals.MajorTriad)},
+		{`(theory/chord (hz "C4") "minor")`, newChord(intervals.MinorTriad)},
+		{`(theory/chord (hz "C4") "augmented-major-seventh")`, newChord(intervals.AugmentedMajorSeventh)},
+		{`(theory/chord (hz "C4") "augmented-seventh")`, newChord(intervals.AugmentedSeventh)},
+		{`(theory/chord (hz "C4") "augmented-sixth")`, newChord(intervals.AugmentedSixth)},
+		{`(theory/chord (hz "C4") "augmented")`, newChord(intervals.AugmentedTriad)},
+		{`(theory/chord (hz "C4") "diminished-major-seventh")`, newChord(intervals.DiminishedMajorSeventh)},
+		{`(theory/chord (hz "C4") "diminished-seventh")`, newChord(intervals.DiminishedSeventh)},
+		{`(theory/chord (hz "C4") "diminished")`, newChord(intervals.DiminishedTriad)},
+		{`(theory/chord (hz "C4") "dominant-seventh")`, newChord(intervals.DominantSeventh)},
+		{`(theory/chord (hz "C4") "half-diminished-seventh")`, newChord(intervals.HalfDiminishedSeventh)},
+		{`(theory/chord (hz "C4") "major-seventh")`, newChord(intervals.MajorSeventh)},
+		{`(theory/chord (hz "C4") "major-sixth")`, newChord(intervals.MajorSixth)},
+		{`(theory/chord (hz "C4") "minor-seventh")`, newChord(intervals.MinorSeventh)},
+		{`(theory/chord (hz "C4") "minor-sixth")`, newChord(intervals.MinorSixth)},
 	}
 
 	for _, test := range tests {

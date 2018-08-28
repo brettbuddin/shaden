@@ -40,10 +40,6 @@ func TestHz(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 0.009977324263038548, v.(dsp.Valuer).Float64())
 
-	v, err = run.Eval([]byte(`(hz (theory/pitch "A4"))`))
-	require.NoError(t, err)
-	require.Equal(t, 0.009977324263038548, v.(dsp.Valuer).Float64())
-
 	_, err = run.Eval([]byte(`(hz "111")`))
 	require.Error(t, err)
 

@@ -19,24 +19,10 @@ func loadTheory(env *lisp.Environment, sampleRate int) {
 	env.DefineSymbol("quality/diminished", 3)
 	env.DefineSymbol("quality/augmented", 4)
 
-	env.DefineSymbol("theory/pitch", pitchFn(sampleRate))
 	env.DefineSymbol("theory/interval", intervalFn)
 	env.DefineSymbol("theory/transpose", transposeFn(sampleRate))
 	env.DefineSymbol("theory/scale", scaleFn(sampleRate))
 	env.DefineSymbol("theory/chord", chordFn(sampleRate))
-}
-
-func pitchFn(sampleRate int) func(args lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
-		if err := lisp.CheckArityEqual(args, 1); err != nil {
-			return nil, err
-		}
-		str, ok := args[0].(string)
-		if !ok {
-			return nil, lisp.ArgExpectError(lisp.TypeString, 1)
-		}
-		return dsp.ParsePitch(str, sampleRate)
-	}
 }
 
 func intervalFn(args lisp.List) (interface{}, error) {
