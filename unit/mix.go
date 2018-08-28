@@ -2,13 +2,14 @@ package unit
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/brettbuddin/shaden/dsp"
 )
 
 const (
-	modeSum = iota
-	modeAverage
+	modeAverage = iota
+	modeSum
 )
 
 func newMix(io *IO, c Config) (*Unit, error) {
@@ -51,29 +52,35 @@ func (m *mix) ProcessSample(i int) {
 	var (
 		master = m.master.ReadSlow(i, clamp(0, 1))
 		mode   = m.mode.ReadSlowInt(i, identInt)
-		final  float64
+
+		sum, inUse float64
 	)
 
-	switch mode {
-	case modeSum:
-		final = m.sum(i)
-	case modeAverage:
-		var inUse float64
-		for _, in := range m.inputs {
-			if in.HasSource() {
-				inUse++
-			}
-		}
-		final = m.sum(i) / inUse
+	if mode > modeSum {
+		mode = modeSum
+	} else if mode < modeAverage {
+		mode = modeAverage
 	}
 
-	m.out.Write(i, final*master)
-}
-
-func (m *mix) sum(i int) float64 {
-	var final float64
 	for j := range m.inputs {
-		final += m.inputs[j].Read(i) * m.levels[j].ReadSlow(i, ident)
+		var (
+			in  = m.inputs[j].Read(i)
+			lvl = m.levels[j].ReadSlow(i, ident)
+		)
+
+		if mode == modeAverage && in != 0 {
+			inUse++
+		}
+
+		sum += in * lvl
 	}
-	return final
+
+	sum *= master
+
+	switch mode {
+	case modeAverage:
+		m.out.Write(i, sum/math.Max(1, inUse))
+	case modeSum:
+		m.out.Write(i, sum)
+	}
 }

@@ -556,7 +556,7 @@ func TestAllUnits(t *testing.T) {
 						"3/in": []float64{4, 4, 4, 4},
 					},
 					outputs: map[string][]float64{
-						"out": []float64{10, 10, 10, 10},
+						"out": []float64{2.5, 2.5, 2.5, 2.5},
 					},
 				},
 				{
@@ -569,7 +569,7 @@ func TestAllUnits(t *testing.T) {
 						"3/in":    []float64{4, 4, 4, 4},
 					},
 					outputs: map[string][]float64{
-						"out": []float64{9.1, 9.1, 9.1, 9.1},
+						"out": []float64{2.275, 2.275, 2.275, 2.275},
 					},
 				},
 			},
@@ -586,8 +586,8 @@ func TestAllUnits(t *testing.T) {
 						"3/in": []float64{4, 4, 4, 4},
 					},
 					outputs: map[string][]float64{
-						"a": []float64{10, 10, 10, 10},
-						"b": []float64{10, 10, 10, 10},
+						"a": []float64{2.5, 2.5, 2.5, 2.5},
+						"b": []float64{2.5, 2.5, 2.5, 2.5},
 					},
 				},
 				{
@@ -601,8 +601,8 @@ func TestAllUnits(t *testing.T) {
 						"3/in":    []float64{4, 4, 4, 4},
 					},
 					outputs: map[string][]float64{
-						"a": []float64{9.09, 9.09, 9.09, 9.09},
-						"b": []float64{9.1, 9.1, 9.1, 9.1},
+						"a": []float64{2.2725, 2.2725, 2.2725, 2.2725},
+						"b": []float64{2.275, 2.275, 2.275, 2.275},
 					},
 				},
 			},
