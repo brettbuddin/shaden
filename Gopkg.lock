@@ -13,12 +13,12 @@
   version = "v0.0.14"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ebe55a604dcfd48414799acb0172d7d8fac0c9384ff4bb99a19ffa4302cade60"
+  digest = "1:0039473f8e542ea212947204866b58c7425597491f710e43bbe25e61950fdf18"
   name = "github.com/c-bata/go-prompt"
   packages = ["."]
   pruneopts = ""
-  revision = "95fb1dd6f46bb6fd222e42eaac1ae92a77c5ca28"
+  revision = "c52492ff1b386e5c0ba5271b5eaad165fab09eca"
+  version = "v0.2.2"
 
 [[projects]]
   digest = "1:56c130d885a4aacae1dd9c7b71cfe39912c7ebc1ff7d2b46083c8812996dc43b"
@@ -86,11 +86,27 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c9ede10a9ded782d25d1f0be87c680e11409c23554828f19a19d691a95e76130"
+  digest = "1:82b912465c1da0668582a7d1117339c278e786c2536b3c3623029a0c7141c2d0"
+  name = "github.com/mattn/go-runewidth"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e7dbfaa2d057b63c8d9bb7a354d710e4c356e29db0f1e4cece3a4d62ba23e73a"
+  name = "github.com/mattn/go-tty"
+  packages = ["."]
+  pruneopts = ""
+  revision = "931426f7535ac39720c8909d70ece5a41a2502a6"
+
+[[projects]]
+  digest = "1:5219b4506253ccc598f9340677162a42d6a78f340a4cc6df2d62db4d0593c4e9"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   pruneopts = ""
-  revision = "d0303fe809921458f417bcf828397a65db30a7e4"
+  revision = "fa473d140ef3c6adf42d6b391fe76707f1f243c8"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"

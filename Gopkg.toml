@@ -3,16 +3,16 @@
   version = "0.0.14"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/gordonklaus/portaudio"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/mitchellh/mapstructure"
+  version = "1.0.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/rakyll/portmidi"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
@@ -20,4 +20,4 @@
 
 [[constraint]]
   name = "github.com/c-bata/go-prompt"
-  branch = "master"
+  version = "0.2.2"

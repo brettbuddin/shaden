@@ -3,16 +3,21 @@ package prompt
 import (
 	"log"
 	"strings"
+
+	"github.com/mattn/go-runewidth"
 )
 
 const (
-	shortenSuffix    = "..."
-	leftPrefix       = " "
-	leftSuffix       = " "
-	rightPrefix      = " "
-	rightSuffix      = " "
-	leftMargin       = len(leftPrefix + leftSuffix)
-	rightMargin      = len(rightPrefix + rightSuffix)
+	shortenSuffix = "..."
+	leftPrefix    = " "
+	leftSuffix    = " "
+	rightPrefix   = " "
+	rightSuffix   = " "
+)
+
+var (
+	leftMargin       = runewidth.StringWidth(leftPrefix + leftSuffix)
+	rightMargin      = runewidth.StringWidth(rightPrefix + rightSuffix)
 	completionMargin = leftMargin + rightMargin
 )
 
@@ -28,6 +33,9 @@ type CompletionManager struct {
 	tmp       []Suggest
 	max       uint16
 	completer Completer
+
+	verticalScroll int
+	wordSeparator  string
 }
 
 // GetSelectedSuggestion returns the selected item.
@@ -42,7 +50,7 @@ func (c *CompletionManager) GetSelectedSuggestion() (s Suggest, ok bool) {
 	return c.tmp[c.selected], true
 }
 
-// GetSelectedSuggestion returns the list of suggestion.
+// GetSuggestions returns the list of suggestion.
 func (c *CompletionManager) GetSuggestions() []Suggest {
 	return c.tmp
 }
@@ -50,6 +58,7 @@ func (c *CompletionManager) GetSuggestions() []Suggest {
 // Reset to select nothing.
 func (c *CompletionManager) Reset() {
 	c.selected = -1
+	c.verticalScroll = 0
 	c.Update(*NewDocument())
 	return
 }
@@ -62,6 +71,9 @@ func (c *CompletionManager) Update(in Document) {
 
 // Previous to select the previous suggestion item.
 func (c *CompletionManager) Previous() {
+	if c.verticalScroll == c.selected && c.selected > 0 {
+		c.verticalScroll--
+	}
 	c.selected--
 	c.update()
 	return
@@ -69,6 +81,9 @@ func (c *CompletionManager) Previous() {
 
 // Next to select the next suggestion item.
 func (c *CompletionManager) Next() {
+	if c.verticalScroll+int(c.max)-1 == c.selected {
+		c.verticalScroll++
+	}
 	c.selected++
 	c.update()
 	return
@@ -84,24 +99,35 @@ func (c *CompletionManager) update() {
 	if len(c.tmp) < max {
 		max = len(c.tmp)
 	}
-	if c.selected >= max {
+
+	if c.selected >= len(c.tmp) {
 		c.Reset()
 	} else if c.selected < -1 {
-		c.selected = max - 1
+		c.selected = len(c.tmp) - 1
+		c.verticalScroll = len(c.tmp) - max
 	}
+}
+
+func deleteBreakLineCharacters(s string) string {
+	s = strings.Replace(s, "\n", "", -1)
+	s = strings.Replace(s, "\r", "", -1)
+	return s
 }
 
 func formatTexts(o []string, max int, prefix, suffix string) (new []string, width int) {
 	l := len(o)
 	n := make([]string, l)
 
-	lenPrefix := len([]rune(prefix))
-	lenSuffix := len([]rune(suffix))
-	lenShorten := len(shortenSuffix)
+	lenPrefix := runewidth.StringWidth(prefix)
+	lenSuffix := runewidth.StringWidth(suffix)
+	lenShorten := runewidth.StringWidth(shortenSuffix)
 	min := lenPrefix + lenSuffix + lenShorten
 	for i := 0; i < l; i++ {
-		if width < len([]rune(o[i])) {
-			width = len([]rune(o[i]))
+		o[i] = deleteBreakLineCharacters(o[i])
+
+		w := runewidth.StringWidth(o[i])
+		if width < w {
+			width = w
 		}
 	}
 
@@ -117,13 +143,15 @@ func formatTexts(o []string, max int, prefix, suffix string) (new []string, widt
 	}
 
 	for i := 0; i < l; i++ {
-		r := []rune(o[i])
-		x := len(r)
+		x := runewidth.StringWidth(o[i])
 		if x <= width {
 			spaces := strings.Repeat(" ", width-x)
 			n[i] = prefix + o[i] + spaces + suffix
 		} else if x > width {
-			n[i] = prefix + string(r[:width-lenShorten]) + shortenSuffix + suffix
+			x := runewidth.Truncate(o[i], width, shortenSuffix)
+			// When calling runewidth.Truncate("您好xxx您好xxx", 11, "...") returns "您好xxx..."
+			// But the length of this result is 10. So we need fill right using runewidth.FillRight.
+			n[i] = prefix + runewidth.FillRight(x, width) + suffix
 		}
 	}
 	return n, lenPrefix + width + lenSuffix
@@ -160,5 +188,7 @@ func NewCompletionManager(completer Completer, max uint16) *CompletionManager {
 		selected:  -1,
 		max:       max,
 		completer: completer,
+
+		verticalScroll: 0,
 	}
 }
