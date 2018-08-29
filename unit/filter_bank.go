@@ -20,6 +20,7 @@ func newFilterBank(io *IO, c Config) (*Unit, error) {
 
 	var (
 		filters    = make([]*dsp.SVFilter, config.Size)
+		levels     = make([]*In, config.Size)
 		cutoffs    = make([]*In, config.Size)
 		resonances = make([]*In, config.Size)
 		freq       = 300.0
@@ -35,6 +36,7 @@ func newFilterBank(io *IO, c Config) (*Unit, error) {
 			Poles:     4,
 			Resonance: res,
 		}
+		levels[i] = io.NewIn(fmt.Sprintf("%d/level", i), dsp.Float64(1))
 		cutoffs[i] = io.NewIn(fmt.Sprintf("%d/cutoff", i), cutoff)
 		resonances[i] = io.NewIn(fmt.Sprintf("%d/res", i), dsp.Float64(res))
 		freq += 600.0
@@ -43,6 +45,7 @@ func newFilterBank(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &filterBank{
 		filters:    filters,
 		in:         io.NewIn("in", dsp.Float64(0)),
+		levels:     levels,
 		cutoffs:    cutoffs,
 		resonances: resonances,
 		out:        io.NewOut("out"),
@@ -50,9 +53,9 @@ func newFilterBank(io *IO, c Config) (*Unit, error) {
 }
 
 type filterBank struct {
-	in                  *In
-	cutoffs, resonances []*In
-	out                 *Out
+	in                          *In
+	levels, cutoffs, resonances []*In
+	out                         *Out
 
 	filters []*dsp.SVFilter
 }
@@ -66,6 +69,7 @@ func (f *filterBank) ProcessSample(i int) {
 	)
 
 	for j, filter := range f.filters {
+		level := f.levels[j].Read(i)
 		filter.Cutoff = f.cutoffs[j].Read(i)
 		filter.Resonance = f.resonances[j].Read(i)
 
@@ -76,8 +80,8 @@ func (f *filterBank) ProcessSample(i int) {
 		} else {
 			_, _, out = filter.Tick(in)
 		}
-		sum += out
+		sum += out * level
 	}
 
-	f.out.Write(i, sum/float64(len(f.filters)))
+	f.out.Write(i, sum/float64(size))
 }
