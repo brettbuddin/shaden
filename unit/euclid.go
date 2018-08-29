@@ -1,8 +1,6 @@
 package unit
 
 import (
-	"fmt"
-
 	"github.com/brettbuddin/shaden/dsp"
 )
 
@@ -10,17 +8,16 @@ const maxEuclidLayers = 256
 
 func newEuclid(io *IO, _ Config) (*Unit, error) {
 	return NewUnit(io, &euclid{
-		clock:        io.NewIn("clock", dsp.Float64(-1)),
-		span:         io.NewIn("span", dsp.Float64(5)),
-		fill:         io.NewIn("fill", dsp.Float64(2)),
-		offset:       io.NewIn("offset", dsp.Float64(0)),
-		reset:        io.NewIn("reset", dsp.Float64(-1)),
-		counts:       make([]int, maxEuclidLayers),
-		remainders:   make([]int, maxEuclidLayers),
-		pattern:      make([]bool, maxEuclidLayers),
-		patternCache: map[string][]bool{},
-		lastTrigger:  -1,
-		out:          io.NewOut("out"),
+		clock:       io.NewIn("clock", dsp.Float64(-1)),
+		span:        io.NewIn("span", dsp.Float64(5)),
+		fill:        io.NewIn("fill", dsp.Float64(2)),
+		offset:      io.NewIn("offset", dsp.Float64(0)),
+		reset:       io.NewIn("reset", dsp.Float64(-1)),
+		counts:      make([]int, maxEuclidLayers),
+		remainders:  make([]int, maxEuclidLayers),
+		pattern:     make([]bool, maxEuclidLayers),
+		lastTrigger: -1,
+		out:         io.NewOut("out"),
 	}), nil
 }
 
@@ -31,15 +28,12 @@ type euclid struct {
 
 	out *Out
 
-	patternCache       map[string][]bool
 	pattern            []bool
 	counts, remainders []int
 	idx, lastIdx       int
 }
 
 func (e *euclid) ProcessSample(i int) {
-	const cacheKeyFormat = "%d-%d"
-
 	var (
 		span   = e.span.ReadSlowInt(i, minInt(1))
 		fill   = e.fill.ReadSlowInt(i, identInt)
@@ -51,18 +45,12 @@ func (e *euclid) ProcessSample(i int) {
 
 	if fill > 0 {
 		if e.lastSpan != span || e.lastFill != fill {
-			key := fmt.Sprintf(cacheKeyFormat, span, fill)
-			if p, ok := e.patternCache[key]; ok {
-				e.pattern = p
-			} else {
-				for i := range e.pattern {
-					e.counts[i] = 0
-					e.remainders[i] = 0
-					e.pattern[i] = false
-				}
-				euclidean(e.pattern, e.counts, e.remainders, span, fill)
-				e.patternCache[key] = e.pattern
+			for i := range e.pattern {
+				e.counts[i] = 0
+				e.remainders[i] = 0
+				e.pattern[i] = false
 			}
+			euclidean(e.pattern, e.counts, e.remainders, span, fill)
 		}
 
 		if isTrig(e.lastTrigger, trig) {
