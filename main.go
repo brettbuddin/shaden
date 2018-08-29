@@ -35,10 +35,14 @@ func main() {
 func run(cfg Config) error {
 	rand.Seed(cfg.Seed)
 
+	dest := os.Stdout
+	if cfg.REPL {
+		dest = os.Stderr
+	}
+
 	var (
 		backend engine.Backend
-
-		logger = log.New(os.Stdout, "", 0)
+		logger  = log.New(dest, "", 0)
 	)
 
 	switch cfg.Backend {
@@ -64,10 +68,10 @@ func run(cfg Config) error {
 		}()
 
 		if cfg.DeviceList {
-			fmt.Println("Audio Devices")
-			fmt.Println(devices)
-			fmt.Println("MIDI Devices")
-			fmt.Println(midiDevices)
+			logger.Println("Audio Devices")
+			logger.Println(devices)
+			logger.Println("MIDI Devices")
+			logger.Println(midiDevices)
 			return nil
 		}
 
@@ -83,7 +87,7 @@ func run(cfg Config) error {
 			return errors.Wrap(err, "creating portaudio backend")
 		}
 
-		printPreamble(paBackend, cfg.Seed)
+		printPreamble(paBackend, logger, cfg.Seed)
 
 		backend = paBackend
 	case backendStdout:
@@ -170,17 +174,17 @@ func waitForSignal() <-chan struct{} {
 	return done
 }
 
-func printPreamble(pa *portaudio.PortAudio, seed int64) {
+func printPreamble(pa *portaudio.PortAudio, logger *log.Logger, seed int64) {
 	inDevice, outDevice := pa.Devices()
-	fmt.Println("PID:", os.Getpid())
-	fmt.Println("Seed:", seed)
-	fmt.Printf(
+	logger.Println("PID:", os.Getpid())
+	logger.Println("Seed:", seed)
+	logger.Printf(
 		"Input Device: %s (%s/%s)\n",
 		inDevice.Name,
 		inDevice.DefaultLowOutputLatency,
 		inDevice.DefaultHighInputLatency,
 	)
-	fmt.Printf(
+	logger.Printf(
 		"Output Device: %s (%s/%s)\n",
 		outDevice.Name,
 		outDevice.DefaultLowOutputLatency,
