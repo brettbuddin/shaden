@@ -65,13 +65,27 @@ func (e *Environment) SetSymbol(symbol string, v interface{}) error {
 }
 
 func (e *Environment) replace(existing, replacement interface{}) error {
-	r, ok := existing.(interface {
+	type replacer interface {
 		Replace(v interface{}) error
-	})
-	if !ok {
+	}
+
+	switch v := existing.(type) {
+	case replacer:
+		return v.Replace(replacement)
+	case Table:
+		el, ok := v[Keyword("__replace")]
+		if !ok {
+			return nil
+		}
+		fn, ok := el.(func(List) (interface{}, error))
+		if !ok {
+			return errors.New("table key :__replace should be a function")
+		}
+		_, err := fn(List{replacement})
+		return err
+	default:
 		return nil
 	}
-	return r.Replace(replacement)
 }
 
 // UnsetSymbol removes a symbol definition. It only operates on the current context; no parent Environments will be
