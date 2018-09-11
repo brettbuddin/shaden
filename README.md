@@ -69,7 +69,7 @@ For a more information about the Lisp dialect bundled with Shaden, [check out th
 
 The best way to get to know the way patching works in Shaden is to look at the [examples directory](examples).
 
-I gave a lightning talk [GopherCon 2018](https://gophercon.com) about Shaden:
+I gave a lightning talk at [GopherCon 2018](https://gophercon.com) about Shaden:
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=F9mDpVRAAMY" target="_blank"><img src="http://img.youtube.com/vi/F9mDpVRAAMY/0.jpg" alt="GopherCon 2018 Lightning Talk: Brett Buddin - Modular Audio Synthesis with Shaden" width="402" height="302" border="10" /></a>
 
