@@ -71,7 +71,7 @@ The best way to get to know the way patching works in Shaden is to look at the [
 
 I gave a lightning talk [GopherCon 2018](https://gophercon.com) about Shaden:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/F9mDpVRAAMY?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=F9mDpVRAAMY" target="_blank"><img src="http://img.youtube.com/vi/F9mDpVRAAMY/0.jpg" alt="GopherCon 2018 Lightning Talk: Brett Buddin - Modular Audio Synthesis with Shaden" width="402" height="302" border="10" /></a>
 
 Shaden was used to create the intro music for the [GothamGo 2017 conference videos](https://www.youtube.com/playlist?list=PLeGxIOPLk9ELp7dx6A0gtvjbc99dU2kq-). 
 I frequently post patches I've created [on Instagram](https://www.instagram.com/brettbuddin/) and recordings [on Bandcamp](https://returnnil.bandcamp.com).
