@@ -67,8 +67,11 @@ For a more information about the Lisp dialect bundled with Shaden, [check out th
 
 ## Examples
 
-The best way to get to know the way patching works in Shaden is to look at the [examples directory](examples). As far as
-sounds that can be created with it:
+The best way to get to know the way patching works in Shaden is to look at the [examples directory](examples).
 
-- The synth was used to create the intro music for the [GothamGo 2017 conference videos](https://www.youtube.com/playlist?list=PLeGxIOPLk9ELp7dx6A0gtvjbc99dU2kq-)
-- I frequently post patches I've created [on Instagram](https://www.instagram.com/brettbuddin/) and recordings [on Bandcamp](https://returnnil.bandcamp.com).
+I gave a lightning talk [GopherCon 2018](https://gophercon.com) about Shaden:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/F9mDpVRAAMY?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+Shaden was used to create the intro music for the [GothamGo 2017 conference videos](https://www.youtube.com/playlist?list=PLeGxIOPLk9ELp7dx6A0gtvjbc99dU2kq-). 
+I frequently post patches I've created [on Instagram](https://www.instagram.com/brettbuddin/) and recordings [on Bandcamp](https://returnnil.bandcamp.com).
