@@ -230,7 +230,12 @@ func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, e
 		if reply.Error != nil {
 			return nil, reply.Error
 		}
-		logger.Printf(bold("Removing %s\n└ Completed in %s\n"), u.ID, reply.Duration)
+
+		var b bytes.Buffer
+		fmt.Fprintf(&b, bold("Removing %s\n"), u.ID)
+		fmt.Fprintf(&b, "└ Completed in %s\n", reply.Duration)
+		logger.Print(b.String())
+
 		lazy.mount = false
 		return nil, nil
 	}
