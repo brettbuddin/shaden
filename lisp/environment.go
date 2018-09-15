@@ -35,36 +35,56 @@ func (e *Environment) Branch() *Environment {
 
 // DefineSymbol defines a symbol.
 func (e *Environment) DefineSymbol(symbol string, v interface{}) error {
-	e.Lock()
-	defer e.Unlock()
-	if exist, ok := e.symbols[symbol]; ok {
-		if err := e.replace(exist, v); err != nil {
+	e.RLock()
+	exist, ok := e.symbols[symbol]
+	e.RUnlock()
+
+	if ok {
+		if err := replace(exist, v); err != nil {
 			return err
 		}
 	}
+
+	e.Lock()
 	e.symbols[symbol] = v
+	e.Unlock()
 	return nil
 }
 
 // SetSymbol sets the value of a symbol. Like GetSymbol, it advances to parent Environments if the symbol cannot be
 // found in the current context. If the value has not been defined yet, it errors.
 func (e *Environment) SetSymbol(symbol string, v interface{}) error {
-	e.Lock()
-	defer e.Unlock()
-	for e != nil {
-		if exist, ok := e.symbols[symbol]; ok {
-			if err := e.replace(exist, v); err != nil {
+	for {
+		e.RLock()
+		if e == nil {
+			e.RUnlock()
+			break
+		}
+		e.RUnlock()
+
+		e.RLock()
+		exist, ok := e.symbols[symbol]
+		e.RUnlock()
+
+		if ok {
+			if err := replace(exist, v); err != nil {
 				return err
 			}
+
+			e.Lock()
 			e.symbols[symbol] = v
+			e.Unlock()
 			return nil
 		}
+
+		e.Lock()
 		e = e.parent
+		e.Unlock()
 	}
 	return UndefinedSymbolError{symbol}
 }
 
-func (e *Environment) replace(existing, replacement interface{}) error {
+func replace(existing, replacement interface{}) error {
 	type replacer interface {
 		Replace(v interface{}) error
 	}
