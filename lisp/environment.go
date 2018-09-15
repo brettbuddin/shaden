@@ -54,32 +54,24 @@ func (e *Environment) DefineSymbol(symbol string, v interface{}) error {
 // SetSymbol sets the value of a symbol. Like GetSymbol, it advances to parent Environments if the symbol cannot be
 // found in the current context. If the value has not been defined yet, it errors.
 func (e *Environment) SetSymbol(symbol string, v interface{}) error {
-	for {
-		e.RLock()
-		if e == nil {
-			e.RUnlock()
-			break
-		}
-		e.RUnlock()
-
-		e.RLock()
-		exist, ok := e.symbols[symbol]
-		e.RUnlock()
+	env := e
+	for env != nil {
+		env.RLock()
+		exist, ok := env.symbols[symbol]
+		env.RUnlock()
 
 		if ok {
 			if err := replace(exist, v); err != nil {
 				return err
 			}
 
-			e.Lock()
-			e.symbols[symbol] = v
-			e.Unlock()
+			env.Lock()
+			env.symbols[symbol] = v
+			env.Unlock()
 			return nil
 		}
 
-		e.Lock()
-		e = e.parent
-		e.Unlock()
+		env = env.parent
 	}
 	return UndefinedSymbolError{symbol}
 }
