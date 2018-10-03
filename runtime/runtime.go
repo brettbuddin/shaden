@@ -189,8 +189,8 @@ func (r *Runtime) loadConstants(env *lisp.Environment, sampleRate, frameSize int
 	env.DefineSymbol("logic/xnor", 5)
 
 	// Mix Modes
-	env.DefineSymbol("mode/average", 0)
-	env.DefineSymbol("mode/sum", 1)
+	env.DefineSymbol("mode/sum", 0)
+	env.DefineSymbol("mode/average", 1)
 }
 
 func (r *Runtime) engineClear(*lisp.Environment, lisp.List) (interface{}, error) {

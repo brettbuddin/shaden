@@ -55,10 +55,10 @@ func (m *panMix) ProcessSample(i int) {
 		a, b, aInUse, bInUse float64
 	)
 
-	if mode > modeSum {
-		mode = modeSum
-	} else if mode < modeAverage {
+	if mode > modeAverage {
 		mode = modeAverage
+	} else if mode < modeSum {
+		mode = modeSum
 	}
 
 	for j := 0; j < len(m.inputs); j++ {

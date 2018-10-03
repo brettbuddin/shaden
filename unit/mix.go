@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	modeAverage = iota
-	modeSum
+	modeSum = iota
+	modeAverage
 )
 
 func newMix(io *IO, c Config) (*Unit, error) {
@@ -56,10 +56,10 @@ func (m *mix) ProcessSample(i int) {
 		sum, inUse float64
 	)
 
-	if mode > modeSum {
-		mode = modeSum
-	} else if mode < modeAverage {
+	if mode > modeAverage {
 		mode = modeAverage
+	} else if mode < modeSum {
+		mode = modeSum
 	}
 
 	for j := range m.inputs {
