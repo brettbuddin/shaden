@@ -1,9 +1,0 @@
-language: go
-go:
- - 1.5.4
- - 1.6.3
- - 1.7.3
- - tip
-sudo: false
-env:
-  - GO15VENDOREXPERIMENT=1
