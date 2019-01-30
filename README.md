@@ -73,5 +73,5 @@ I gave a lightning talk at [GopherCon 2018](https://gophercon.com) about Shaden:
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=F9mDpVRAAMY" target="_blank"><img src="http://img.youtube.com/vi/F9mDpVRAAMY/0.jpg" alt="GopherCon 2018 Lightning Talk: Brett Buddin - Modular Audio Synthesis with Shaden" width="402" height="302" border="10" /></a>
 
-Shaden was used to create the intro music for the [GothamGo 2017](https://www.youtube.com/playlist?list=PLeGxIOPLk9ELp7dx6A0gtvjbc99dU2kq-) [GothamGo 2018](https://www.youtube.com/watch?v=fdIHODCbeRY&list=PLeGxIOPLk9ELMBvf9FUM_s5Xd-fkPZKkB) conference videos.
+Shaden was used to create the intro music for the [GothamGo 2017](https://www.youtube.com/playlist?list=PLeGxIOPLk9ELp7dx6A0gtvjbc99dU2kq-) and [GothamGo 2018](https://www.youtube.com/watch?v=fdIHODCbeRY&list=PLeGxIOPLk9ELMBvf9FUM_s5Xd-fkPZKkB) conference videos.
 I frequently post patches I've created [on Instagram](https://www.instagram.com/brettbuddin/).
