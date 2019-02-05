@@ -178,12 +178,18 @@ func printPreamble(pa *portaudio.PortAudio, logger *log.Logger, seed int64) {
 	inDevice, outDevice := pa.Devices()
 	logger.Println("PID:", os.Getpid())
 	logger.Println("Seed:", seed)
-	logger.Printf(
-		"Input Device: %s (%s/%s)\n",
-		inDevice.Name,
-		inDevice.DefaultLowOutputLatency,
-		inDevice.DefaultHighInputLatency,
-	)
+
+	if inDevice != nil {
+		logger.Printf(
+			"Input Device: %s (%s/%s)\n",
+			inDevice.Name,
+			inDevice.DefaultLowOutputLatency,
+			inDevice.DefaultHighInputLatency,
+		)
+	} else {
+		logger.Println("Input Device: none")
+	}
+
 	logger.Printf(
 		"Output Device: %s (%s/%s)\n",
 		outDevice.Name,

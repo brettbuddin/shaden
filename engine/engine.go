@@ -171,8 +171,10 @@ func (e *Engine) callback(in []float32, out [][]float32) {
 			rightOut  = e.graph.rightOut
 			gain      = e.gain
 		)
-		for i := 0; i < frameSize; i++ {
-			input[i] = float64(in[offset+i])
+		if len(in) > 0 {
+			for i := 0; i < frameSize; i++ {
+				input[i] = float64(in[offset+i])
+			}
 		}
 		for _, p := range e.graph.Processors() {
 			p.ProcessFrame(frameSize)

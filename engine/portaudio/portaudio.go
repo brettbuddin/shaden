@@ -64,11 +64,15 @@ func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize, sampleRat
 		return nil, fmt.Errorf("output device index out of range")
 	}
 
-	var (
-		params  portaudio.StreamParameters
-		in, out = devices[inDeviceIndex], devices[outDeviceIndex]
-	)
+	var in *portaudio.DeviceInfo
+	if inDeviceIndex >= 0 {
+		in = devices[inDeviceIndex]
+	}
 
+	var (
+		params portaudio.StreamParameters
+		out    = devices[outDeviceIndex]
+	)
 	switch latency {
 	case latencyHigh:
 		params = portaudio.HighLatencyParameters(in, out)
