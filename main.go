@@ -200,12 +200,16 @@ func printPreamble(pa *portaudio.PortAudio, logger *log.Logger, seed int64) {
 		logger.Println("Input Device: none")
 	}
 
-	logger.Printf(
-		"Output Device: %s (%s/%s)\n",
-		outDevice.Name,
-		outDevice.DefaultLowOutputLatency,
-		outDevice.DefaultHighOutputLatency,
-	)
+	if outDevice != nil {
+		logger.Printf(
+			"Output Device: %s (%s/%s)\n",
+			outDevice.Name,
+			outDevice.DefaultLowOutputLatency,
+			outDevice.DefaultHighOutputLatency,
+		)
+	} else {
+		logger.Println("Output Device: none")
+	}
 }
 
 func dbToFloat(v float64) float32 {

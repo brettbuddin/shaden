@@ -73,10 +73,12 @@ func New(inDevice, outDevice DeviceSelection, latency string, frameSize, sampleR
 		in = devices[inDevice]
 	}
 
-	var (
-		params portaudio.StreamParameters
-		out    = devices[outDevice]
-	)
+	var out *portaudio.DeviceInfo
+	if outDevice != DeviceNone {
+		out = devices[outDevice]
+	}
+
+	var params portaudio.StreamParameters
 	switch latency {
 	case latencyHigh:
 		params = portaudio.HighLatencyParameters(in, out)
