@@ -14,6 +14,10 @@ const (
 	latencyHigh = "high"
 )
 
+type DeviceSelection int
+
+var DeviceNone = DeviceSelection(-1)
+
 // PortAudio is a wrapper for a portaudio client.
 type PortAudio struct {
 	inDevice, outDevice *portaudio.DeviceInfo
@@ -52,26 +56,26 @@ func Terminate() error {
 }
 
 // New returns a new PortAudio.
-func New(inDeviceIndex, outDeviceIndex int, latency string, frameSize, sampleRate int) (*PortAudio, error) {
+func New(inDevice, outDevice DeviceSelection, latency string, frameSize, sampleRate int) (*PortAudio, error) {
 	devices, err := portaudio.Devices()
 	if err != nil {
 		return nil, err
 	}
-	if inDeviceIndex >= len(devices) {
+	if int(inDevice) >= len(devices) {
 		return nil, fmt.Errorf("input device index out of range")
 	}
-	if outDeviceIndex >= len(devices) {
+	if int(outDevice) >= len(devices) {
 		return nil, fmt.Errorf("output device index out of range")
 	}
 
 	var in *portaudio.DeviceInfo
-	if inDeviceIndex >= 0 {
-		in = devices[inDeviceIndex]
+	if inDevice != DeviceNone {
+		in = devices[inDevice]
 	}
 
 	var (
 		params portaudio.StreamParameters
-		out    = devices[outDeviceIndex]
+		out    = devices[outDevice]
 	)
 	switch latency {
 	case latencyHigh:

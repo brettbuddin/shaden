@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"strconv"
 	"time"
 
+	"github.com/brettbuddin/shaden/engine/portaudio"
 	"github.com/brettbuddin/shaden/errors"
 )
 
@@ -26,12 +28,33 @@ type Config struct {
 	Backend string
 
 	DeviceList      bool
-	DeviceIn        int
-	DeviceOut       int
+	deviceIn        string
+	deviceOut       string
 	DeviceLatency   string
 	DeviceFrameSize int
 
 	ScriptPath string
+}
+
+func (c Config) DeviceIn() (portaudio.DeviceSelection, error) {
+	return deviceSelection(c.deviceIn)
+}
+
+func (c Config) DeviceOut() (portaudio.DeviceSelection, error) {
+	return deviceSelection(c.deviceOut)
+}
+
+func deviceSelection(v string) (portaudio.DeviceSelection, error) {
+	if v == "none" {
+		return portaudio.DeviceNone, nil
+	}
+
+	vInt, err := strconv.Atoi(v)
+	if err != nil {
+		return portaudio.DeviceNone, err
+	}
+
+	return portaudio.DeviceSelection(vInt), nil
 }
 
 func parseArgs(args []string) (Config, error) {
@@ -49,8 +72,8 @@ func parseArgs(args []string) (Config, error) {
 	set.Float64Var(&cfg.Gain, "gain", 0, "gain decibels (dB)")
 
 	set.BoolVar(&cfg.DeviceList, "device-list", false, "list all devices")
-	set.IntVar(&cfg.DeviceIn, "device-in", 0, "input device")
-	set.IntVar(&cfg.DeviceOut, "device-out", 1, "output device")
+	set.StringVar(&cfg.deviceIn, "device-in", "0", "input device")
+	set.StringVar(&cfg.deviceOut, "device-out", "1", "output device")
 	set.StringVar(&cfg.DeviceLatency, "device-latency", "low", "latency setting for audio device")
 	set.IntVar(&cfg.DeviceFrameSize, "device-frame", 1024, "frame size used when writing to audio device")
 

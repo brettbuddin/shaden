@@ -75,10 +75,20 @@ func run(cfg Config) error {
 			return nil
 		}
 
+		deviceIn, err := cfg.DeviceIn()
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		deviceOut, err := cfg.DeviceOut()
+		if err != nil {
+			logger.Fatal(err)
+		}
+
 		// Create the engine
 		paBackend, err := portaudio.New(
-			cfg.DeviceIn,
-			cfg.DeviceOut,
+			deviceIn,
+			deviceOut,
 			cfg.DeviceLatency,
 			cfg.DeviceFrameSize,
 			int(cfg.SampleRate),
