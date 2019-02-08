@@ -72,8 +72,8 @@ func parseArgs(args []string) (Config, error) {
 	set.Float64Var(&cfg.Gain, "gain", 0, "gain decibels (dB)")
 
 	set.BoolVar(&cfg.DeviceList, "device-list", false, "list all devices")
-	set.StringVar(&cfg.deviceIn, "device-in", "0", "input device")
-	set.StringVar(&cfg.deviceOut, "device-out", "1", "output device")
+	set.StringVar(&cfg.deviceIn, "device-in", "0", "input device index (e.g. 1, none)")
+	set.StringVar(&cfg.deviceOut, "device-out", "1", "output device index (e.g. 1, none)")
 	set.StringVar(&cfg.DeviceLatency, "device-latency", "low", "latency setting for audio device")
 	set.IntVar(&cfg.DeviceFrameSize, "device-frame", 1024, "frame size used when writing to audio device")
 
