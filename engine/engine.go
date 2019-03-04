@@ -128,20 +128,22 @@ func (e *Engine) Stop() error {
 	return err
 }
 
-func (e *Engine) call(action interface{}) (interface{}, error) {
+func (e *Engine) call(action interface{}) error {
 	switch fn := action.(type) {
-	case func(e *Engine) (interface{}, error):
+	case func(e *Engine) error:
 		return fn(e)
-	case func(g *Graph) (interface{}, error):
+	case func(g *Graph) error:
 		return fn(e.graph)
 	default:
-		return nil, fmt.Errorf("unhandled function type %T", action)
+		return fmt.Errorf("unhandled function type %T", action)
 	}
 }
 
 func (e *Engine) handle(msg *Message) {
-	start := time.Now()
-	data, err := e.call(msg.Action)
+	var (
+		start = time.Now()
+		err   = e.call(msg.Action)
+	)
 
 	if err == nil {
 		e.graph.Sort()
@@ -150,7 +152,6 @@ func (e *Engine) handle(msg *Message) {
 	if msg.Reply != nil {
 		msg.Reply <- &Reply{
 			Duration: time.Since(start),
-			Data:     data,
 			Error:    err,
 		}
 	}

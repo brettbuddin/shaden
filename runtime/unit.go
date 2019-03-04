@@ -392,7 +392,7 @@ func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 		fmt.Fprintf(&b, "└ Completed in %s", reply.Duration)
 		logger.Print(b.String())
 
-		return reply.Data, reply.Error
+		return nil, reply.Error
 	}
 }
 

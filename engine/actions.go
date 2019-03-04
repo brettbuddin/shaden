@@ -6,30 +6,30 @@ import (
 )
 
 // Clear is an action that resets the Engine's state.
-func Clear(e *Engine) (interface{}, error) {
-	return nil, e.Reset()
+func Clear(e *Engine) error {
+	return e.Reset()
 }
 
 // MountUnit mounts a Unit into the audio graph.
-func MountUnit(u *unit.Unit) func(*Graph) (interface{}, error) {
-	return func(g *Graph) (interface{}, error) {
-		return nil, g.Mount(u)
+func MountUnit(u *unit.Unit) func(*Graph) error {
+	return func(g *Graph) error {
+		return g.Mount(u)
 	}
 }
 
 // UnmountUnit removes a Unit from the audio graph.
-func UnmountUnit(u *unit.Unit) func(*Graph) (interface{}, error) {
-	return func(g *Graph) (interface{}, error) {
-		return nil, g.Unmount(u)
+func UnmountUnit(u *unit.Unit) func(*Graph) error {
+	return func(g *Graph) error {
+		return g.Unmount(u)
 	}
 }
 
 // EmitOutputs sinks 1 or 2 outputs to the Engine.
-func EmitOutputs(left, right unit.OutRef) func(*Graph) (interface{}, error) {
-	return func(g *Graph) (interface{}, error) {
+func EmitOutputs(left, right unit.OutRef) func(*Graph) error {
+	return func(g *Graph) error {
 		leftOut, ok := left.Unit.Out[left.Output]
 		if !ok {
-			return nil, errors.Errorf("unit %q has no output %q", left.Unit.ID, left.Output)
+			return errors.Errorf("unit %q has no output %q", left.Unit.ID, left.Output)
 		}
 		var rightOut unit.Output
 		if right.Unit == nil {
@@ -38,37 +38,37 @@ func EmitOutputs(left, right unit.OutRef) func(*Graph) (interface{}, error) {
 			var ok bool
 			rightOut, ok = right.Unit.Out[right.Output]
 			if !ok {
-				return nil, errors.Errorf("unit %s has no output %q", right.Unit.ID, right.Output)
+				return errors.Errorf("unit %s has no output %q", right.Unit.ID, right.Output)
 			}
 		}
 		if err := g.Patch(leftOut, g.sink.In["l"]); err != nil {
-			return nil, errors.Wrap(err, "patch")
+			return errors.Wrap(err, "patch")
 		}
-		return nil, g.Patch(rightOut, g.sink.In["r"])
+		return g.Patch(rightOut, g.sink.In["r"])
 	}
 }
 
 // PatchInput patches values into a Unit's Ins. If `forceReset` is set to `true` all Ins on that Unit that haven't been
 // referenced in `inputs` will be reset to their default values.
-func PatchInput(u *unit.Unit, inputs map[string]interface{}, forceReset bool) func(*Graph) (interface{}, error) {
+func PatchInput(u *unit.Unit, inputs map[string]interface{}, forceReset bool) func(*Graph) error {
 	seen := make(map[string]struct{}, len(u.In))
-	return func(g *Graph) (interface{}, error) {
+	return func(g *Graph) error {
 		for k, v := range inputs {
 			in, ok := u.In[k]
 			if !ok {
 				prop, ok := u.Prop[k]
 				if !ok {
-					return nil, errors.Errorf("unit %q has no input or property %q", u.ID, k)
+					return errors.Errorf("unit %q has no input or property %q", u.ID, k)
 				}
 				if err := prop.SetValue(v); err != nil {
-					return nil, err
+					return err
 				}
 				continue
 			}
 			seen[k] = struct{}{}
 
 			if err := g.Patch(v, in); err != nil {
-				return nil, err
+				return err
 			}
 		}
 		if forceReset {
@@ -78,7 +78,7 @@ func PatchInput(u *unit.Unit, inputs map[string]interface{}, forceReset bool) fu
 				}
 			}
 		}
-		return nil, nil
+		return nil
 	}
 }
 
@@ -86,10 +86,10 @@ func PatchInput(u *unit.Unit, inputs map[string]interface{}, forceReset bool) fu
 // different types, the original is just removed and nothing is done. Otherwise,
 // it tries its best to patch sources and destinatinos from the original unit to
 // the new unit.
-func SwapUnit(u1, u2 *unit.Unit) func(*Graph) (interface{}, error) {
-	return func(g *Graph) (interface{}, error) {
+func SwapUnit(u1, u2 *unit.Unit) func(*Graph) error {
+	return func(g *Graph) error {
 		if u1.Type != u2.Type {
-			return nil, g.Unmount(u1)
+			return g.Unmount(u1)
 		}
 
 		for k, u1in := range u1.In {
@@ -99,14 +99,14 @@ func SwapUnit(u1, u2 *unit.Unit) func(*Graph) (interface{}, error) {
 			}
 			if u1in.HasSource() {
 				if err := g.Patch(u1in.Source(), u2in); err != nil {
-					return nil, err
+					return err
 				}
 				if err := g.Unpatch(u1in); err != nil {
-					return nil, err
+					return err
 				}
 			} else {
 				if err := g.Patch(u1in.Constant(), u2in); err != nil {
-					return nil, err
+					return err
 				}
 			}
 		}
@@ -118,11 +118,11 @@ func SwapUnit(u1, u2 *unit.Unit) func(*Graph) (interface{}, error) {
 			}
 			for _, in := range u1out.Out().Destinations() {
 				if err := g.Patch(u2out, in); err != nil {
-					return nil, err
+					return err
 				}
 			}
 		}
 
-		return nil, g.Unmount(u1)
+		return g.Unmount(u1)
 	}
 }

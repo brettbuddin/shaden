@@ -37,7 +37,7 @@ func TestFillConstant(t *testing.T) {
 			fn := PatchInput(u, map[string]interface{}{
 				"in": test.input,
 			}, false)
-			_, err = fn(g)
+			err = fn(g)
 			require.Nil(t, err)
 			require.False(t, g.graph.HasChanged())
 			require.Equal(t, test.output, io.In["in"].Read(0))
@@ -66,7 +66,7 @@ func TestPatch(t *testing.T) {
 	fn := PatchInput(u1, map[string]interface{}{
 		"in": unit.OutRef{Unit: u2, Output: "out"},
 	}, false)
-	_, err = fn(g)
+	err = fn(g)
 	require.Nil(t, err)
 	require.True(t, g.graph.HasChanged())
 	require.True(t, u1.In["in"].HasSource())
@@ -95,7 +95,7 @@ func TestEmitOutputs(t *testing.T) {
 	left := unit.OutRef{Unit: unit1, Output: "out"}
 	right := unit.OutRef{Unit: unit2, Output: "out"}
 
-	_, err = EmitOutputs(left, right)(g)
+	err = EmitOutputs(left, right)(g)
 	require.NoError(t, err)
 	require.True(t, g.sink.In["l"].HasSource())
 	require.True(t, g.sink.In["r"].HasSource())
@@ -132,7 +132,7 @@ func TestSwapUnit_ConstantInput(t *testing.T) {
 	require.NoError(t, g.Patch(3.0, unit1.In["in"]))
 	require.NoError(t, g.Patch(unit1.Out["out"], unit3.In["in"]))
 
-	_, err = SwapUnit(unit1, unit2)(g)
+	err = SwapUnit(unit1, unit2)(g)
 	require.NoError(t, err)
 	require.Equal(t, unit2.Out["out"].Out(), unit3.In["in"].Source())
 	require.Equal(t, dsp.Float64(3.0), unit1.In["in"].Constant())
@@ -175,7 +175,7 @@ func TestSwapUnit_SourceInput(t *testing.T) {
 	require.NoError(t, g.Patch(unit1.Out["out"], unit2.In["in"]))
 	require.NoError(t, g.Patch(unit2.Out["out"], unit4.In["in"]))
 
-	_, err = SwapUnit(unit2, unit3)(g)
+	err = SwapUnit(unit2, unit3)(g)
 	require.NoError(t, err)
 	require.Equal(t, unit3.Out["out"].Out(), unit4.In["in"].Source())
 	require.Equal(t, unit1.Out["out"].Out(), unit3.In["in"].Source())

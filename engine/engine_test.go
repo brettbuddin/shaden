@@ -108,7 +108,6 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Error("timeout waiting for receive reply")
 	}
-	require.Nil(t, reply.Data)
 	require.NoError(t, reply.Error)
 
 	require.Equal(t, 4, e.graph.Size())
@@ -124,7 +123,6 @@ func TestEngine_MountAndUnmount(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Error("timeout waiting for receive reply")
 	}
-	require.Nil(t, reply.Data)
 	require.NoError(t, reply.Error)
 
 	require.Equal(t, 3, e.graph.Size())
@@ -171,7 +169,6 @@ func TestEngine_MountAndReset(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Error("timeout waiting for receive reply")
 	}
-	require.Nil(t, reply.Data)
 	require.NoError(t, reply.Error)
 
 	require.Equal(t, 4, e.graph.Size())

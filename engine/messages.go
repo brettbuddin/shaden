@@ -23,7 +23,6 @@ type Message struct {
 // of the action, any error that might of occurred and how long the action took to process.
 type Reply struct {
 	Duration time.Duration
-	Data     interface{}
 	Error    error
 }
 
