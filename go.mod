@@ -1,5 +1,7 @@
 module github.com/brettbuddin/shaden
 
+go 1.15
+
 require (
 	github.com/brettbuddin/musictheory v0.0.14
 	github.com/c-bata/go-prompt v0.2.2
