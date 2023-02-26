@@ -20,6 +20,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rakyll/portmidi v0.0.0-20170716032345-1246dd47c560
 	github.com/stretchr/testify v1.2.1
-	golang.org/x/sys v0.0.0-20171028101351-661970f62f58 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1
 )
