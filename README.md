@@ -1,6 +1,5 @@
 ## Shaden
 
-[![Build Status](https://travis-ci.org/brettbuddin/shaden.svg?branch=ci)](https://travis-ci.org/brettbuddin/shaden)
 [![GoDoc](https://godoc.org/github.com/brettbuddin/shaden?status.svg)](https://godoc.org/github.com/brettbuddin/shaden)
 [![Go Report Card](https://goreportcard.com/badge/github.com/brettbuddin/shaden)](https://goreportcard.com/report/github.com/brettbuddin/shaden)
 
