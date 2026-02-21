@@ -12,17 +12,15 @@ const (
 
 func beginFn(env *lisp.Environment, args lisp.List) (any, error) {
 	env = env.Branch()
-	var (
-		value any
-		err   error
-	)
-	for _, arg := range args {
-		value, err = env.Eval(arg)
-		if err != nil {
+	if len(args) == 0 {
+		return nil, nil
+	}
+	for _, arg := range args[:len(args)-1] {
+		if _, err := env.Eval(arg); err != nil {
 			return nil, err
 		}
 	}
-	return value, nil
+	return lisp.TailCall{Node: args[len(args)-1], Env: env}, nil
 }
 
 func letFn(env *lisp.Environment, args lisp.List) (any, error) {
@@ -52,17 +50,13 @@ func letFn(env *lisp.Environment, args lisp.List) (any, error) {
 			env.DefineSymbol(string(name), value)
 		}
 	}
-	var (
-		value any
-		err   error
-	)
-	for _, arg := range args[1:] {
-		value, err = env.Eval(arg)
-		if err != nil {
+	body := args[1:]
+	for _, arg := range body[:len(body)-1] {
+		if _, err := env.Eval(arg); err != nil {
 			return nil, err
 		}
 	}
-	return value, nil
+	return lisp.TailCall{Node: body[len(body)-1], Env: env}, nil
 }
 
 func fnFn(env *lisp.Environment, args lisp.List) (any, error) {
@@ -83,8 +77,8 @@ func fnFn(env *lisp.Environment, args lisp.List) (any, error) {
 
 func buildFunction(env *lisp.Environment, defArgs, body lisp.List) func(lisp.List) (any, error) {
 	return func(args lisp.List) (any, error) {
-		env = env.Branch()
-		return functionEvaluate(env, args, defArgs, body)
+		callEnv := env.Branch()
+		return functionEvaluate(callEnv, args, defArgs, body)
 	}
 }
 
@@ -92,10 +86,13 @@ func buildMacroFunction(env *lisp.Environment, defArgs, body lisp.List) func(*li
 	return func(env *lisp.Environment, args lisp.List) (any, error) {
 		env = env.Branch()
 		v, err := functionEvaluate(env, args, defArgs, body)
+		// functionEvaluate may return a TailCall; resolve it to get the actual
+		// macro expansion form before evaluating it.
+		v, err = lisp.ResolveTailCalls(v, err)
 		if err != nil {
 			return nil, err
 		}
-		return env.Eval(v)
+		return lisp.TailCall{Node: v, Env: env}, nil
 	}
 }
 
@@ -153,17 +150,12 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (any
 		env.DefineSymbol(string(variadicSymbol), variadicArgs)
 	}
 
-	var (
-		value any
-		err   error
-	)
-	for _, arg := range body {
-		value, err = env.Eval(arg)
-		if err != nil {
+	for _, arg := range body[:len(body)-1] {
+		if _, err := env.Eval(arg); err != nil {
 			return nil, err
 		}
 	}
-	return value, nil
+	return lisp.TailCall{Node: body[len(body)-1], Env: env}, nil
 }
 
 func applyFn(args lisp.List) (any, error) {
@@ -185,9 +177,9 @@ func applyFn(args lisp.List) (any, error) {
 
 	switch fn := args[0].(type) {
 	case lisp.Func:
-		return fn.Func(flat)
+		return lisp.ResolveTailCalls(fn.Func(flat))
 	case func(lisp.List) (any, error):
-		return fn(flat)
+		return lisp.ResolveTailCalls(fn(flat))
 	default:
 		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
 	}

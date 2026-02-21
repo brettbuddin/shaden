@@ -110,7 +110,7 @@ func evalFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	return env.Eval(v)
+	return lisp.TailCall{Node: v, Env: env}, nil
 }
 
 func readFn(env *lisp.Environment, args lisp.List) (any, error) {

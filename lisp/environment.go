@@ -127,8 +127,34 @@ func (e *Environment) GetSymbol(symbol string) (any, error) {
 	return nil, UndefinedSymbolError{symbol}
 }
 
-// Eval evaluates expressions obtained via the Parser.
+// Eval evaluates expressions obtained via the Parser. It uses a trampoline
+// loop to iteratively resolve TailCall values, enabling tail call optimization
+// without growing the Go call stack.
 func (e *Environment) Eval(node any) (any, error) {
+	var errWrap string
+	for {
+		result, err := e.eval(node)
+		if err != nil {
+			if errWrap != "" {
+				err = errors.Wrap(err, errWrap)
+			}
+			return nil, err
+		}
+		tc, ok := result.(TailCall)
+		if !ok {
+			return result, nil
+		}
+		node = tc.Node
+		e = tc.Env
+		if errWrap == "" && tc.ErrWrap != "" {
+			errWrap = tc.ErrWrap
+		}
+	}
+}
+
+// eval is the internal evaluator. It may return TailCall sentinel values that
+// the trampoline in Eval resolves iteratively.
+func (e *Environment) eval(node any) (any, error) {
 	switch node := node.(type) {
 	case *root:
 		var (
@@ -245,6 +271,12 @@ func (e *Environment) callFunc(name string, fn func(List) (any, error), args Lis
 	if err != nil {
 		return result, errors.Wrapf(err, "failed to call %s", name)
 	}
+	if tc, ok := result.(TailCall); ok {
+		if tc.ErrWrap == "" {
+			tc.ErrWrap = fmt.Sprintf("failed to call %s", name)
+		}
+		return tc, nil
+	}
 	return result, nil
 }
 
@@ -252,6 +284,12 @@ func (e *Environment) callEnvFunc(name string, fn func(*Environment, List) (any,
 	result, err := fn(e, args)
 	if err != nil {
 		return result, errors.Wrapf(err, "failed to call %s", name)
+	}
+	if tc, ok := result.(TailCall); ok {
+		if tc.ErrWrap == "" {
+			tc.ErrWrap = fmt.Sprintf("failed to call %s", name)
+		}
+		return tc, nil
 	}
 	return result, nil
 }

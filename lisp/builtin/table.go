@@ -103,7 +103,7 @@ func tselectFn(args lisp.List) (any, error) {
 	}
 
 	for k, v := range t {
-		result, err := fn(lisp.List{k, v})
+		result, err := lisp.ResolveTailCalls(fn(lisp.List{k, v}))
 		if err != nil {
 			return nil, err
 		}

@@ -224,6 +224,86 @@ func TestParser(t *testing.T) {
 	}
 }
 
+func TestTailCallOptimization(t *testing.T) {
+	// Without TCO these would overflow the Go stack. The large iteration
+	// counts prove that the trampoline is working.
+	var tests = []struct {
+		name   string
+		input  string
+		result any
+	}{
+		{
+			name: "direct recursion via if",
+			input: `
+				(define (countdown n)
+					(if (= n 0) "done" (countdown (- n 1))))
+				(countdown 1000000)`,
+			result: "done",
+		},
+		{
+			name: "mutual recursion",
+			input: `
+				(define (even? n) (if (= n 0) true  (odd?  (- n 1))))
+				(define (odd? n)  (if (= n 0) false (even? (- n 1))))
+				(even? 1000000)`,
+			result: true,
+		},
+		{
+			name: "recursion via cond",
+			input: `
+				(define (classify n)
+					(cond
+						((= n 0) "zero")
+						((< n 0) "negative")
+						(true (classify (- n 1)))))
+				(classify 500000)`,
+			result: "zero",
+		},
+		{
+			name: "recursion via let",
+			input: `
+				(define (loop n)
+					(let ((m (- n 1)))
+						(if (= m 0) "done" (loop m))))
+				(loop 500000)`,
+			result: "done",
+		},
+		{
+			name: "recursion via begin",
+			input: `
+				(define (loop n acc)
+					(if (= n 0) acc
+						(begin (loop (- n 1) (+ acc 1)))))
+				(loop 500000 0)`,
+			result: 500000,
+		},
+		{
+			name: "recursion via when",
+			input: `
+				(define x 500000)
+				(define (dec-loop)
+					(set! x (- x 1))
+					(when (> x 0) (dec-loop)))
+				(dec-loop)
+				x`,
+			result: 0,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			node, err := lisp.Parse(bytes.NewBufferString(test.input))
+			require.NoError(t, err)
+
+			env := lisp.NewEnvironment()
+			Load(env)
+			result, err := env.Eval(node)
+			require.NoError(t, err)
+			require.Equal(t, test.result, result)
+		})
+	}
+}
+
 func TestLoad(t *testing.T) {
 	node, err := lisp.Parse(bytes.NewBufferString(`(load "testdata/load-example.lisp")`))
 	require.NoError(t, err)

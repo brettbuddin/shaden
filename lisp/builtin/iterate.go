@@ -15,7 +15,7 @@ func mapFn(args lisp.List) (any, error) {
 	}
 	var out lisp.List
 	if err := lisp.ForEachEntry(args[1], 2, func(k, v any) error {
-		r, err := fn(lisp.List{k, v})
+		r, err := lisp.ResolveTailCalls(fn(lisp.List{k, v}))
 		if err != nil {
 			return err
 		}
@@ -36,7 +36,7 @@ func eachFn(args lisp.List) (any, error) {
 		return nil, err
 	}
 	if err := lisp.ForEachEntry(args[1], 2, func(k, v any) error {
-		_, err := fn(lisp.List{k, v})
+		_, err := lisp.ResolveTailCalls(fn(lisp.List{k, v}))
 		return err
 	}); err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func reduceFn(args lisp.List) (any, error) {
 	acc := args[1]
 	if err := lisp.ForEachEntry(args[2], 3, func(k, v any) error {
 		var err error
-		acc, err = fn(lisp.List{acc, k, v})
+		acc, err = lisp.ResolveTailCalls(fn(lisp.List{acc, k, v}))
 		return err
 	}); err != nil {
 		return nil, err
