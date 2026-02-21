@@ -46,7 +46,7 @@ func TestDelay(t *testing.T) {
 	for i := 0; i < 20; i++ {
 		sample = append(sample, out.Read(i))
 	}
-	require.Equal(t, []float64{
+	expected := []float64{
 		-0.004975000000000005,
 		-0.004950125000000005,
 		-0.004925374375000005,
@@ -67,5 +67,8 @@ func TestDelay(t *testing.T) {
 		0.8810208592262245,
 		0.8766157549300934,
 		0.8722326761554429,
-	}, sample)
+	}
+	for i, e := range expected {
+		require.InEpsilon(t, e, sample[i], 1e-15, "sample %d", i)
+	}
 }

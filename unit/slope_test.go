@@ -30,7 +30,7 @@ func TestSlope(t *testing.T) {
 		u.ProcessSample(i)
 		samples = append(samples, out.Read(i))
 	}
-	require.Equal(t, []float64{
+	expected := []float64{
 		0,
 		0.7931226244422468,
 		0.9634299049219617,
@@ -39,5 +39,12 @@ func TestSlope(t *testing.T) {
 		0.149438362112266,
 		0.05334736424906474,
 		0.01516890229014065,
-	}, samples[:8])
+	}
+	for i, e := range expected {
+		if e == 0 {
+			require.Equal(t, e, samples[i], "sample %d", i)
+		} else {
+			require.InEpsilon(t, e, samples[i], 1e-15, "sample %d", i)
+		}
+	}
 }

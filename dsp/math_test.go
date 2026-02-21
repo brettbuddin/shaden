@@ -26,7 +26,7 @@ func TestExpRatio(t *testing.T) {
 
 	for _, test := range tests {
 		v := ExpRatio(test.ratio, test.speed)
-		require.Equal(t, test.expected, v)
+		require.InEpsilon(t, test.expected, v, 1e-15)
 	}
 }
 

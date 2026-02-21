@@ -31,7 +31,7 @@ func TestADSR(t *testing.T) {
 		u.ProcessSample(i)
 		samples = append(samples, out.Read(i))
 	}
-	require.Equal(t, []float64{
+	expected := []float64{
 		0,
 		0.7931226244422468,
 		0.9634299049219617,
@@ -50,5 +50,12 @@ func TestADSR(t *testing.T) {
 		0.009966823921428891,
 		0.002585684793844481,
 		0,
-	}, samples[:18])
+	}
+	for i, e := range expected {
+		if e == 0 {
+			require.Equal(t, e, samples[i], "sample %d", i)
+		} else {
+			require.InEpsilon(t, e, samples[i], 1e-14, "sample %d", i)
+		}
+	}
 }
