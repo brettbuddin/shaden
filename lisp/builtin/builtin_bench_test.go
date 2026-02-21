@@ -118,9 +118,12 @@ func BenchmarkEval(b *testing.B) {
 func BenchmarkParse(b *testing.B) {
 	b.Run("simple", func(b *testing.B) {
 		code := []byte(`(+ 1 2)`)
+		buf := bytes.NewBuffer(make([]byte, 0, len(code)))
 		b.ReportAllocs()
 		for b.Loop() {
-			lisp.Parse(bytes.NewBuffer(code))
+			buf.Reset()
+			buf.Write(code)
+			lisp.Parse(buf)
 		}
 	})
 
@@ -136,9 +139,12 @@ func BenchmarkParse(b *testing.B) {
       (y (sum-list (list 1 2 3 4 5))))
   (+ x y))
 `)
+		buf := bytes.NewBuffer(make([]byte, 0, len(code)))
 		b.ReportAllocs()
 		for b.Loop() {
-			lisp.Parse(bytes.NewBuffer(code))
+			buf.Reset()
+			buf.Write(code)
+			lisp.Parse(buf)
 		}
 	})
 }
