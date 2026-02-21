@@ -5,9 +5,11 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/brettbuddin/shaden/dsp"
 	"github.com/brettbuddin/shaden/engine"
-	"github.com/stretchr/testify/require"
+	"github.com/brettbuddin/shaden/randtest"
 )
 
 func TestHz(t *testing.T) {
@@ -21,7 +23,7 @@ func TestHz(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	v, err := run.Eval([]byte(`(hz 440)`))
@@ -58,7 +60,7 @@ func TestMS(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	v, err := run.Eval([]byte(`(ms 1)`))
@@ -87,7 +89,7 @@ func TestBPM(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	v, err := run.Eval([]byte(`(bpm 60)`))
@@ -116,7 +118,7 @@ func TestDB(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	v, err := run.Eval([]byte(`(db 0)`))

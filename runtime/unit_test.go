@@ -12,6 +12,7 @@ import (
 
 	"github.com/brettbuddin/shaden/engine"
 	"github.com/brettbuddin/shaden/lisp"
+	"github.com/brettbuddin/shaden/randtest"
 	"github.com/brettbuddin/shaden/unit"
 )
 
@@ -24,7 +25,7 @@ func TestUnitOutputs(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 	v, err := run.Eval([]byte(`
 		(define noop (unit/noop))
@@ -43,7 +44,7 @@ func TestUnitInputs(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 	v, err := run.Eval([]byte(`
 		(define noop (unit/noop))
@@ -62,7 +63,7 @@ func TestUnitID(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 	v, err := run.Eval([]byte(`
 		(define noop (unit/noop))
@@ -81,7 +82,7 @@ func TestUnitType(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 	v, err := run.Eval([]byte(`
 		(define noop (unit/noop))
@@ -103,7 +104,7 @@ func TestUnitOutput(t *testing.T) {
 
 	done := make(chan struct{})
 	go func() {
-		run, err := New(eng, logger)
+		run, err := New(eng, logger, randtest.Static())
 		require.NoError(t, err)
 		v, err := run.Eval([]byte(`
 			(define noop (unit/noop))
@@ -140,7 +141,7 @@ func TestUnitPatch(t *testing.T) {
 
 	done := make(chan struct{})
 	go func() {
-		run, err := New(eng, logger)
+		run, err := New(eng, logger, randtest.Static())
 		require.NoError(t, err)
 		_, err = run.Eval([]byte(`
 			(define noop (unit/noop))
@@ -174,7 +175,7 @@ func TestUnitUnmount(t *testing.T) {
 
 	done := make(chan struct{})
 	go func() {
-		run, err := New(eng, logger)
+		run, err := New(eng, logger, randtest.Static())
 		require.NoError(t, err)
 		v, err := run.Eval([]byte(`
 			(define noop (unit/noop))
@@ -211,7 +212,7 @@ func TestUnitRemove(t *testing.T) {
 
 	done := make(chan struct{})
 	go func() {
-		run, err := New(eng, logger)
+		run, err := New(eng, logger, randtest.Static())
 		require.NoError(t, err)
 		_, err = run.Eval([]byte(`
 			(define noop (unit/noop))

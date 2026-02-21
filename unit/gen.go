@@ -14,6 +14,7 @@ const (
 
 func newGen(io *IO, c Config) (*Unit, error) {
 	g := &gen{
+		rand:      c.Rand,
 		freq:      io.NewIn("freq", dsp.Frequency(440, c.SampleRate)),
 		amp:       io.NewIn("amp", dsp.Float64(1)),
 		fm:        io.NewIn("freq-mod", dsp.Float64(0)),
@@ -38,6 +39,7 @@ func newGen(io *IO, c Config) (*Unit, error) {
 }
 
 type gen struct {
+	rand                                *rand.Rand
 	freq, amp, fm, pw, sync, pm, offset *In
 	frameSize                           int
 }
@@ -49,7 +51,7 @@ func (g *gen) newFrame() []float64 {
 func (g *gen) newSine(name string, mult float64) *genSine {
 	return &genSine{
 		gen:   g,
-		phase: rand.Float64() * twoPi,
+		phase: g.rand.Float64() * twoPi,
 		mult:  mult,
 		out:   NewOut(name, g.newFrame()),
 	}
@@ -58,7 +60,7 @@ func (g *gen) newSine(name string, mult float64) *genSine {
 func (g *gen) newSaw(name string, mult float64) *genSaw {
 	return &genSaw{
 		gen:   g,
-		phase: rand.Float64() * twoPi,
+		phase: g.rand.Float64() * twoPi,
 		mult:  mult,
 		out:   NewOut(name, g.newFrame()),
 	}
@@ -67,7 +69,7 @@ func (g *gen) newSaw(name string, mult float64) *genSaw {
 func (g *gen) newPulse(name string, mult float64) *genPulse {
 	return &genPulse{
 		gen:   g,
-		phase: rand.Float64() * twoPi,
+		phase: g.rand.Float64() * twoPi,
 		mult:  mult,
 		out:   NewOut(name, g.newFrame()),
 	}
@@ -76,7 +78,7 @@ func (g *gen) newPulse(name string, mult float64) *genPulse {
 func (g *gen) newTriangle() *genTriangle {
 	return &genTriangle{
 		gen:   g,
-		phase: rand.Float64() * twoPi,
+		phase: g.rand.Float64() * twoPi,
 		out:   NewOut("triangle", g.newFrame()),
 	}
 }
@@ -280,7 +282,7 @@ func (o *genNoise) ProcessSample(i int) {
 		offset = o.offset.Read(i)
 		amp    = o.amp.Read(i)
 	)
-	o.out.Write(i, dsp.RandRange(-1, 1)*amp+offset)
+	o.out.Write(i, (o.rand.Float64()*2-1)*amp+offset)
 }
 
 type genCluster struct {
@@ -302,7 +304,7 @@ func (o *genCluster) ProcessSample(i int) {
 		offset = o.offset.Read(i)
 		amp    = o.amp.Read(i)
 	)
-	d := (-math.Log(rand.Float64()) + math.Log(rand.Float64())) * 0.1
+	d := (-math.Log(o.rand.Float64()) + math.Log(o.rand.Float64())) * 0.1
 	if d > 0.5 || d < -0.5 {
 		o.out.Write(i, d*amp+offset)
 	} else {

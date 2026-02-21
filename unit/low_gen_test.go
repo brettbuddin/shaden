@@ -1,11 +1,12 @@
 package unit
 
 import (
-	"math/rand"
 	"testing"
 
-	"github.com/brettbuddin/shaden/dsp"
 	"github.com/stretchr/testify/require"
+
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/randtest"
 )
 
 var _ = []genOutput{
@@ -16,10 +17,9 @@ var _ = []genOutput{
 }
 
 func TestLowGen_Sine(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["low-gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})
@@ -38,10 +38,9 @@ func TestLowGen_Sine(t *testing.T) {
 }
 
 func TestLowGen_Saw(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["low-gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})
@@ -60,10 +59,9 @@ func TestLowGen_Saw(t *testing.T) {
 }
 
 func TestLowGen_Pulse(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["low-gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})
@@ -82,10 +80,9 @@ func TestLowGen_Pulse(t *testing.T) {
 }
 
 func TestLowGen_Triangle(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["low-gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})

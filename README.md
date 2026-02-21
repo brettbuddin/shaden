@@ -25,7 +25,7 @@ The name "shaden" comes from the *Cycle of Galand* book series by Edward W. Robe
 
 ## Dependencies
 
-- [Go 1.9](http://golang.org)+
+- [Go 1.25](https://go.dev)+
 - [PortAudio](http://www.portaudio.com/)
 - [PortMIDI](http://portmedia.sourceforge.net/portmidi/)
 
@@ -35,7 +35,7 @@ On macOS you can install these dependencies with: `brew install go portaudio por
 
 ### Install
 
-    $ go get -u github.com/brettbuddin/shaden
+    $ go install github.com/brettbuddin/shaden@latest
 
 ### CLI Usage
 

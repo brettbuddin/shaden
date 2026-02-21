@@ -9,6 +9,7 @@ import (
 
 func newLowGen(io *IO, c Config) (*Unit, error) {
 	g := &lowGen{
+		rand:      c.Rand,
 		freq:      io.NewIn("freq", dsp.Frequency(1, c.SampleRate)),
 		amp:       io.NewIn("amp", dsp.Float64(1)),
 		pw:        io.NewIn("pulse-width", dsp.Float64(1)),
@@ -28,6 +29,7 @@ func newLowGen(io *IO, c Config) (*Unit, error) {
 }
 
 type lowGen struct {
+	rand                        *rand.Rand
 	freq, amp, pw, offset, sync *In
 	frameSize                   int
 }
@@ -39,7 +41,7 @@ func (g *lowGen) newFrame() []float64 {
 func (g *lowGen) newSine() *lowGenSine {
 	return &lowGenSine{
 		lowGen: g,
-		phase:  rand.Float64() * twoPi,
+		phase:  g.rand.Float64() * twoPi,
 		out:    NewOut("sine", g.newFrame()),
 	}
 }
@@ -47,7 +49,7 @@ func (g *lowGen) newSine() *lowGenSine {
 func (g *lowGen) newSaw() *lowGenSaw {
 	return &lowGenSaw{
 		lowGen: g,
-		phase:  rand.Float64() * twoPi,
+		phase:  g.rand.Float64() * twoPi,
 		out:    NewOut("saw", g.newFrame()),
 	}
 }
@@ -55,7 +57,7 @@ func (g *lowGen) newSaw() *lowGenSaw {
 func (g *lowGen) newPulse() *lowGenPulse {
 	return &lowGenPulse{
 		lowGen: g,
-		phase:  rand.Float64() * twoPi,
+		phase:  g.rand.Float64() * twoPi,
 		out:    NewOut("pulse", g.newFrame()),
 	}
 }
@@ -63,7 +65,7 @@ func (g *lowGen) newPulse() *lowGenPulse {
 func (g *lowGen) newTriangle() *lowGenTriangle {
 	return &lowGenTriangle{
 		lowGen: g,
-		phase:  rand.Float64() * twoPi,
+		phase:  g.rand.Float64() * twoPi,
 		out:    NewOut("triangle", g.newFrame()),
 	}
 }

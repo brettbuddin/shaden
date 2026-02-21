@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 
 	prompt "github.com/c-bata/go-prompt"
@@ -28,17 +29,19 @@ type Engine interface {
 type Runtime struct {
 	base, user *lisp.Environment
 	engine     Engine
+	rand       *rand.Rand
 	logger     *log.Logger
 }
 
 // New returns a new Runtime
-func New(e Engine, logger *log.Logger) (*Runtime, error) {
+func New(e Engine, logger *log.Logger, rng *rand.Rand) (*Runtime, error) {
 	base := lisp.NewEnvironment()
 	builtin.Load(base)
 	r := &Runtime{
 		base:   base,
 		user:   base.Branch(),
 		engine: e,
+		rand:   rng,
 		logger: logger,
 	}
 	if err := r.loadShaden(); err != nil {
@@ -127,7 +130,7 @@ func (r *Runtime) loadShaden() error {
 	env.DefineSymbol("clear", r.engineClear)
 
 	// Units
-	if err := createBuilders(env, engine, logger); err != nil {
+	if err := createBuilders(env, engine, logger, r.rand); err != nil {
 		return err
 	}
 	env.DefineSymbol(nameUnitID, unitIDFn)

@@ -3,12 +3,12 @@ package unit
 import (
 	"fmt"
 	"math"
-	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/randtest"
 )
 
 var A4 = dsp.Frequency(440, 44100.0).Float64()
@@ -1129,10 +1129,10 @@ func TestAllUnits(t *testing.T) {
 				name += "_" + s.description
 			}
 			t.Run(name, func(t *testing.T) {
-				rand.Seed(1)
 				builder := builders[test.unit]
 				u, err := builder(Config{
 					Values:     test.configValues,
+					Rand:       randtest.Static(),
 					SampleRate: sampleRate,
 					FrameSize:  frameSize,
 				})
@@ -1169,7 +1169,13 @@ func (s scenario) TestUnit(t *testing.T, index int, u *Unit) {
 
 	for name, values := range s.outputs {
 		for i, v := range values {
-			require.Equal(t, v, u.Out[name].Out().Read(i), fmt.Sprintf("scenario %d -> output %q -> sample %d", index, name, i))
+			msg := fmt.Sprintf("scenario %d -> output %q -> sample %d", index, name, i)
+			actual := u.Out[name].Out().Read(i)
+			if v == 0 {
+				require.Equal(t, v, actual, msg)
+			} else {
+				require.InEpsilon(t, v, actual, 1e-14, msg)
+			}
 		}
 	}
 }

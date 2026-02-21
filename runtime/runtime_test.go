@@ -6,9 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brettbuddin/shaden/engine"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/brettbuddin/shaden/engine"
+	"github.com/brettbuddin/shaden/randtest"
 )
 
 const (
@@ -29,7 +31,7 @@ func TestEnvironmentClearing(t *testing.T) {
 
 	done := make(chan struct{})
 	go func() {
-		run, err := New(eng, logger)
+		run, err := New(eng, logger, randtest.Static())
 		require.NoError(t, err)
 		run.Eval([]byte(`
 			(define noop (unit/noop))
@@ -64,7 +66,7 @@ func TestEmitting(t *testing.T) {
 
 	done := make(chan struct{})
 	go func() {
-		run, err := New(eng, logger)
+		run, err := New(eng, logger, randtest.Static())
 		require.NoError(t, err)
 		run.Eval([]byte(`
 			(define noop (unit/noop))

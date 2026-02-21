@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 	"text/tabwriter"
 
@@ -93,13 +94,13 @@ func (u *lazyUnit) Replace(v any) error {
 	return reply.Error
 }
 
-func createBuilders(env *lisp.Environment, e Engine, logger *log.Logger) error {
+func createBuilders(env *lisp.Environment, e Engine, logger *log.Logger, rng *rand.Rand) error {
 	builders, err := unitBuilders(e)
 	if err != nil {
 		return err
 	}
 	for name, builder := range builders {
-		defineBuilders(env, builder, e, logger, "unit/"+name)
+		defineBuilders(env, builder, e, logger, rng, "unit/"+name)
 	}
 	return nil
 }
@@ -122,7 +123,7 @@ func unitBuilders(e Engine) (map[string]unit.Builder, error) {
 	return merged, nil
 }
 
-func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logger *log.Logger, name string) {
+func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logger *log.Logger, rng *rand.Rand, name string) {
 	env.DefineSymbol(name, func(args lisp.List) (any, error) {
 		if len(args) > 1 {
 			return nil, errors.Errorf("expects at most 1 argument")
@@ -148,6 +149,7 @@ func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logge
 
 		unit, err := builder(unit.Config{
 			Values:     config,
+			Rand:       rng,
 			SampleRate: e.SampleRate(),
 			FrameSize:  e.FrameSize(),
 		})

@@ -47,6 +47,7 @@ func newStages(io *IO, c Config) (*Unit, error) {
 	}
 
 	return NewUnit(io, &stages{
+		rand:        c.Rand,
 		clock:       io.NewIn("clock", dsp.Float64(-1)),
 		mode:        io.NewIn("mode", dsp.Float64(patternModeForward)),
 		reset:       io.NewIn("reset", dsp.Float64(-1)),
@@ -85,6 +86,7 @@ type stageValues struct {
 }
 
 type stages struct {
+	rand                                       *rand.Rand
 	clock, reset, mode, glideTime, totalStages *In
 	stageInputs                                []*stage
 	out, gate, data, eos, sop                  *Out
@@ -178,7 +180,7 @@ func (s *stages) advanceStage(totalStages, mode int) {
 
 		s.stage += inc
 	case patternModeRandom:
-		s.stage = rand.Intn(totalStages)
+		s.stage = s.rand.Intn(totalStages)
 		s.ping = false
 	}
 }

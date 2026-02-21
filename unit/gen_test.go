@@ -1,11 +1,12 @@
 package unit
 
 import (
-	"math/rand"
 	"testing"
 
-	"github.com/brettbuddin/shaden/dsp"
 	"github.com/stretchr/testify/require"
+
+	"github.com/brettbuddin/shaden/dsp"
+	"github.com/brettbuddin/shaden/randtest"
 )
 
 type genOutput interface {
@@ -23,10 +24,9 @@ var _ = []genOutput{
 }
 
 func TestGen_Sine(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})
@@ -45,10 +45,9 @@ func TestGen_Sine(t *testing.T) {
 }
 
 func TestGen_Saw(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})
@@ -67,10 +66,9 @@ func TestGen_Saw(t *testing.T) {
 }
 
 func TestGen_Pulse(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})
@@ -93,10 +91,9 @@ func TestGen_Pulse(t *testing.T) {
 }
 
 func TestGen_Triangle(t *testing.T) {
-	rand.Seed(1)
-
 	builder := Builders()["gen"]
 	u, err := builder(Config{
+		Rand:       randtest.Static(),
 		SampleRate: sampleRate,
 		FrameSize:  frameSize,
 	})

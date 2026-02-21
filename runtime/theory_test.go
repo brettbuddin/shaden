@@ -5,13 +5,15 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/musictheory/intervals"
 	"github.com/brettbuddin/shaden/dsp"
 	"github.com/brettbuddin/shaden/engine"
 	"github.com/brettbuddin/shaden/lisp"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/brettbuddin/shaden/randtest"
 )
 
 func TestInterval(t *testing.T) {
@@ -22,7 +24,7 @@ func TestInterval(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -58,7 +60,7 @@ func TestTranspose(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	v, err := run.Eval([]byte(`(theory/transpose (hz "A4") (theory/interval :minor 3))`))
@@ -77,7 +79,7 @@ func TestScale(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	root, _ := musictheory.ParsePitch("C4")
@@ -140,7 +142,7 @@ func TestChord(t *testing.T) {
 	)
 
 	require.NoError(t, err)
-	run, err := New(eng, logger)
+	run, err := New(eng, logger, randtest.Static())
 	require.NoError(t, err)
 
 	root, _ := musictheory.ParsePitch("C4")

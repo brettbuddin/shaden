@@ -1,6 +1,10 @@
 package unit
 
-import "github.com/mitchellh/mapstructure"
+import (
+	"math/rand"
+
+	"github.com/mitchellh/mapstructure"
+)
 
 var (
 	builders = map[string]IOBuilder{
@@ -96,6 +100,7 @@ type Builder func(Config) (*Unit, error)
 // Config is a map that's used to provide configuration options to Builders.
 type Config struct {
 	Values                map[string]any
+	Rand                  *rand.Rand
 	SampleRate, FrameSize int
 }
 

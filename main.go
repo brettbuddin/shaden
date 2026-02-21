@@ -33,7 +33,7 @@ func main() {
 }
 
 func run(cfg Config) error {
-	rand.Seed(cfg.Seed)
+	rng := rand.New(rand.NewSource(cfg.Seed))
 
 	dest := os.Stdout
 	if cfg.REPL {
@@ -110,7 +110,7 @@ func run(cfg Config) error {
 	}
 
 	// Create the lisp runtime
-	run, err := runtime.New(e, logger)
+	run, err := runtime.New(e, logger, rng)
 	if err != nil {
 		return errors.Wrap(err, "start lisp runtime failed")
 	}
