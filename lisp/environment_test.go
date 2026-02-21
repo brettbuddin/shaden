@@ -87,7 +87,7 @@ func TestEnvironment_BranchParentLookup(t *testing.T) {
 
 func TestEnvironment_FunctionCall(t *testing.T) {
 	env := NewEnvironment()
-	env.DefineSymbol("hello", func(args List) (interface{}, error) {
+	env.DefineSymbol("hello", func(args List) (any, error) {
 		return "hello " + args[0].(string), nil
 	})
 
@@ -98,7 +98,7 @@ func TestEnvironment_FunctionCall(t *testing.T) {
 
 func TestEnvironment_FunctionInterfaceCall(t *testing.T) {
 	env := NewEnvironment()
-	env.DefineSymbol("hello", function(func(args List) (interface{}, error) {
+	env.DefineSymbol("hello", function(func(args List) (any, error) {
 		return "hello " + args[0].(string), nil
 	}))
 
@@ -109,7 +109,7 @@ func TestEnvironment_FunctionInterfaceCall(t *testing.T) {
 
 func TestEnvironment_EnvFunctionCall(t *testing.T) {
 	env := NewEnvironment()
-	env.DefineSymbol("hello", func(env *Environment, args List) (interface{}, error) {
+	env.DefineSymbol("hello", func(env *Environment, args List) (any, error) {
 		v, err := env.Eval(args[0])
 		if err != nil {
 			return nil, err
@@ -124,7 +124,7 @@ func TestEnvironment_EnvFunctionCall(t *testing.T) {
 
 func TestEnvironment_EnvFunctionInterfaceCall(t *testing.T) {
 	env := NewEnvironment()
-	env.DefineSymbol("hello", envFunction(func(env *Environment, args List) (interface{}, error) {
+	env.DefineSymbol("hello", envFunction(func(env *Environment, args List) (any, error) {
 		v, err := env.Eval(args[0])
 		if err != nil {
 			return nil, err
@@ -139,8 +139,8 @@ func TestEnvironment_EnvFunctionInterfaceCall(t *testing.T) {
 
 func TestEnvironment_ValueIdentity(t *testing.T) {
 	tests := []struct {
-		input  interface{}
-		result interface{}
+		input  any
+		result any
 	}{
 		{nil, nil},
 		{1, 1},
@@ -160,18 +160,18 @@ func TestEnvironment_ValueIdentity(t *testing.T) {
 	}
 }
 
-type function func(List) (interface{}, error)
+type function func(List) (any, error)
 
 func (function) Name() string { return "function" }
 
-func (f function) Func(l List) (interface{}, error) {
+func (f function) Func(l List) (any, error) {
 	return f(l)
 }
 
-type envFunction func(*Environment, List) (interface{}, error)
+type envFunction func(*Environment, List) (any, error)
 
 func (envFunction) Name() string { return "env function" }
 
-func (f envFunction) EnvFunc(env *Environment, l List) (interface{}, error) {
+func (f envFunction) EnvFunc(env *Environment, l List) (any, error) {
 	return f(env, l)
 }

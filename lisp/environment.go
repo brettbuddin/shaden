@@ -13,13 +13,13 @@ const unquote = Symbol("unquote")
 type Environment struct {
 	sync.RWMutex
 	parent  *Environment
-	symbols map[string]interface{}
+	symbols map[string]any
 }
 
 // NewEnvironment returns a new Environment.
 func NewEnvironment() *Environment {
 	return &Environment{
-		symbols: map[string]interface{}{},
+		symbols: map[string]any{},
 	}
 }
 
@@ -29,12 +29,12 @@ func (e *Environment) Branch() *Environment {
 	defer e.RUnlock()
 	return &Environment{
 		parent:  e,
-		symbols: map[string]interface{}{},
+		symbols: map[string]any{},
 	}
 }
 
 // DefineSymbol defines a symbol.
-func (e *Environment) DefineSymbol(symbol string, v interface{}) error {
+func (e *Environment) DefineSymbol(symbol string, v any) error {
 	e.RLock()
 	exist, ok := e.symbols[symbol]
 	e.RUnlock()
@@ -53,7 +53,7 @@ func (e *Environment) DefineSymbol(symbol string, v interface{}) error {
 
 // SetSymbol sets the value of a symbol. Like GetSymbol, it advances to parent Environments if the symbol cannot be
 // found in the current context. If the value has not been defined yet, it errors.
-func (e *Environment) SetSymbol(symbol string, v interface{}) error {
+func (e *Environment) SetSymbol(symbol string, v any) error {
 	env := e
 	for env != nil {
 		env.RLock()
@@ -76,9 +76,9 @@ func (e *Environment) SetSymbol(symbol string, v interface{}) error {
 	return UndefinedSymbolError{symbol}
 }
 
-func replace(existing, replacement interface{}) error {
+func replace(existing, replacement any) error {
 	type replacer interface {
-		Replace(v interface{}) error
+		Replace(v any) error
 	}
 
 	switch v := existing.(type) {
@@ -89,7 +89,7 @@ func replace(existing, replacement interface{}) error {
 		if !ok {
 			return nil
 		}
-		fn, ok := el.(func(List) (interface{}, error))
+		fn, ok := el.(func(List) (any, error))
 		if !ok {
 			return errors.New("table key :__replace should be a function")
 		}
@@ -115,7 +115,7 @@ func (e *Environment) UnsetSymbol(symbol string) error {
 
 // GetSymbol performs a symbol lookup and returns the value if its present. If the symbol cannot be found in the current
 // Environment context, it advances to the parent to see if can be found there.
-func (e *Environment) GetSymbol(symbol string) (interface{}, error) {
+func (e *Environment) GetSymbol(symbol string) (any, error) {
 	e.RLock()
 	defer e.RUnlock()
 	for e != nil {
@@ -128,11 +128,11 @@ func (e *Environment) GetSymbol(symbol string) (interface{}, error) {
 }
 
 // Eval evaluates expressions obtained via the Parser.
-func (e *Environment) Eval(node interface{}) (interface{}, error) {
+func (e *Environment) Eval(node any) (any, error) {
 	switch node := node.(type) {
 	case *root:
 		var (
-			value interface{}
+			value any
 			err   error
 		)
 		for _, node := range node.Nodes {
@@ -159,13 +159,13 @@ func (e *Environment) Eval(node interface{}) (interface{}, error) {
 // QuasiQuoteEval is a special evaluation mode that is used in quasiquoting. Like `quote` it doesn't evaluate any
 // expressions. However, unlike `quote` it can evaluation some nested expressions marked by the special `unquote`
 // function invocation.
-func (e *Environment) QuasiQuoteEval(node interface{}) (interface{}, error) {
+func (e *Environment) QuasiQuoteEval(node any) (any, error) {
 	switch node := node.(type) {
 	case List:
 		var result List
 		for _, n := range node {
 			var (
-				v        interface{}
+				v        any
 				err      error
 				list, ok = n.(List)
 			)
@@ -198,7 +198,7 @@ func (e *Environment) QuasiQuoteEval(node interface{}) (interface{}, error) {
 	}
 }
 
-func (e *Environment) call(nodes List) (interface{}, error) {
+func (e *Environment) call(nodes List) (any, error) {
 	if len(nodes) == 0 {
 		return List{}, nil
 	}
@@ -217,7 +217,7 @@ func (e *Environment) call(nodes List) (interface{}, error) {
 			return nil, errors.Wrap(err, evalArgsErrorMsg(name))
 		}
 		return e.callFunc(name, fn.Func, vargs)
-	case func(List) (interface{}, error):
+	case func(List) (any, error):
 		name := fnName(head)
 		vargs, err := e.evalArgs(rest)
 		if err != nil {
@@ -226,21 +226,21 @@ func (e *Environment) call(nodes List) (interface{}, error) {
 		return e.callFunc(name, fn, vargs)
 	case EnvFunc:
 		return e.callEnvFunc(fn.Name(), fn.EnvFunc, rest)
-	case func(*Environment, List) (interface{}, error):
+	case func(*Environment, List) (any, error):
 		name := fnName(head)
 		return e.callEnvFunc(name, fn, rest)
 	}
 	return nil, errors.Errorf("uncallable function %#v", fn)
 }
 
-func fnName(v interface{}) string {
+func fnName(v any) string {
 	if sym, ok := v.(Symbol); ok {
 		return string(sym)
 	}
 	return "anonymous function"
 }
 
-func (e *Environment) callFunc(name string, fn func(List) (interface{}, error), args List) (interface{}, error) {
+func (e *Environment) callFunc(name string, fn func(List) (any, error), args List) (any, error) {
 	result, err := fn(args)
 	if err != nil {
 		return result, errors.Wrapf(err, "failed to call %s", name)
@@ -248,7 +248,7 @@ func (e *Environment) callFunc(name string, fn func(List) (interface{}, error), 
 	return result, nil
 }
 
-func (e *Environment) callEnvFunc(name string, fn func(*Environment, List) (interface{}, error), args List) (interface{}, error) {
+func (e *Environment) callEnvFunc(name string, fn func(*Environment, List) (any, error), args List) (any, error) {
 	result, err := fn(e, args)
 	if err != nil {
 		return result, errors.Wrapf(err, "failed to call %s", name)

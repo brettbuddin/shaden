@@ -128,7 +128,7 @@ func (e *Engine) Stop() error {
 	return err
 }
 
-func (e *Engine) call(action interface{}) error {
+func (e *Engine) call(action any) error {
 	switch fn := action.(type) {
 	case func(e *Engine) error:
 		return fn(e)

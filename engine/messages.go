@@ -5,7 +5,7 @@ import (
 )
 
 // NewMessage creates a new Message to be sent to the Engine for evaluation.
-func NewMessage(action interface{}) *Message {
+func NewMessage(action any) *Message {
 	return &Message{
 		Action: action,
 		Reply:  make(chan *Reply),
@@ -15,7 +15,7 @@ func NewMessage(action interface{}) *Message {
 // Message is a payload that contains an operation that the Engine can process and channel that must be received on by
 // the goroutine sending the Message.
 type Message struct {
-	Action interface{}
+	Action any
 	Reply  chan *Reply
 }
 

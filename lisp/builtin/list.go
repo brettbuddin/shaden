@@ -4,11 +4,11 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func listFn(args lisp.List) (interface{}, error) {
+func listFn(args lisp.List) (any, error) {
 	return args, nil
 }
 
-func reverseFn(args lisp.List) (interface{}, error) {
+func reverseFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func reverseFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func consFn(args lisp.List) (interface{}, error) {
+func consFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func consFn(args lisp.List) (interface{}, error) {
 	return list, nil
 }
 
-func firstFn(args lisp.List) (interface{}, error) {
+func firstFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func firstFn(args lisp.List) (interface{}, error) {
 	return list[0], nil
 }
 
-func restFn(args lisp.List) (interface{}, error) {
+func restFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func restFn(args lisp.List) (interface{}, error) {
 	return list[1:], nil
 }
 
-func appendFn(args lisp.List) (interface{}, error) {
+func appendFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func appendFn(args lisp.List) (interface{}, error) {
 	return append(list, args[1:]...), nil
 }
 
-func prependFn(args lisp.List) (interface{}, error) {
+func prependFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 1); err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func prependFn(args lisp.List) (interface{}, error) {
 	return append(args[1:], list...), nil
 }
 
-func lenFn(args lisp.List) (interface{}, error) {
+func lenFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}

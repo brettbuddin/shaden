@@ -8,7 +8,7 @@ import (
 
 // Evaler evaluates script content sent via HTTP.
 type Evaler interface {
-	Eval([]byte) (interface{}, error)
+	Eval([]byte) (any, error)
 }
 
 // ServeMux is a mux abstraction.

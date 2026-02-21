@@ -78,7 +78,7 @@ func (r *Runtime) REPL(done chan struct{}) {
 }
 
 // Eval parses and evaluates lisp expressions.
-func (r *Runtime) Eval(code []byte) (interface{}, error) {
+func (r *Runtime) Eval(code []byte) (any, error) {
 	node, err := lisp.Parse(bytes.NewBuffer(code))
 	if err != nil {
 		return nil, err
@@ -193,7 +193,7 @@ func (r *Runtime) loadConstants(env *lisp.Environment, sampleRate, frameSize int
 	env.DefineSymbol("mode/average", 1)
 }
 
-func (r *Runtime) engineClear(*lisp.Environment, lisp.List) (interface{}, error) {
+func (r *Runtime) engineClear(*lisp.Environment, lisp.List) (any, error) {
 	msg := engine.NewMessage(engine.Clear)
 	if err := r.engine.SendMessage(msg); err != nil {
 		return nil, err

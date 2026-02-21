@@ -5,7 +5,7 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func tableFn(args lisp.List) (interface{}, error) {
+func tableFn(args lisp.List) (any, error) {
 	if len(args)%2 != 0 {
 		return nil, errors.New("expects an even number of arguments")
 	}
@@ -16,7 +16,7 @@ func tableFn(args lisp.List) (interface{}, error) {
 	return m, nil
 }
 
-func tgetFn(args lisp.List) (interface{}, error) {
+func tgetFn(args lisp.List) (any, error) {
 	if len(args) < 2 || len(args) > 3 {
 		return nil, errors.Errorf("expects 2 or 3 arguments")
 	}
@@ -33,7 +33,7 @@ func tgetFn(args lisp.List) (interface{}, error) {
 	return nil, nil
 }
 
-func tsetFn(args lisp.List) (interface{}, error) {
+func tsetFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 3); err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func tsetFn(args lisp.List) (interface{}, error) {
 	return nil, nil
 }
 
-func tdeleteFn(args lisp.List) (interface{}, error) {
+func tdeleteFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func tdeleteFn(args lisp.List) (interface{}, error) {
 	return nil, nil
 }
 
-func texistsFn(args lisp.List) (interface{}, error) {
+func texistsFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func texistsFn(args lisp.List) (interface{}, error) {
 	return ok, nil
 }
 
-func mergeFn(args lisp.List) (interface{}, error) {
+func mergeFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func mergeFn(args lisp.List) (interface{}, error) {
 	return m, nil
 }
 
-func tselectFn(args lisp.List) (interface{}, error) {
+func tselectFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func tselectFn(args lisp.List) (interface{}, error) {
 		return nil, lisp.ArgExpectError(lisp.TypeTable, 1)
 	}
 
-	fn, ok := args[1].(func(lisp.List) (interface{}, error))
+	fn, ok := args[1].(func(lisp.List) (any, error))
 	if !ok {
 		return nil, lisp.ArgExpectError(lisp.TypeFunction, 2)
 	}

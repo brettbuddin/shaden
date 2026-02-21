@@ -17,7 +17,7 @@ func New(msg string) error {
 }
 
 // Errorf creates a new error with a specific formatting
-func Errorf(format string, args ...interface{}) error {
+func Errorf(format string, args ...any) error {
 	return &Error{
 		error: fmt.Errorf(format, args...),
 	}
@@ -32,7 +32,7 @@ func Wrap(err error, msg string) error {
 }
 
 // Wrapf creates a new error with a specific formatting with another error as its cause
-func Wrapf(err error, format string, args ...interface{}) error {
+func Wrapf(err error, format string, args ...any) error {
 	return &Error{
 		error: fmt.Errorf(format, args...),
 		cause: err,

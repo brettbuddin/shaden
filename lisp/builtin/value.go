@@ -8,7 +8,18 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func typeFn(args lisp.List) (interface{}, error) {
+// isType returns a lisp builtin that checks whether its single argument is of type T.
+func isType[T any]() func(lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
+		if err := lisp.CheckArityEqual(args, 1); err != nil {
+			return nil, err
+		}
+		_, ok := args[0].(T)
+		return ok, nil
+	}
+}
+
+func typeFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -27,30 +38,30 @@ func typeFn(args lisp.List) (interface{}, error) {
 		return lisp.TypeList, nil
 	case lisp.Table:
 		return lisp.TypeTable, nil
-	case func(lisp.List) (interface{}, error):
+	case func(lisp.List) (any, error):
 		return lisp.TypeFunction, nil
-	case func(*lisp.Environment, lisp.List) (interface{}, error):
+	case func(*lisp.Environment, lisp.List) (any, error):
 		return lisp.TypeFunction, nil
 	default:
 		return fmt.Sprintf("%T", v), nil
 	}
 }
 
-func quoteFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func quoteFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if len(args) == 0 {
 		return nil, nil
 	}
 	return args[0], nil
 }
 
-func quasiquoteFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func quasiquoteFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if len(args) == 0 {
 		return nil, nil
 	}
 	return env.QuasiQuoteEval(args[0])
 }
 
-func keywordFn(args lisp.List) (interface{}, error) {
+func keywordFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -64,7 +75,7 @@ func keywordFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func stringFn(args lisp.List) (interface{}, error) {
+func stringFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -78,54 +89,14 @@ func stringFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func isErrorFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(error)
-	return ok, nil
-}
-
-func isNilFn(args lisp.List) (interface{}, error) {
+func isNilFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
 	return args[0] == nil, nil
 }
 
-func isStringFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(string)
-	return ok, nil
-}
-
-func isBoolFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(bool)
-	return ok, nil
-}
-
-func isIntFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(int)
-	return ok, nil
-}
-
-func isFloatFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(float64)
-	return ok, nil
-}
-
-func isNumberFn(args lisp.List) (interface{}, error) {
+func isNumberFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -137,7 +108,7 @@ func isNumberFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func isFnFn(args lisp.List) (interface{}, error) {
+func isFnFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -148,23 +119,7 @@ func isFnFn(args lisp.List) (interface{}, error) {
 	return reflect.TypeOf(args[0]).Kind() == reflect.Func, nil
 }
 
-func isKeywordFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(lisp.Keyword)
-	return ok, nil
-}
-
-func isSymbolFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(lisp.Symbol)
-	return ok, nil
-}
-
-func symbolFn(args lisp.List) (interface{}, error) {
+func symbolFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -178,23 +133,7 @@ func symbolFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func isListFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(lisp.List)
-	return ok, nil
-}
-
-func isTableFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityEqual(args, 1); err != nil {
-		return nil, err
-	}
-	_, ok := args[0].(lisp.Table)
-	return ok, nil
-}
-
-func isEmptyFn(args lisp.List) (interface{}, error) {
+func isEmptyFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -215,7 +154,7 @@ func isEmptyFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func intFn(args lisp.List) (interface{}, error) {
+func intFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -229,21 +168,18 @@ func intFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func floatFn(args lisp.List) (interface{}, error) {
+func floatFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
-	switch v := args[0].(type) {
-	case float64:
-		return v, nil
-	case int:
-		return float64(v), nil
-	default:
-		return nil, errors.Errorf("expects numeric type for argument 1")
+	f, err := lisp.ExtractFloat64(args[0], 1)
+	if err != nil {
+		return nil, err
 	}
+	return f, nil
 }
 
-func isDefinedFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func isDefinedFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}

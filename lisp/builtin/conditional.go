@@ -5,71 +5,58 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func equalFn(args lisp.List) (value interface{}, err error) {
+func equalFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	return args[0] == args[1], nil
 }
 
-func notEqualFn(args lisp.List) (value interface{}, err error) {
+func notEqualFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
 	return args[0] != args[1], nil
 }
 
-func lessThanFn(args lisp.List) (value interface{}, err error) {
+// compareOrdered compares two values of the same ordered type.
+func compareOrdered[T ~int | ~float64](x, y T, less bool) bool {
+	if less {
+		return x < y
+	}
+	return x > y
+}
+
+// compareValues dispatches a comparison over the lisp numeric types.
+func compareValues(args lisp.List, less bool) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
-
 	switch x := args[0].(type) {
 	case int:
-		switch y := args[1].(type) {
-		case int:
-			return x < y, nil
-		default:
-			return nil, errors.Errorf("cannot compare %T and %T", x, y)
+		if y, ok := args[1].(int); ok {
+			return compareOrdered(x, y, less), nil
 		}
+		return nil, errors.Errorf("cannot compare %T and %T", args[0], args[1])
 	case float64:
-		switch y := args[1].(type) {
-		case float64:
-			return x < y, nil
-		default:
-			return nil, errors.Errorf("cannot compare %T and %T", x, y)
+		if y, ok := args[1].(float64); ok {
+			return compareOrdered(x, y, less), nil
 		}
+		return nil, errors.Errorf("cannot compare %T and %T", args[0], args[1])
 	default:
 		return nil, errors.Errorf("cannot compare %T and %T", args[0], args[1])
 	}
 }
 
-func greaterThanFn(args lisp.List) (value interface{}, err error) {
-	if err := lisp.CheckArityEqual(args, 2); err != nil {
-		return nil, err
-	}
-
-	switch x := args[0].(type) {
-	case int:
-		switch y := args[1].(type) {
-		case int:
-			return x > y, nil
-		default:
-			return nil, errors.Errorf("cannot compare %T and %T", x, y)
-		}
-	case float64:
-		switch y := args[1].(type) {
-		case float64:
-			return x > y, nil
-		default:
-			return nil, errors.Errorf("cannot compare %T and %T", x, y)
-		}
-	default:
-		return nil, errors.Errorf("cannot compare %T and %T", args[0], args[1])
-	}
+func lessThanFn(args lisp.List) (any, error) {
+	return compareValues(args, true)
 }
 
-func andFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func greaterThanFn(args lisp.List) (any, error) {
+	return compareValues(args, false)
+}
+
+func andFn(env *lisp.Environment, args lisp.List) (any, error) {
 	arity := len(args)
 	if arity == 0 {
 		return true, nil
@@ -77,7 +64,7 @@ func andFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		return args[0], nil
 	}
 	var (
-		value interface{}
+		value any
 		err   error
 	)
 	for _, arg := range args {
@@ -92,7 +79,7 @@ func andFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return true, nil
 }
 
-func orFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func orFn(env *lisp.Environment, args lisp.List) (any, error) {
 	arity := len(args)
 	if arity == 0 {
 		return false, nil
@@ -100,7 +87,7 @@ func orFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		return args[0], nil
 	}
 	var (
-		value interface{}
+		value any
 		err   error
 	)
 	for _, arg := range args {
@@ -115,7 +102,7 @@ func orFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return false, nil
 }
 
-func notFn(args lisp.List) (interface{}, error) {
+func notFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -132,7 +119,7 @@ func notFn(args lisp.List) (interface{}, error) {
 	return condition, nil
 }
 
-func ifFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func ifFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 3); err != nil {
 		return nil, err
 	}
@@ -153,7 +140,7 @@ func ifFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return env.Eval(args[2])
 }
 
-func whenFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func whenFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -168,7 +155,7 @@ func whenFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	if ok && !condition {
 		return nil, nil
 	}
-	var value interface{}
+	var value any
 	for _, arg := range args[1:] {
 		value, err = env.Eval(arg)
 		if err != nil {
@@ -178,7 +165,7 @@ func whenFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return value, nil
 }
 
-func unlessFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func unlessFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -193,7 +180,7 @@ func unlessFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	if !ok || condition {
 		return nil, nil
 	}
-	var value interface{}
+	var value any
 	for _, arg := range args[1:] {
 		value, err = env.Eval(arg)
 		if err != nil {
@@ -203,7 +190,7 @@ func unlessFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return value, nil
 }
 
-func condFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func condFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 1); err != nil {
 		return nil, err
 	}

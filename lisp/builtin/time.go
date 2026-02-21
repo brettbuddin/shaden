@@ -6,22 +6,14 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func sleepFn(args lisp.List) (interface{}, error) {
+func sleepFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 1); err != nil {
 		return nil, err
 	}
-
-	var d time.Duration
-	switch v := args[0].(type) {
-	case int:
-		d = time.Duration(v)
-	case float64:
-		d = time.Duration(v)
-	default:
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 1)
+	f, err := lisp.ExtractFloat64(args[0], 1)
+	if err != nil {
+		return nil, err
 	}
-
-	time.Sleep(d * time.Second)
-
+	time.Sleep(time.Duration(f) * time.Second)
 	return nil, nil
 }

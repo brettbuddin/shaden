@@ -32,7 +32,7 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("append", appendFn)
 	env.DefineSymbol("apply", applyFn)
 	env.DefineSymbol("begin", beginFn)
-	env.DefineSymbol("bool?", isBoolFn)
+	env.DefineSymbol("bool?", isType[bool]())
 	env.DefineSymbol("cond", condFn)
 	env.DefineSymbol("cons", consFn)
 	env.DefineSymbol("define", defineFn)
@@ -42,23 +42,23 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("each", eachFn)
 	env.DefineSymbol("empty?", isEmptyFn)
 	env.DefineSymbol("error", errorFn)
-	env.DefineSymbol("error?", isErrorFn)
+	env.DefineSymbol("error?", isType[error]())
 	env.DefineSymbol("errorf", errorfFn)
 	env.DefineSymbol("eval", evalFn)
 	env.DefineSymbol("first", firstFn)
 	env.DefineSymbol("float", floatFn)
-	env.DefineSymbol("float?", isFloatFn)
+	env.DefineSymbol("float?", isType[float64]())
 	env.DefineSymbol("fn", fnFn)
 	env.DefineSymbol("fn?", isFnFn)
 	env.DefineSymbol("if", ifFn)
 	env.DefineSymbol("int", intFn)
-	env.DefineSymbol("int?", isIntFn)
+	env.DefineSymbol("int?", isType[int]())
 	env.DefineSymbol("keyword", keywordFn)
-	env.DefineSymbol("keyword?", isKeywordFn)
+	env.DefineSymbol("keyword?", isType[lisp.Keyword]())
 	env.DefineSymbol("len", lenFn)
 	env.DefineSymbol("let", letFn)
 	env.DefineSymbol("list", listFn)
-	env.DefineSymbol("list?", isListFn)
+	env.DefineSymbol("list?", isType[lisp.List]())
 	env.DefineSymbol("load", loadFn)
 	env.DefineSymbol("load-path", loadPath)
 	env.DefineSymbol("map", mapFn)
@@ -85,9 +85,9 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("string-replace", stringReplaceFn)
 	env.DefineSymbol("sprintf", sprintfFn)
 	env.DefineSymbol("string", stringFn)
-	env.DefineSymbol("string?", isStringFn)
+	env.DefineSymbol("string?", isType[string]())
 	env.DefineSymbol("symbol", symbolFn)
-	env.DefineSymbol("symbol?", isSymbolFn)
+	env.DefineSymbol("symbol?", isType[lisp.Symbol]())
 	env.DefineSymbol("table", tableFn)
 	env.DefineSymbol("table-delete!", tdeleteFn)
 	env.DefineSymbol("table-exists?", texistsFn)
@@ -95,14 +95,14 @@ func Load(env *lisp.Environment) {
 	env.DefineSymbol("table-merge", mergeFn)
 	env.DefineSymbol("table-set!", tsetFn)
 	env.DefineSymbol("table-select", tselectFn)
-	env.DefineSymbol("table?", isTableFn)
+	env.DefineSymbol("table?", isType[lisp.Table]())
 	env.DefineSymbol("type", typeFn)
 	env.DefineSymbol("undefine", undefineFn)
 	env.DefineSymbol("unless", unlessFn)
 	env.DefineSymbol("when", whenFn)
 }
 
-func evalFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func evalFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func evalFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return env.Eval(v)
 }
 
-func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func readFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func readFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return node, nil
 }
 
-func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func defineFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func defineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 }
 
-func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func defineMacroFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func defineMacroFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	}
 }
 
-func setFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func setFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func setFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return nil, env.SetSymbol(string(symbol), value)
 }
 
-func undefineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func undefineFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -215,12 +215,12 @@ func undefineFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return nil, nil
 }
 
-func printlnFn(args lisp.List) (interface{}, error) {
+func printlnFn(args lisp.List) (any, error) {
 	fmt.Println(args...)
 	return nil, nil
 }
 
-func printfFn(args lisp.List) (interface{}, error) {
+func printfFn(args lisp.List) (any, error) {
 	format, ok := args[0].(string)
 	if !ok {
 		return nil, lisp.ArgExpectError(lisp.TypeString, 1)
@@ -229,7 +229,7 @@ func printfFn(args lisp.List) (interface{}, error) {
 	return nil, nil
 }
 
-func sprintfFn(args lisp.List) (interface{}, error) {
+func sprintfFn(args lisp.List) (any, error) {
 	format, ok := args[0].(string)
 	if !ok {
 		return nil, lisp.ArgExpectError(lisp.TypeString, 1)

@@ -12,7 +12,7 @@ import (
 )
 
 // Parse parses lisp expressions in the content from an io.Reader.
-func Parse(r io.Reader) (interface{}, error) {
+func Parse(r io.Reader) (any, error) {
 	buf, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ type root struct {
 	Nodes List
 }
 
-func (p *parser) Parse() (interface{}, error) {
+func (p *parser) Parse() (any, error) {
 	nodes := List{}
 	if err := p.parse(&nodes); err != nil {
 		p.lexer.drain()

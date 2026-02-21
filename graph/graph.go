@@ -25,7 +25,7 @@ func New() *Graph {
 func (g *Graph) Size() int { return len(g.nodes) }
 
 // NewNode creates a new Node in the Graph.
-func (g *Graph) NewNode(v interface{}) *Node {
+func (g *Graph) NewNode(v any) *Node {
 	n := &Node{
 		graph: g,
 		idx:   len(g.nodes),

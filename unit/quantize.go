@@ -17,8 +17,8 @@ type intervals struct {
 	sig       string
 }
 
-func intervalSetter(p *Prop, v interface{}) error {
-	slice, ok := v.([]interface{})
+func intervalSetter(p *Prop, v any) error {
+	slice, ok := v.([]any)
 	if !ok {
 		return InvalidPropValueError{Prop: p, Value: v}
 	}

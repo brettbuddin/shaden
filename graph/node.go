@@ -10,7 +10,7 @@ type Node struct {
 	idx             int
 	searchState     searchState
 	outputs, inputs []connection
-	Value           interface{}
+	Value           any
 }
 
 // InNeighbors returns only neighboring Nodes with an inbound connection to this Node

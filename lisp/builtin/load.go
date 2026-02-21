@@ -8,7 +8,7 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func loadFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func loadFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}

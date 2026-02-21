@@ -10,10 +10,10 @@ const (
 	symbolAmpersand  = lisp.Symbol("&")
 )
 
-func beginFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func beginFn(env *lisp.Environment, args lisp.List) (any, error) {
 	env = env.Branch()
 	var (
-		value interface{}
+		value any
 		err   error
 	)
 	for _, arg := range args {
@@ -25,7 +25,7 @@ func beginFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return value, nil
 }
 
-func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func letFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 		}
 	}
 	var (
-		value interface{}
+		value any
 		err   error
 	)
 	for _, arg := range args[1:] {
@@ -65,7 +65,7 @@ func letFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return value, nil
 }
 
-func fnFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func fnFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -81,15 +81,15 @@ func fnFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return buildFunction(env, params, args[1:]), nil
 }
 
-func buildFunction(env *lisp.Environment, defArgs, body lisp.List) func(lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func buildFunction(env *lisp.Environment, defArgs, body lisp.List) func(lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		env = env.Branch()
 		return functionEvaluate(env, args, defArgs, body)
 	}
 }
 
-func buildMacroFunction(env *lisp.Environment, defArgs, body lisp.List) func(*lisp.Environment, lisp.List) (interface{}, error) {
-	return func(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func buildMacroFunction(env *lisp.Environment, defArgs, body lisp.List) func(*lisp.Environment, lisp.List) (any, error) {
+	return func(env *lisp.Environment, args lisp.List) (any, error) {
 		env = env.Branch()
 		v, err := functionEvaluate(env, args, defArgs, body)
 		if err != nil {
@@ -110,7 +110,7 @@ func functionArityError(defCount, givenCount int) error {
 	}
 }
 
-func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (interface{}, error) {
+func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (any, error) {
 	// Locate the variadic symbol "&" position
 	var (
 		variadicAt     = -1
@@ -154,7 +154,7 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (int
 	}
 
 	var (
-		value interface{}
+		value any
 		err   error
 	)
 	for _, arg := range body {
@@ -166,7 +166,7 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (int
 	return value, nil
 }
 
-func applyFn(args lisp.List) (interface{}, error) {
+func applyFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func applyFn(args lisp.List) (interface{}, error) {
 	switch fn := args[0].(type) {
 	case lisp.Func:
 		return fn.Func(flat)
-	case func(lisp.List) (interface{}, error):
+	case func(lisp.List) (any, error):
 		return fn(flat)
 	default:
 		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)

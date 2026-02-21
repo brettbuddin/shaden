@@ -8,7 +8,7 @@ import (
 
 func newDebug(io *IO, c Config) (*Unit, error) {
 	return NewUnit(io, &debug{
-		fmt: io.NewProp("fmt", "%.8f", func(p *Prop, v interface{}) error {
+		fmt: io.NewProp("fmt", "%.8f", func(p *Prop, v any) error {
 			p.value = v
 			return nil
 		}),

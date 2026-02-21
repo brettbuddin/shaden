@@ -70,7 +70,7 @@ func (u *lazyUnit) mounted() (*unit.Unit, error) {
 // Replace is called by the lisp layer when a symbol binding is about to be
 // replaced by another value. In this case, it gives us an opportunity to swap
 // out a unit with another one.
-func (u *lazyUnit) Replace(v interface{}) error {
+func (u *lazyUnit) Replace(v any) error {
 	otherUnit, ok := v.(*lazyUnit)
 	if !ok {
 		return nil
@@ -123,12 +123,12 @@ func unitBuilders(e Engine) (map[string]unit.Builder, error) {
 }
 
 func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logger *log.Logger, name string) {
-	env.DefineSymbol(name, func(args lisp.List) (interface{}, error) {
+	env.DefineSymbol(name, func(args lisp.List) (any, error) {
 		if len(args) > 1 {
 			return nil, errors.Errorf("expects at most 1 argument")
 		}
 
-		config := map[string]interface{}{}
+		config := map[string]any{}
 		if len(args) == 1 {
 			m, ok := args[0].(lisp.Table)
 			if !ok {
@@ -177,8 +177,8 @@ func defineBuilders(env *lisp.Environment, builder unit.Builder, e Engine, logge
 	})
 }
 
-func unitRemoveFn(e Engine, logger *log.Logger) func(*lisp.Environment, lisp.List) (interface{}, error) {
-	return func(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func unitRemoveFn(e Engine, logger *log.Logger) func(*lisp.Environment, lisp.List) (any, error) {
+	return func(env *lisp.Environment, args lisp.List) (any, error) {
 		if err := lisp.CheckArityEqual(args, 1); err != nil {
 			return nil, err
 		}
@@ -205,8 +205,8 @@ func unitRemoveFn(e Engine, logger *log.Logger) func(*lisp.Environment, lisp.Lis
 	}
 }
 
-func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		if err := lisp.CheckArityEqual(args, 1); err != nil {
 			return nil, err
 		}
@@ -241,8 +241,8 @@ func unitUnmountFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, e
 	}
 }
 
-func patchFn(e Engine, logger *log.Logger, forceReset bool) func(lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func patchFn(e Engine, logger *log.Logger, forceReset bool) func(lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 			return nil, err
 		}
@@ -292,8 +292,8 @@ func patchFn(e Engine, logger *log.Logger, forceReset bool) func(lisp.List) (int
 	}
 }
 
-func patchableInputs(args lisp.List) (map[string]interface{}, error) {
-	inputs := map[string]interface{}{}
+func patchableInputs(args lisp.List) (map[string]any, error) {
+	inputs := map[string]any{}
 
 	if len(args) == 2 {
 		switch first := args[0].(type) {
@@ -336,16 +336,16 @@ func patchableInputs(args lisp.List) (map[string]interface{}, error) {
 	return inputs, nil
 }
 
-func patchableValue(v interface{}) interface{} {
+func patchableValue(v any) any {
 	switch value := v.(type) {
 	case lisp.List:
-		s := make([]interface{}, len(value))
+		s := make([]any, len(value))
 		for i, v := range value {
 			s[i] = patchableValue(v)
 		}
 		return s
 	case lisp.Table:
-		m := map[string]interface{}{}
+		m := map[string]any{}
 		for k, v := range value {
 			m[fmt.Sprint(k)] = patchableValue(v)
 		}
@@ -355,8 +355,8 @@ func patchableValue(v interface{}) interface{} {
 	}
 }
 
-func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func emitFn(e Engine, logger *log.Logger) func(lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		if len(args) < 1 || len(args) > 2 {
 			return nil, errors.Errorf("expects 1 or 2 arguments")
 		}
@@ -396,8 +396,8 @@ func emitFn(e Engine, logger *log.Logger) func(lisp.List) (interface{}, error) {
 	}
 }
 
-func outFn(e Engine) func(lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func outFn(e Engine) func(lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		if len(args) < 1 || len(args) > 2 {
 			return nil, errors.Errorf("expects 1 or 2 arguments")
 		}
@@ -439,7 +439,7 @@ func outFn(e Engine) func(lisp.List) (interface{}, error) {
 	}
 }
 
-func unitInputsFn(args lisp.List) (interface{}, error) {
+func unitInputsFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -454,7 +454,7 @@ func unitInputsFn(args lisp.List) (interface{}, error) {
 	return inputs, nil
 }
 
-func unitOutputsFn(args lisp.List) (interface{}, error) {
+func unitOutputsFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -469,7 +469,7 @@ func unitOutputsFn(args lisp.List) (interface{}, error) {
 	return outputs, nil
 }
 
-func unitTypeFn(args lisp.List) (interface{}, error) {
+func unitTypeFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}
@@ -480,7 +480,7 @@ func unitTypeFn(args lisp.List) (interface{}, error) {
 	return lazy.typ, nil
 }
 
-func unitIDFn(args lisp.List) (interface{}, error) {
+func unitIDFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}

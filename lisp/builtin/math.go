@@ -8,62 +8,43 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func multFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
-		return nil, err
-	}
+// foldNumeric applies intOp/floatOp across a list of numeric arguments.
+// It preserves the int type when no float64 values are present.
+// For commutative ops (sum, mult), set firstIsIdentity=true so the identity
+// value seeds both accumulators. For non-commutative ops (diff, div), set
+// firstIsIdentity=false so the first arg seeds the accumulators instead.
+func foldNumeric(
+	args lisp.List,
+	intOp func(a, b int) int,
+	floatOp func(a, b float64) float64,
+	identity int,
+	firstIsIdentity bool,
+	verb string,
+) (any, error) {
 	var (
-		outi      = int(1)
-		outf      = float64(1)
-		seenFloat bool
-	)
-	for _, arg := range args {
-		switch arg := arg.(type) {
-		case int:
-			outi *= arg
-			outf *= float64(arg)
-		case float64:
-			outf *= arg
-			seenFloat = true
-		default:
-			return nil, errors.Errorf("cannot multiply %#v", arg)
-		}
-	}
-	if seenFloat {
-		return outf, nil
-	}
-	return outi, nil
-}
-
-func divFn(args lisp.List) (interface{}, error) {
-	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
-		return nil, err
-	}
-	var (
-		arity     = len(args)
-		outi      int
-		outf      float64
+		outi      = identity
+		outf      = float64(identity)
 		seenFloat bool
 	)
 	for i, arg := range args {
-		switch arg := arg.(type) {
+		switch v := arg.(type) {
 		case int:
-			if i == 0 && arity > 1 {
-				outi = arg
-				outf = float64(arg)
+			if i == 0 && !firstIsIdentity {
+				outi = v
+				outf = float64(v)
 			} else {
-				outi /= arg
-				outf /= float64(arg)
+				outi = intOp(outi, v)
+				outf = floatOp(outf, float64(v))
 			}
 		case float64:
-			if i == 0 && arity > 1 {
-				outf = float64(arg)
+			if i == 0 && !firstIsIdentity {
+				outf = v
 			} else {
-				outf /= arg
+				outf = floatOp(outf, v)
 			}
 			seenFloat = true
 		default:
-			return nil, errors.Errorf("cannot divide %#v", arg)
+			return nil, errors.Errorf("cannot %s %#v", verb, arg)
 		}
 	}
 	if seenFloat {
@@ -72,97 +53,62 @@ func divFn(args lisp.List) (interface{}, error) {
 	return outi, nil
 }
 
-func sumFn(args lisp.List) (interface{}, error) {
+func sumFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
-	var (
-		outi      int
-		outf      float64
-		seenFloat bool
-	)
-	for _, arg := range args {
-		switch arg := arg.(type) {
-		case int:
-			outi += arg
-			outf += float64(arg)
-		case float64:
-			outf += arg
-			seenFloat = true
-		default:
-			return nil, errors.Errorf("cannot add %#v", arg)
-		}
-	}
-	if seenFloat {
-		return outf, nil
-	}
-	return outi, nil
+	return foldNumeric(args,
+		func(a, b int) int { return a + b },
+		func(a, b float64) float64 { return a + b },
+		0, true, "add")
 }
 
-func diffFn(args lisp.List) (interface{}, error) {
+func diffFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
 		return nil, err
 	}
-	var (
-		arity     = len(args)
-		outi      int
-		outf      float64
-		seenFloat bool
-	)
-	for i, arg := range args {
-		switch arg := arg.(type) {
-		case int:
-			if i == 0 && arity > 1 {
-				outi = arg
-				outf = float64(arg)
-			} else {
-				outi -= arg
-				outf -= float64(arg)
-			}
-		case float64:
-			if i == 0 && arity > 1 {
-				outf = float64(arg)
-			} else {
-				outf -= arg
-			}
-			seenFloat = true
-		default:
-			return nil, errors.Errorf("cannot subtract %#v", arg)
-		}
-	}
-	if seenFloat {
-		return outf, nil
-	}
-	return outi, nil
+	return foldNumeric(args,
+		func(a, b int) int { return a - b },
+		func(a, b float64) float64 { return a - b },
+		0, false, "subtract")
 }
 
-func powFn(args lisp.List) (interface{}, error) {
+func multFn(args lisp.List) (any, error) {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
+		return nil, err
+	}
+	return foldNumeric(args,
+		func(a, b int) int { return a * b },
+		func(a, b float64) float64 { return a * b },
+		1, true, "multiply")
+}
+
+func divFn(args lisp.List) (any, error) {
+	if err := lisp.CheckArityAtLeast(args, 2); err != nil {
+		return nil, err
+	}
+	return foldNumeric(args,
+		func(a, b int) int { return a / b },
+		func(a, b float64) float64 { return a / b },
+		0, false, "divide")
+}
+
+func powFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
-
-	var x, y float64
-
-	if v, ok := args[0].(int); ok {
-		x = float64(v)
-	} else if f, ok := args[0].(float64); ok {
-		x = f
-	} else {
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 1)
+	x, err := lisp.ExtractFloat64(args[0], 1)
+	if err != nil {
+		return nil, err
 	}
-
-	if v, ok := args[1].(int); ok {
-		y = float64(v)
-	} else if f, ok := args[1].(float64); ok {
-		y = f
-	} else {
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeInt, lisp.TypeFloat), 2)
+	y, err := lisp.ExtractFloat64(args[1], 2)
+	if err != nil {
+		return nil, err
 	}
-
 	return math.Pow(x, y), nil
 }
 
-func randFn(args lisp.List) (value interface{}, err error) {
+func randFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 0); err != nil {
 		return nil, err
 	}

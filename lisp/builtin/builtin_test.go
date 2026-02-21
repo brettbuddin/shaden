@@ -14,7 +14,7 @@ func TestParser(t *testing.T) {
 
 	var tests = []struct {
 		input  []byte
-		result interface{}
+		result any
 		error  string
 	}{
 		// Comments

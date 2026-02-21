@@ -1,6 +1,6 @@
 module github.com/brettbuddin/shaden
 
-go 1.15
+go 1.18
 
 require (
 	github.com/brettbuddin/musictheory v0.0.14

@@ -7,7 +7,7 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func stringSplitFn(args lisp.List) (interface{}, error) {
+func stringSplitFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func stringSplitFn(args lisp.List) (interface{}, error) {
 	return lst, nil
 }
 
-func stringJoinFn(args lisp.List) (interface{}, error) {
+func stringJoinFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func stringJoinFn(args lisp.List) (interface{}, error) {
 	return strings.Join(strs, delim), nil
 }
 
-func stringHasPrefixFn(args lisp.List) (interface{}, error) {
+func stringHasPrefixFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func stringHasPrefixFn(args lisp.List) (interface{}, error) {
 	return strings.HasPrefix(str, prefix), nil
 }
 
-func stringReplaceFn(args lisp.List) (interface{}, error) {
+func stringReplaceFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 4); err != nil {
 		return nil, err
 	}

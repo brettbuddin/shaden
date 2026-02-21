@@ -5,92 +5,65 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func mapFn(args lisp.List) (interface{}, error) {
+func mapFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
-	fn, ok := args[0].(func(lisp.List) (interface{}, error))
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
+	fn, err := lisp.ExtractArg[func(lisp.List) (any, error)](args, 0, lisp.TypeFunction)
+	if err != nil {
+		return nil, err
 	}
-
-	switch v := args[1].(type) {
-	case lisp.List:
-		var out lisp.List
-		for i, e := range v {
-			r, err := fn(lisp.List{i, e})
-			if err != nil {
-				return nil, err
-			}
-			out = append(out, r)
+	var out lisp.List
+	if err := lisp.ForEachEntry(args[1], 2, func(k, v any) error {
+		r, err := fn(lisp.List{k, v})
+		if err != nil {
+			return err
 		}
-		return out, nil
-	case lisp.Table:
-		var out lisp.List
-		for k, e := range v {
-			r, err := fn(lisp.List{k, e})
-			if err != nil {
-				return nil, err
-			}
-			out = append(out, r)
-		}
-		return out, nil
-	default:
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeList, lisp.TypeTable), 2)
+		out = append(out, r)
+		return nil
+	}); err != nil {
+		return nil, err
 	}
+	return out, nil
 }
 
-func eachFn(args lisp.List) (interface{}, error) {
+func eachFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
-	fn, ok := args[0].(func(lisp.List) (interface{}, error))
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
+	fn, err := lisp.ExtractArg[func(lisp.List) (any, error)](args, 0, lisp.TypeFunction)
+	if err != nil {
+		return nil, err
 	}
-
-	switch v := args[1].(type) {
-	case lisp.List:
-		for i, e := range v {
-			_, err := fn(lisp.List{i, e})
-			if err != nil {
-				return nil, err
-			}
-		}
-		return v, nil
-	case lisp.Table:
-		for k, e := range v {
-			_, err := fn(lisp.List{k, e})
-			if err != nil {
-				return nil, err
-			}
-		}
-		return v, nil
-	default:
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeList, lisp.TypeTable), 2)
+	if err := lisp.ForEachEntry(args[1], 2, func(k, v any) error {
+		_, err := fn(lisp.List{k, v})
+		return err
+	}); err != nil {
+		return nil, err
 	}
+	return args[1], nil
 }
 
-func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
+func dotimesFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
-	binding, ok := args[0].(lisp.List)
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeList, 1)
+	binding, err := lisp.ExtractArg[lisp.List](args, 0, lisp.TypeList)
+	if err != nil {
+		return nil, err
 	}
 	if len(binding) != 2 {
 		return nil, lisp.ArgExpectError("name/value pair binding", 1)
 	}
 
-	body, ok := args[1].(lisp.List)
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeList, 2)
+	body, err := lisp.ExtractArg[lisp.List](args, 1, lisp.TypeList)
+	if err != nil {
+		return nil, err
 	}
 
 	env = env.Branch()
-	name, ok := binding[0].(lisp.Symbol)
-	if !ok {
+	name, err := lisp.Extract[lisp.Symbol](binding[0], 1, lisp.TypeSymbol)
+	if err != nil {
 		return nil, errors.Errorf("expects binding name to be a symbol")
 	}
 	value, err := env.Eval(binding[1])
@@ -117,37 +90,21 @@ func dotimesFn(env *lisp.Environment, args lisp.List) (interface{}, error) {
 	return nil, nil
 }
 
-func reduceFn(args lisp.List) (interface{}, error) {
+func reduceFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 3); err != nil {
 		return nil, err
 	}
-	fn, ok := args[0].(func(lisp.List) (interface{}, error))
-	if !ok {
-		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
+	fn, err := lisp.ExtractArg[func(lisp.List) (any, error)](args, 0, lisp.TypeFunction)
+	if err != nil {
+		return nil, err
 	}
-
-	switch v := args[2].(type) {
-	case lisp.List:
-		reduce := args[1]
+	acc := args[1]
+	if err := lisp.ForEachEntry(args[2], 3, func(k, v any) error {
 		var err error
-		for i, e := range v {
-			reduce, err = fn(lisp.List{reduce, i, e})
-			if err != nil {
-				return nil, err
-			}
-		}
-		return reduce, nil
-	case lisp.Table:
-		reduce := args[1]
-		var err error
-		for k, e := range v {
-			reduce, err = fn(lisp.List{reduce, k, e})
-			if err != nil {
-				return nil, err
-			}
-		}
-		return reduce, nil
-	default:
-		return nil, lisp.ArgExpectError(lisp.AcceptTypes(lisp.TypeList, lisp.TypeTable), 3)
+		acc, err = fn(lisp.List{acc, k, v})
+		return err
+	}); err != nil {
+		return nil, err
 	}
+	return acc, nil
 }

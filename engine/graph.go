@@ -96,7 +96,7 @@ func (g *Graph) Close() error {
 }
 
 // Patch patches a value into an input.
-func (g *Graph) Patch(v interface{}, in *unit.In) error {
+func (g *Graph) Patch(v any, in *unit.In) error {
 	switch v := v.(type) {
 	case float64:
 		if err := g.Unpatch(in); err != nil {

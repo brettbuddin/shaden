@@ -25,7 +25,7 @@ func loadTheory(env *lisp.Environment, sampleRate int) {
 	env.DefineSymbol("theory/chord", chordFn(sampleRate))
 }
 
-func intervalFn(args lisp.List) (interface{}, error) {
+func intervalFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 2); err != nil {
 		return nil, err
 	}
@@ -65,8 +65,8 @@ func intervalFn(args lisp.List) (interface{}, error) {
 	}
 }
 
-func transposeFn(sampleRate int) func(args lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func transposeFn(sampleRate int) func(args lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		if err := lisp.CheckArityEqual(args, 2); err != nil {
 			return nil, err
 		}
@@ -82,8 +82,8 @@ func transposeFn(sampleRate int) func(args lisp.List) (interface{}, error) {
 	}
 }
 
-func scaleFn(sampleRate int) func(args lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func scaleFn(sampleRate int) func(args lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		if err := lisp.CheckArityEqual(args, 3); err != nil {
 			return nil, err
 		}
@@ -120,8 +120,8 @@ func scaleFn(sampleRate int) func(args lisp.List) (interface{}, error) {
 	}
 }
 
-func chordFn(sampleRate int) func(args lisp.List) (interface{}, error) {
-	return func(args lisp.List) (interface{}, error) {
+func chordFn(sampleRate int) func(args lisp.List) (any, error) {
+	return func(args lisp.List) (any, error) {
 		if err := lisp.CheckArityEqual(args, 2); err != nil {
 			return nil, err
 		}

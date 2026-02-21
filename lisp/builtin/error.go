@@ -5,7 +5,7 @@ import (
 	"github.com/brettbuddin/shaden/lisp"
 )
 
-func errorfFn(args lisp.List) (interface{}, error) {
+func errorfFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityAtLeast(args, 1); err != nil {
 		return nil, err
 	}
@@ -16,7 +16,7 @@ func errorfFn(args lisp.List) (interface{}, error) {
 	return errors.Errorf(format, args[1:]...), nil
 }
 
-func errorFn(args lisp.List) (interface{}, error) {
+func errorFn(args lisp.List) (any, error) {
 	if err := lisp.CheckArityEqual(args, 1); err != nil {
 		return nil, err
 	}

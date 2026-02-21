@@ -77,7 +77,7 @@ func (l *lexer) next() rune {
 	return r
 }
 
-func (l *lexer) errorf(format string, args ...interface{}) stateFn {
+func (l *lexer) errorf(format string, args ...any) stateFn {
 	l.tokens <- token{tokenError, l.start, fmt.Sprintf(format, args...), l.line}
 	return nil
 }

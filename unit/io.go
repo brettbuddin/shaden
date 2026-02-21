@@ -33,7 +33,7 @@ func NewIO(typ string, frameSize int) *IO {
 }
 
 // NewProp registers a new property
-func (io *IO) NewProp(name string, v interface{}, setter func(*Prop, interface{}) error) *Prop {
+func (io *IO) NewProp(name string, v any, setter func(*Prop, any) error) *Prop {
 	switch assert := v.(type) {
 	case int:
 		v = float64(assert)

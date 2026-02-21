@@ -50,7 +50,7 @@ func EmitOutputs(left, right unit.OutRef) func(*Graph) error {
 
 // PatchInput patches values into a Unit's Ins. If `forceReset` is set to `true` all Ins on that Unit that haven't been
 // referenced in `inputs` will be reset to their default values.
-func PatchInput(u *unit.Unit, inputs map[string]interface{}, forceReset bool) func(*Graph) error {
+func PatchInput(u *unit.Unit, inputs map[string]any, forceReset bool) func(*Graph) error {
 	seen := make(map[string]struct{}, len(u.In))
 	return func(g *Graph) error {
 		for k, v := range inputs {

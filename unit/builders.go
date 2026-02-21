@@ -95,12 +95,12 @@ type Builder func(Config) (*Unit, error)
 
 // Config is a map that's used to provide configuration options to Builders.
 type Config struct {
-	Values                map[string]interface{}
+	Values                map[string]any
 	SampleRate, FrameSize int
 }
 
 // Decode loads a struct with the contents of the raw Config object.
-func (c Config) Decode(v interface{}) error {
+func (c Config) Decode(v any) error {
 	return mapstructure.Decode(c.Values, v)
 }
 
