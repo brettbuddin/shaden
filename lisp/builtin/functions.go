@@ -20,7 +20,7 @@ func beginFn(env *lisp.Environment, args lisp.List) (any, error) {
 			return nil, err
 		}
 	}
-	return lisp.TailCall{Node: args[len(args)-1], Env: env}, nil
+	return env.TailEval(args[len(args)-1]), nil
 }
 
 func letFn(env *lisp.Environment, args lisp.List) (any, error) {
@@ -56,7 +56,7 @@ func letFn(env *lisp.Environment, args lisp.List) (any, error) {
 			return nil, err
 		}
 	}
-	return lisp.TailCall{Node: body[len(body)-1], Env: env}, nil
+	return env.TailEval(body[len(body)-1]), nil
 }
 
 func fnFn(env *lisp.Environment, args lisp.List) (any, error) {
@@ -92,7 +92,7 @@ func buildMacroFunction(env *lisp.Environment, defArgs, body lisp.List) func(*li
 		if err != nil {
 			return nil, err
 		}
-		return lisp.TailCall{Node: v, Env: env}, nil
+		return env.TailEval(v), nil
 	}
 }
 
@@ -155,7 +155,7 @@ func functionEvaluate(env *lisp.Environment, args, defArgs, body lisp.List) (any
 			return nil, err
 		}
 	}
-	return lisp.TailCall{Node: body[len(body)-1], Env: env}, nil
+	return env.TailEval(body[len(body)-1]), nil
 }
 
 func applyFn(args lisp.List) (any, error) {
@@ -177,9 +177,9 @@ func applyFn(args lisp.List) (any, error) {
 
 	switch fn := args[0].(type) {
 	case lisp.Func:
-		return lisp.ResolveTailCalls(fn.Func(flat))
+		return fn.Func(flat)
 	case func(lisp.List) (any, error):
-		return lisp.ResolveTailCalls(fn(flat))
+		return fn(flat)
 	default:
 		return nil, lisp.ArgExpectError(lisp.TypeFunction, 1)
 	}

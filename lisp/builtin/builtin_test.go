@@ -161,13 +161,13 @@ func TestParser(t *testing.T) {
 		{input: []byte(`(unless 5 "hello")`), result: nil},
 		{input: []byte(`(or)`), result: false},
 		{input: []byte(`(or 1)`), result: 1},
-		{input: []byte(`(or 1 1)`), result: true},
-		{input: []byte(`(or nil 1)`), result: true},
-		{input: []byte(`(or false 1)`), result: true},
+		{input: []byte(`(or 1 1)`), result: 1},
+		{input: []byte(`(or nil 1)`), result: 1},
+		{input: []byte(`(or false 1)`), result: 1},
 		{input: []byte(`(and)`), result: true},
 		{input: []byte(`(and 1)`), result: 1},
-		{input: []byte(`(and 1 2)`), result: true},
-		{input: []byte(`(and 1 nil)`), result: false},
+		{input: []byte(`(and 1 2)`), result: 2},
+		{input: []byte(`(and 1 nil)`), result: nil},
 		{input: []byte(`(and 1 false)`), result: false},
 		{input: []byte(`(and false 1)`), result: false},
 
@@ -287,6 +287,30 @@ func TestTailCallOptimization(t *testing.T) {
 				(dec-loop)
 				x`,
 			result: 0,
+		},
+		{
+			name: "recursion via and",
+			input: `
+				(define (loop n)
+					(and (> n 0) (loop (- n 1))))
+				(loop 500000)`,
+			result: false,
+		},
+		{
+			name: "recursion via or",
+			input: `
+				(define (loop n)
+					(or (= n 0) (loop (- n 1))))
+				(loop 500000)`,
+			result: true,
+		},
+		{
+			name: "recursion via apply",
+			input: `
+				(define (countdown n)
+					(if (= n 0) "done" (apply countdown (list (- n 1)))))
+				(countdown 500000)`,
+			result: "done",
 		},
 	}
 

@@ -127,6 +127,13 @@ func (e *Environment) GetSymbol(symbol string) (any, error) {
 	return nil, UndefinedSymbolError{symbol}
 }
 
+// TailEval returns a TailCall that defers evaluation of node to the
+// trampoline loop in Eval. Special forms should use this for their
+// tail-position sub-expressions instead of calling Eval directly.
+func (e *Environment) TailEval(node any) TailCall {
+	return TailCall{Node: node, Env: e}
+}
+
 // Eval evaluates expressions obtained via the Parser. It uses a trampoline
 // loop to iteratively resolve TailCall values, enabling tail call optimization
 // without growing the Go call stack.

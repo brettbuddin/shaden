@@ -60,46 +60,34 @@ func andFn(env *lisp.Environment, args lisp.List) (any, error) {
 	arity := len(args)
 	if arity == 0 {
 		return true, nil
-	} else if arity == 1 {
-		return args[0], nil
 	}
-	var (
-		value any
-		err   error
-	)
-	for _, arg := range args {
-		value, err = env.Eval(arg)
+	for _, arg := range args[:arity-1] {
+		value, err := env.Eval(arg)
 		if err != nil {
 			return nil, err
 		}
 		if value == nil || value == false {
-			return false, nil
+			return value, nil
 		}
 	}
-	return true, nil
+	return env.TailEval(args[arity-1]), nil
 }
 
 func orFn(env *lisp.Environment, args lisp.List) (any, error) {
 	arity := len(args)
 	if arity == 0 {
 		return false, nil
-	} else if arity == 1 {
-		return args[0], nil
 	}
-	var (
-		value any
-		err   error
-	)
-	for _, arg := range args {
-		value, err = env.Eval(arg)
+	for _, arg := range args[:arity-1] {
+		value, err := env.Eval(arg)
 		if err != nil {
 			return nil, err
 		}
 		if value != nil && value != false {
-			return true, nil
+			return value, nil
 		}
 	}
-	return false, nil
+	return env.TailEval(args[arity-1]), nil
 }
 
 func notFn(args lisp.List) (any, error) {
@@ -128,16 +116,16 @@ func ifFn(env *lisp.Environment, args lisp.List) (any, error) {
 		return nil, err
 	}
 	if v == nil {
-		return lisp.TailCall{Node: args[2], Env: env}, nil
+		return env.TailEval(args[2]), nil
 	}
 	condition, ok := v.(bool)
 	if !ok {
-		return lisp.TailCall{Node: args[1], Env: env}, nil
+		return env.TailEval(args[1]), nil
 	}
 	if condition {
-		return lisp.TailCall{Node: args[1], Env: env}, nil
+		return env.TailEval(args[1]), nil
 	}
-	return lisp.TailCall{Node: args[2], Env: env}, nil
+	return env.TailEval(args[2]), nil
 }
 
 func whenFn(env *lisp.Environment, args lisp.List) (any, error) {
@@ -155,7 +143,7 @@ func whenFn(env *lisp.Environment, args lisp.List) (any, error) {
 	if ok && !condition {
 		return nil, nil
 	}
-	return lisp.TailCall{Node: args[1], Env: env}, nil
+	return env.TailEval(args[1]), nil
 }
 
 func unlessFn(env *lisp.Environment, args lisp.List) (any, error) {
@@ -167,13 +155,13 @@ func unlessFn(env *lisp.Environment, args lisp.List) (any, error) {
 		return nil, err
 	}
 	if v == nil {
-		return lisp.TailCall{Node: args[1], Env: env}, nil
+		return env.TailEval(args[1]), nil
 	}
 	condition, ok := v.(bool)
 	if !ok || condition {
 		return nil, nil
 	}
-	return lisp.TailCall{Node: args[1], Env: env}, nil
+	return env.TailEval(args[1]), nil
 }
 
 func condFn(env *lisp.Environment, args lisp.List) (any, error) {
@@ -194,7 +182,7 @@ func condFn(env *lisp.Environment, args lisp.List) (any, error) {
 			} else if testBool, ok := test.(bool); ok && !testBool {
 				continue
 			}
-			return lisp.TailCall{Node: list[1], Env: env}, nil
+			return env.TailEval(list[1]), nil
 		}
 	}
 	return nil, nil
